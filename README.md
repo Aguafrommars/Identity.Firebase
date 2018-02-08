@@ -1,2 +1,2 @@
 # Identity.Firebase
-Identity store for Firbase
+Identity store for Firebase
