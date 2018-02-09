@@ -7,9 +7,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C8860BFF-CF8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2068ADBE-BD98-4D00-A01C-15074A3E0D63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aguacongas.Identity.Firebase", "src\Aguacongas.Identity.Firebase\Aguacongas.Identity.Firebase.csproj", "{1D6C437A-9C39-4F17-9248-B9D465CB6412}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Identity.Firebase", "src\Aguacongas.Identity.Firebase\Aguacongas.Identity.Firebase.csproj", "{1D6C437A-9C39-4F17-9248-B9D465CB6412}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aguacongase.Identity.Firebase.Test", "test\Aguacongase.Identity.Firebase.Test\Aguacongase.Identity.Firebase.Test.csproj", "{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Identity.Firebase.Test", "test\Aguacongas.Identity.Firebase.Test\Aguacongas.Identity.Firebase.Test.csproj", "{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Firebase", "src\Aguacongas.Firebase\Aguacongas.Firebase.csproj", "{3F1A5774-74FB-4887-9B7A-D88C8246893D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Firebase.Test", "test\Aguacongas.Firebase.Test\Aguacongas.Firebase.Test.csproj", "{186D392B-2330-4CED-8568-2E8CA04434A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{957EC864-21C0-4964-A1F0-32F39E538B07}"
+	ProjectSection(SolutionItems) = preProject
+		cover.cmd = cover.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +34,14 @@ Global
 		{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F1A5774-74FB-4887-9B7A-D88C8246893D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F1A5774-74FB-4887-9B7A-D88C8246893D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F1A5774-74FB-4887-9B7A-D88C8246893D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F1A5774-74FB-4887-9B7A-D88C8246893D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{186D392B-2330-4CED-8568-2E8CA04434A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{186D392B-2330-4CED-8568-2E8CA04434A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{186D392B-2330-4CED-8568-2E8CA04434A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{186D392B-2330-4CED-8568-2E8CA04434A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +49,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1D6C437A-9C39-4F17-9248-B9D465CB6412} = {C8860BFF-CF88-4368-9B29-E486606A6649}
 		{5CD874F7-DD16-42CD-B60E-62BB8BBCCC31} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
+		{3F1A5774-74FB-4887-9B7A-D88C8246893D} = {C8860BFF-CF88-4368-9B29-E486606A6649}
+		{186D392B-2330-4CED-8568-2E8CA04434A5} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DCB8F9E7-93CA-40BF-ADE6-55E23192FE72}
