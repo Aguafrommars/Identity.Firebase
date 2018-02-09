@@ -13,10 +13,6 @@ build_script:
 - cmd: msbuild src\Aguacongas.Firebase /t:Publish /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release /p:TargetFramework=net462
 test_script:
 - cmd: cover.cmd
-- cmd: 7z a coverage.zip coverage
-artifacts:
-- path: coverage.zip
-  name: coverage
 on_success:
     - git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
