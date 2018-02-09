@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Projects\Perso\Identity.Firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordTokenManager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Aguacongas.Firebase.TokenManager
+{
+    public class EmailPasswordTokenManager : IFirebaseTokenManager
+    {
+        private readonly HttpClient _httpClient;
+        private readonly EmailPasswordOptions _options;
+        private readonly AuthRequest _authRequest;
+        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        private DateTime _nextRenewTime = DateTime.MinValue;
+        private string _authKey;
+
+
+        public EmailPasswordTokenManager(HttpClient httpClient, IOptions&lt;EmailPasswordOptions&gt; options)
+        {
+            _httpClient = httpClient;
+            _options = options.Value;
+            _authRequest = new AuthRequest
+            {
+                Email = _options.Email,
+                Password = _options.Password
+            };            
+        }
+        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (_nextRenewTime &gt; DateTime.UtcNow.AddSeconds(-1))
+            {
+                return _authKey;
+            }
+
+            var content = _httpClient.CreateJsonContent(_authRequest, _jsonSerializerSettings);
+
+            var response = await _httpClient.PostAsync($&quot;{_options.SignUpUrl}?key={_options.ApiKey}&quot;, content, cancellationToken);
+
+            var authResponse = await response.DeserializeResponseAsync&lt;AuthResponse&gt;(_jsonSerializerSettings);
+            _authKey = authResponse.IdToken;
+            _nextRenewTime = DateTime.UtcNow.AddSeconds(authResponse.ExpiresIn);
+
+            return _authKey;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[16,9,21,11,1],[23,9,23,61,1],[27,9,27,104,1],[28,9,28,10,1],[29,13,29,38,1],[30,13,30,38,1],[31,13,35,15,1],[36,9,36,10,1],[38,9,38,10,1],[39,13,39,65,1],[40,13,40,14,1],[41,17,41,33,1],[44,13,44,96,1],[46,13,46,131,1],[48,13,48,111,1],[49,13,49,45,1],[50,13,50,81,1],[52,13,52,29,1],[53,9,53,10,1]]);
+    </script>
+  </body>
+</html>

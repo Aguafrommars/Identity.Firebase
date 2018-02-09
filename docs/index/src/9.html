@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Projects\Perso\Identity.Firebase\src\Aguacongas.Identity.Firebase\UserStore.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+
+namespace Aguacongas.Identity.Firebase
+{
+    public class UserStore&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt; :
+        UserStoreBase&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt;
+        where TUser : IdentityUser&lt;TKey&gt;
+        where TRole : IdentityRole&lt;TKey&gt;
+        where TKey : IEquatable&lt;TKey&gt;
+        where TUserClaim : IdentityUserClaim&lt;TKey&gt;, new()
+        where TUserRole : IdentityUserRole&lt;TKey&gt;, new()
+        where TUserLogin : IdentityUserLogin&lt;TKey&gt;, new()
+        where TUserToken : IdentityUserToken&lt;TKey&gt;, new()
+        where TRoleClaim : IdentityRoleClaim&lt;TKey&gt;, new()
+    {
+        public UserStore(IdentityErrorDescriber describer) : base(describer)
+        {
+        }
+
+        public override Task&lt;IdentityResult&gt; CreateAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IdentityResult&gt; UpdateAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IdentityResult&gt; DeleteAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;TUser&gt; FindByIdAsync(string userId, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;TUser&gt; FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TUser&gt; FindUserAsync(TKey userId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TUserLogin&gt; FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TUserLogin&gt; FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IList&lt;Claim&gt;&gt; GetClaimsAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task AddClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RemoveClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IList&lt;TUser&gt;&gt; GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TUserToken&gt; FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task AddUserTokenAsync(TUserToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task RemoveUserTokenAsync(TUserToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IQueryable&lt;TUser&gt; Users { get; }
+
+        public override Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IList&lt;UserLoginInfo&gt;&gt; GetLoginsAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;TUser&gt; FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;bool&gt; IsInRoleAsync(TUser user, string normalizedRoleName,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TRole&gt; FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task&lt;TUserRole&gt; FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IList&lt;TUser&gt;&gt; GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task AddToRoleAsync(TUser user, string normalizedRoleName,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task&lt;IList&lt;string&gt;&gt; GetRolesAsync(TUser user, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,62,23,77,0],[24,9,24,10,0],[25,9,25,10,0],[28,9,28,10,0],[29,13,29,49,0],[33,9,33,10,0],[34,13,34,49,0],[38,9,38,10,0],[39,13,39,49,0],[43,9,43,10,0],[44,13,44,49,0],[48,9,48,10,0],[49,13,49,49,0],[53,9,53,10,0],[54,13,54,49,0],[58,9,58,10,0],[59,13,59,49,0],[63,9,63,10,0],[64,13,64,49,0],[68,9,68,10,0],[69,13,69,49,0],[73,9,73,10,0],[74,13,74,49,0],[79,9,79,10,0],[80,13,80,49,0],[84,9,84,10,0],[85,13,85,49,0],[89,9,89,10,0],[90,13,90,49,0],[94,9,94,10,0],[95,13,95,49,0],[99,9,99,10,0],[100,13,100,49,0],[104,9,104,10,0],[105,13,105,49,0],[108,51,108,55,0],[111,9,111,10,0],[112,13,112,49,0],[117,9,117,10,0],[118,13,118,49,0],[122,9,122,10,0],[123,13,123,49,0],[127,9,127,10,0],[128,13,128,49,0],[133,9,133,10,0],[134,13,134,49,0],[138,9,138,10,0],[139,13,139,49,0],[143,9,143,10,0],[144,13,144,49,0],[148,9,148,10,0],[149,13,149,49,0],[154,9,154,10,0],[155,13,155,49,0],[160,9,160,10,0],[161,13,161,49,0],[165,9,165,10,0],[166,13,166,49,0]]);
+    </script>
+  </body>
+</html>
