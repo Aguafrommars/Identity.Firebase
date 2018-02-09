@@ -20,6 +20,6 @@ on_success:
     - git config --global user.name "Aguacongas"
     - git checkout master
     - git add docs -f
-    - git commit -m "Appveyor: build succed %APPVEYOR_BUILD_NUMBER%"
+    - git commit -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
   
