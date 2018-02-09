@@ -1,0 +1,29 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+environment:
+    access_token:
+      secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
+init:
+- cmd: git config --global core.autocrlf true
+install:
+- cmd: gitversion /l console /output buildserver
+- cmd: dotnet restore
+build_script:
+- cmd: msbuild src\Aguacongas.Firebase /t:Publish /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release /p:TargetFramework=netstandard2.0
+- cmd: msbuild src\Aguacongas.Firebase /t:Publish /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release /p:TargetFramework=net462
+test_script:
+- cmd: cover.cmd
+- cmd: 7z a coverage.zip coverage
+artifacts:
+- path: coverage.zip
+  name: coverage
+on_success:
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+    - git config --global user.email "aguacongas@gmail.com"
+    - git config --global user.name "Aguacongas"
+    - git checkout master
+    - git add docs -f
+    - git commit ... 
+    - git push ...
+  
