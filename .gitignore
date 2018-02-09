@@ -293,3 +293,4 @@ __pycache__/
 /coverage
 /docs
 coverage.snapshot
+coverage.xml
