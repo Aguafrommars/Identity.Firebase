@@ -9,10 +9,12 @@ install:
 - cmd: gitversion /l console /output buildserver
 - cmd: dotnet restore
 build_script:
-- cmd: msbuild src\Aguacongas.Firebase /t:Publish /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release /p:TargetFramework=netstandard2.0
-- cmd: msbuild src\Aguacongas.Firebase /t:Publish /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release /p:TargetFramework=net462
+- cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
 test_script:
 - cmd: cover.cmd
+artifacts:
+    - path: src/**/*.nupkg
+      name: nuget    
 on_success:
     - git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
