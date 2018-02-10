@@ -19,7 +19,9 @@ on_success:
     - git config --global user.email "aguacongas@gmail.com"
     - git config --global user.name "Aguacongas"
     - git checkout master
-    - git add docs -f
-    - git commit -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+    - rmdir /S /Q docs
+    - move coverage\docs docs
+    - git add docs
+    - git commit docs -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
   
