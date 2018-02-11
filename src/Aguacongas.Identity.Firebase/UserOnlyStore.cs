@@ -1,43 +1,27 @@
-﻿using System;
+using Aguacongas.Firebase;
+using Aguacongas.Identity.Firebase.Internal;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Aguacongas.Firebase;
-using Aguacongas.Identity.Firebase.Internal;
-using Microsoft.AspNetCore.Identity;
 
 namespace Aguacongas.Identity.Firebase
 {
     /// <summary>
-    /// Represents a new instance of a persistence store for users, using the default implementation
-    /// of <see cref="IdentityUser{TKey}"/> with a string as a primary key.
-    /// </summary>
-    public class UserStore : UserStore<IdentityUser<string>>
-    {
-        /// <summary>
-        /// Constructs a new instance of <see cref="UserStore"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
-        /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-    }
-
-    /// <summary>
     /// Creates a new instance of a persistence store for the specified user type.
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
-    public class UserStore<TUser> : UserStore<TUser, IdentityRole, string>
-        where TUser : IdentityUser<string>, new()
+    public class UserOnlyStore<TUser> : UserOnlyStore<TUser, string> where TUser : IdentityUser<string>, new()
     {
         /// <summary>
-        /// Constructs a new instance of <see cref="UserStore{TUser}"/>.
+        /// Constructs a new instance of <see cref="UserOnlyStore{TUser}"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
 
         protected override string ParseId(string id)
         {
@@ -49,73 +33,53 @@ namespace Aguacongas.Identity.Firebase
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TRole">The type representing a role.</typeparam>
-    public class UserStore<TUser, TRole> : UserStore<TUser, TRole, string>
-        where TUser : IdentityUser<string>
-        where TRole : IdentityRole<string>
-    {
-        /// <summary>
-        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext}"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
-        /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
-    }
-
-    /// <summary>
-    /// Represents a new instance of a persistence store for the specified user and role types.
-    /// </summary>
-    /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TRole">The type representing a role.</typeparam>
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public abstract class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
+    public abstract class UserOnlyStore<TUser, TKey> : UserOnlyStore<TUser, TKey, IdentityUserClaim<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>>
         where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<TKey>
         where TKey : IEquatable<TKey>
     {
         /// <summary>
-        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, TKey}"/>.
+        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TKey}"/>.
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
 
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TRole">The type representing a role.</typeparam>
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
-    /// <typeparam name="TUserRole">The type representing a user role.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
-    /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public abstract class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
-        UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
+    public abstract class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
+        UserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
+        IUserLoginStore<TUser>,
+        IUserClaimStore<TUser>,
+        IUserPasswordStore<TUser>,
+        IUserSecurityStampStore<TUser>,
+        IUserEmailStore<TUser>,
+        IUserLockoutStore<TUser>,
+        IUserPhoneNumberStore<TUser>,
+        IUserTwoFactorStore<TUser>,
+        IUserAuthenticationTokenStore<TUser>,
+        IUserAuthenticatorKeyStore<TUser>,
+        IUserTwoFactorRecoveryCodeStore<TUser>
         where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<TKey>
         where TKey : IEquatable<TKey>
         where TUserClaim : IdentityUserClaim<TKey>, new()
-        where TUserRole : IdentityUserRole<TKey>, new()
         where TUserLogin : IdentityUserLogin<TKey>, new()
         where TUserToken : IdentityUserToken<TKey>, new()
-        where TRoleClaim : IdentityRoleClaim<TKey>, new()
     {
         private readonly IFirebaseClient _client;
-
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
-        /// <param name="client">The client used to access the store.</param>
+        /// <param name="context">The context used to access the store.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             if (client == null)
             {
@@ -201,11 +165,11 @@ namespace Aguacongas.Identity.Firebase
             ThrowIfDisposed();
             var response = await _client.GetAsync<TUser>($"users/{userId}", cancellationToken, true);
             var user = response.Data;
-            if(user != null)
+            if (user != null)
             {
                 user.ConcurrencyStamp = response.Etag;
             }
-            
+
             return user;
         }
 
@@ -227,130 +191,6 @@ namespace Aguacongas.Identity.Firebase
                 return await FindByIdAsync(response.Data, cancellationToken);
             }
             return default(TUser);
-        }
-
-        /// <summary>
-        /// Adds the given <paramref name="normalizedRoleName"/> to the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to add the role to.</param>
-        /// <param name="normalizedRoleName">The role to add.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (roleEntity == null)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "RoleNotFound {0}", normalizedRoleName));
-            }
-
-            var userRole = CreateUserRole(user, roleEntity);
-
-            await _client.PutAsync($"users/{user.Id}/roles/{roleEntity.Id}", userRole, cancellationToken);
-            await _client.PutAsync($"roles/{normalizedRoleName}/{user.Id}", userRole.RoleId, cancellationToken);
-        }
-
-        /// <summary>
-        /// Removes the given <paramref name="normalizedRoleName"/> from the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to remove the role from.</param>
-        /// <param name="normalizedRoleName">The role to remove.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (roleEntity != null)
-            {
-                var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
-                if (userRole != null)
-                {
-                    await _client.DeleteAsync($"users/{user.Id}/roles/{roleEntity.Id}", cancellationToken);
-                    await _client.DeleteAsync($"roles/{normalizedRoleName}/{user.Id}", cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the roles the specified <paramref name="user"/> is a member of.
-        /// </summary>
-        /// <param name="user">The user whose roles should be retrieved.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> that contains the roles the user is a member of.</returns>
-        public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var userId = user.Id;
-
-            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users/{userId}/roles", cancellationToken);
-            var userRoles = response.Data;
-            if (userRoles != null)
-            {
-                var rolesResponse = await _client.GetAsync<IEnumerable<TRole>>($"roles", cancellationToken);
-                var roles = rolesResponse.Data;
-                if (roles != null)
-                {
-                    return (from userRole in userRoles
-                           join role in roles on userRole.RoleId equals role.Id
-                           where userRole.UserId.Equals(userId)
-                           select role.Name).ToList();
-                }
-            }
-            return new List<string>(0);
-        }
-
-        /// <summary>
-        /// Returns a flag indicating if the specified user is a member of the give <paramref name="normalizedRoleName"/>.
-        /// </summary>
-        /// <param name="user">The user whose role membership should be checked.</param>
-        /// <param name="normalizedRoleName">The role to check membership of</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> containing a flag indicating if the specified user is a member of the given group. If the 
-        /// user is a member of the group the returned value with be true, otherwise it will be false.</returns>
-        public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (role != null)
-            {
-                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
-                return userRole != null;
-            }
-            return false;
         }
 
         /// <summary>
@@ -403,7 +243,7 @@ namespace Aguacongas.Identity.Firebase
             {
                 userClaims.AddRange(data);
             }
-            
+
             await _client.PutAsync($"claims/{user.Id}", userClaims, cancellationToken);
         }
 
@@ -621,7 +461,7 @@ namespace Aguacongas.Identity.Firebase
             {
                 var userIds = data.Where(uc => uc.Values.Any(c => c.ClaimType == claim.Type && c.ClaimValue == c.ClaimValue))
                     .Select(uc => uc.Key);
-                
+
                 foreach (var userId in userIds)
                 {
                     var user = await FindByIdAsync(userId, cancellationToken);
@@ -634,72 +474,7 @@ namespace Aguacongas.Identity.Firebase
             return users;
         }
 
-        /// <summary>
-        /// Retrieves all users in the specified role.
-        /// </summary>
-        /// <param name="normalizedRoleName">The role whose users should be retrieved.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The <see cref="Task"/> contains a list of users, if any, that are in the specified role. 
-        /// </returns>
-        public async override Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (string.IsNullOrEmpty(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            var users = new List<TUser>();
-
-            if (role != null)
-            {
-                var response = await _client.GetAsync<IEnumerable<KeyValues<TKey>>>($"roles/{normalizedRoleName}", cancellationToken);
-                var data = response.Data;
-                if (data != null)
-                {
-                    foreach(var keyValues in data)
-                    {
-                        var user = await FindByIdAsync(keyValues.Key, cancellationToken);
-                        if (user != null)
-                        {
-                            users.Add(user);
-                        }
-                    }
-                }
-            }
-            return users;
-        }
-
         protected abstract TKey ParseId(string id);
-
-        /// <summary>
-        /// Return a role with the normalized name if it exists.
-        /// </summary>
-        /// <param name="normalizedRoleName">The normalized role name.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The role if it exists.</returns>
-        protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            var response = await _client.GetAsync<TRole>($"roles/{normalizedRoleName}", cancellationToken);
-            return response.Data;
-        }
-
-        /// <summary>
-        /// Return a user role for the userId and roleId if it exists.
-        /// </summary>
-        /// <param name="userId">The user's id.</param>
-        /// <param name="roleId">The role's id.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user role if it exists.</returns>
-        protected override async Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
-        {
-            var response = await _client.GetAsync<TUserRole>($"users/{userId}/roles/{roleId}", cancellationToken);
-
-            return response.Data;
-        }
 
         /// <summary>
         /// Return a user with the matching userId if it exists.
@@ -791,5 +566,4 @@ namespace Aguacongas.Identity.Firebase
             await _client.DeleteAsync($"users/{token.UserId}/tokens");
         }
     }
-
 }

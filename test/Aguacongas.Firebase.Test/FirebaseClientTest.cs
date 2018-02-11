@@ -75,11 +75,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PostAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PostAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
         [Fact]
@@ -114,11 +114,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PutAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PutAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
 
@@ -154,11 +154,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PatchAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PatchAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
         [Fact]

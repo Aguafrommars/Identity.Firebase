@@ -10,6 +10,7 @@ install:
 - cmd: dotnet restore
 build_script:
 - cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
+- cmd: msbuild src\Aguacongas.Identity.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
 test_script:
 - cmd: cover.cmd
 artifacts:
