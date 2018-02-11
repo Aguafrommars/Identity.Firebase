@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\UserStore.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Aguacongas.Firebase;
+using Aguacongas.Identity.Firebase.Internal;
+using Microsoft.AspNetCore.Identity;
+
+namespace Aguacongas.Identity.Firebase
+{
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for users, using the default implementation
+    /// of &lt;see cref=&quot;IdentityUser{TKey}&quot;/&gt; with a string as a primary key.
+    /// &lt;/summary&gt;
+    public class UserStore : UserStore&lt;IdentityUser&lt;string&gt;&gt;
+    {
+        /// &lt;summary&gt;
+        /// Constructs a new instance of &lt;see cref=&quot;UserStore&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+    }
+
+    /// &lt;summary&gt;
+    /// Creates a new instance of a persistence store for the specified user type.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    public class UserStore&lt;TUser&gt; : UserStore&lt;TUser, IdentityRole, string&gt;
+        where TUser : IdentityUser&lt;string&gt;, new()
+    {
+        /// &lt;summary&gt;
+        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+
+        protected override string ParseId(string id)
+        {
+            return id;
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for the specified user and role types.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
+    public class UserStore&lt;TUser, TRole&gt; : UserStore&lt;TUser, TRole, string&gt;
+        where TUser : IdentityUser&lt;string&gt;
+        where TRole : IdentityRole&lt;string&gt;
+    {
+        /// &lt;summary&gt;
+        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser, TRole, TContext}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+
+        protected override string ParseId(string id)
+        {
+            return id;
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for the specified user and role types.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
+    public abstract class UserStore&lt;TUser, TRole, TKey&gt; : UserStore&lt;TUser, TRole, TKey, IdentityUserClaim&lt;TKey&gt;, IdentityUserRole&lt;TKey&gt;, IdentityUserLogin&lt;TKey&gt;, IdentityUserToken&lt;TKey&gt;, IdentityRoleClaim&lt;TKey&gt;&gt;
+        where TUser : IdentityUser&lt;TKey&gt;
+        where TRole : IdentityRole&lt;TKey&gt;
+        where TKey : IEquatable&lt;TKey&gt;
+    {
+        /// &lt;summary&gt;
+        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser, TRole, TContext, TKey}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+    }
+
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for the specified user and role types.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserClaim&quot;&gt;The type representing a claim.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserRole&quot;&gt;The type representing a user role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserLogin&quot;&gt;The type representing a user external login.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserToken&quot;&gt;The type representing a user token.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRoleClaim&quot;&gt;The type representing a role claim.&lt;/typeparam&gt;
+    public abstract class UserStore&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt; :
+        UserStoreBase&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt;
+        where TUser : IdentityUser&lt;TKey&gt;
+        where TRole : IdentityRole&lt;TKey&gt;
+        where TKey : IEquatable&lt;TKey&gt;
+        where TUserClaim : IdentityUserClaim&lt;TKey&gt;, new()
+        where TUserRole : IdentityUserRole&lt;TKey&gt;, new()
+        where TUserLogin : IdentityUserLogin&lt;TKey&gt;, new()
+        where TUserToken : IdentityUserToken&lt;TKey&gt;, new()
+        where TRoleClaim : IdentityRoleClaim&lt;TKey&gt;, new()
+    {
+        private readonly IFirebaseClient _client;
+
+        /// &lt;summary&gt;
+        /// Creates a new instance of the store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;client&quot;&gt;The client used to access the store.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; used to describe store errors.&lt;/param&gt;
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        {
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client));
+            }
+            _client = client;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates the specified &lt;paramref name=&quot;user&quot;/&gt; in the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to create.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the creation operation.&lt;/returns&gt;
+        public async override Task&lt;IdentityResult&gt; CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var response = await _client.PostAsync(&quot;users&quot;, user, cancellationToken);
+            user.Id = ParseId(response.Data);
+            user.ConcurrencyStamp = response.Etag;
+            await _client.PutAsync($&quot;indexes/users-names/{user.NormalizedUserName}&quot;, user.Id, cancellationToken);
+            await _client.PutAsync($&quot;indexes/users-email/{user.NormalizedEmail}&quot;, user.Id, cancellationToken);
+
+            return IdentityResult.Success;
+        }
+
+        /// &lt;summary&gt;
+        /// Updates the specified &lt;paramref name=&quot;user&quot;/&gt; in the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to update.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the update operation.&lt;/returns&gt;
+        public async override Task&lt;IdentityResult&gt; UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var response = await _client.PutAsync($&quot;users/{user.Id}&quot;, user, cancellationToken, true, user.ConcurrencyStamp);
+            user.ConcurrencyStamp = response.Etag;
+            return IdentityResult.Success;
+        }
+
+        /// &lt;summary&gt;
+        /// Deletes the specified &lt;paramref name=&quot;user&quot;/&gt; from the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to delete.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the update operation.&lt;/returns&gt;
+        public async override Task&lt;IdentityResult&gt; DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            await _client.DeleteAsync($&quot;users/{user.Id}&quot;, cancellationToken, user.ConcurrencyStamp);
+            return IdentityResult.Success;
+        }
+
+        /// &lt;summary&gt;
+        /// Finds and returns a user, if any, who has the specified &lt;paramref name=&quot;userId&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user ID to search for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the user matching the specified &lt;paramref name=&quot;userId&quot;/&gt; if it exists.
+        /// &lt;/returns&gt;
+        public override async Task&lt;TUser&gt; FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var response = await _client.GetAsync&lt;TUser&gt;($&quot;users/{userId}&quot;, cancellationToken, true);
+            var user = response.Data;
+            if(user != null)
+            {
+                user.ConcurrencyStamp = response.Etag;
+            }
+            
+            return user;
+        }
+
+        /// &lt;summary&gt;
+        /// Finds and returns a user, if any, who has the specified normalized user name.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedUserName&quot;&gt;The normalized user name to search for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the user matching the specified &lt;paramref name=&quot;normalizedUserName&quot;/&gt; if it exists.
+        /// &lt;/returns&gt;
+        public override async Task&lt;TUser&gt; FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var response = await _client.GetAsync&lt;string&gt;($&quot;indexes/users-names/{normalizedUserName}&quot;, cancellationToken);
+            if (!string.IsNullOrEmpty(response.Data))
+            {
+                return await FindByIdAsync(response.Data, cancellationToken);
+            }
+            return default(TUser);
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the role to.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to add.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public async override Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (roleEntity == null)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, &quot;RoleNotFound {0}&quot;, normalizedRoleName));
+            }
+
+            var userRole = CreateUserRole(user, roleEntity);
+
+            await _client.PutAsync($&quot;users/{user.Id}/roles/{roleEntity.Id}&quot;, userRole, cancellationToken);
+            await _client.PutAsync($&quot;roles/{normalizedRoleName}/{user.Id}&quot;, userRole.RoleId, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the role from.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to remove.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public async override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (roleEntity != null)
+            {
+                var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
+                if (userRole != null)
+                {
+                    await _client.DeleteAsync($&quot;users/{user.Id}/roles/{roleEntity.Id}&quot;, cancellationToken);
+                    await _client.DeleteAsync($&quot;roles/{normalizedRoleName}/{user.Id}&quot;, cancellationToken);
+                }
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the roles the specified &lt;paramref name=&quot;user&quot;/&gt; is a member of.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose roles should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the roles the user is a member of.&lt;/returns&gt;
+        public override async Task&lt;IList&lt;string&gt;&gt; GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var userId = user.Id;
+
+            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserRole&gt;&gt;($&quot;users/{userId}/roles&quot;, cancellationToken);
+            var userRoles = response.Data;
+            if (userRoles != null)
+            {
+                var rolesResponse = await _client.GetAsync&lt;IEnumerable&lt;TRole&gt;&gt;($&quot;roles&quot;, cancellationToken);
+                var roles = rolesResponse.Data;
+                if (roles != null)
+                {
+                    return (from userRole in userRoles
+                           join role in roles on userRole.RoleId equals role.Id
+                           where userRole.UserId.Equals(userId)
+                           select role.Name).ToList();
+                }
+            }
+            return new List&lt;string&gt;(0);
+        }
+
+        /// &lt;summary&gt;
+        /// Returns a flag indicating if the specified user is a member of the give &lt;paramref name=&quot;normalizedRoleName&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose role membership should be checked.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to check membership of&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; containing a flag indicating if the specified user is a member of the given group. If the 
+        /// user is a member of the group the returned value with be true, otherwise it will be false.&lt;/returns&gt;
+        public override async Task&lt;bool&gt; IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (role != null)
+            {
+                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
+                return userRole != null;
+            }
+            return false;
+        }
+
+        /// &lt;summary&gt;
+        /// Get the claims associated with the specified &lt;paramref name=&quot;user&quot;/&gt; as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose claims should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the claims granted to a user.&lt;/returns&gt;
+        public async override Task&lt;IList&lt;Claim&gt;&gt; GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserClaim&gt;&gt;($&quot;claims/{user.Id}&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                return data.Select(c =&gt; c.ToClaim()).ToList();
+            }
+            return new List&lt;Claim&gt;(0);
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the &lt;paramref name=&quot;claims&quot;/&gt; given to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the claim to.&lt;/param&gt;
+        /// &lt;param name=&quot;claims&quot;&gt;The claim to add to the user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public override async Task AddClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            List&lt;TUserClaim&gt; userClaims = claims.Select(c =&gt; CreateUserClaim(user, c)).ToList();
+            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserClaim&gt;&gt;($&quot;claims/{user.Id}&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                userClaims.AddRange(data);
+            }
+            
+            await _client.PutAsync($&quot;claims/{user.Id}&quot;, userClaims, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Replaces the &lt;paramref name=&quot;claim&quot;/&gt; on the specified &lt;paramref name=&quot;user&quot;/&gt;, with the &lt;paramref name=&quot;newClaim&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to replace the claim on.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim replace.&lt;/param&gt;
+        /// &lt;param name=&quot;newClaim&quot;&gt;The new claim replacing the &lt;paramref name=&quot;claim&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public async override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+            if (newClaim == null)
+            {
+                throw new ArgumentNullException(nameof(newClaim));
+            }
+
+            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserClaim&gt;&gt;($&quot;claims/{user.Id}&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                var matchedClaims = data.Where(uc =&gt; uc.ClaimValue == claim.Value &amp;&amp; uc.ClaimType == claim.Type);
+                foreach (var matchedClaim in matchedClaims)
+                {
+                    matchedClaim.ClaimValue = newClaim.Value;
+                    matchedClaim.ClaimType = newClaim.Type;
+                }
+                await _client.PutAsync($&quot;claims/{user.Id}&quot;, data, cancellationToken);
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the &lt;paramref name=&quot;claims&quot;/&gt; given from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the claims from.&lt;/param&gt;
+        /// &lt;param name=&quot;claims&quot;&gt;The claim to remove.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public async override Task RemoveClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            var response = await _client.GetAsync&lt;List&lt;TUserClaim&gt;&gt;($&quot;claims/{user.Id}&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                foreach (var claim in claims)
+                {
+                    data.RemoveAll(uc =&gt; uc.ClaimValue == claim.Value &amp;&amp; uc.ClaimType == claim.Type);
+                }
+                await _client.PutAsync($&quot;claims/{user.Id}&quot;, data, cancellationToken);
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the &lt;paramref name=&quot;login&quot;/&gt; given to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the login to.&lt;/param&gt;
+        /// &lt;param name=&quot;login&quot;&gt;The login to add to the user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public override async Task AddLoginAsync(TUser user, UserLoginInfo login,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (login == null)
+            {
+                throw new ArgumentNullException(nameof(login));
+            }
+
+            var response = await _client.GetAsync&lt;List&lt;TUserLogin&gt;&gt;($&quot;users/{user.Id}/logins&quot;, cancellationToken);
+            var data = response.Data ?? new List&lt;TUserLogin&gt;(0);
+            data.Add(CreateUserLogin(user, login));
+
+            await _client.PutAsync($&quot;users/{user.Id}/logins&quot;, data, cancellationToken);
+            await _client.PutAsync($&quot;indexes/provider-keys/{login.LoginProvider}/{login.ProviderKey}&quot;, user.Id, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the &lt;paramref name=&quot;loginProvider&quot;/&gt; given from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the login from.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login to remove from the user.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var response = await _client.GetAsync&lt;List&lt;TUserLogin&gt;&gt;($&quot;users/{user.Id}/logins&quot;, cancellationToken);
+            var data = response.Data ?? new List&lt;TUserLogin&gt;(0);
+            data.RemoveAll(l =&gt; l.LoginProvider == loginProvider &amp;&amp; l.ProviderKey == providerKey);
+
+            await _client.PutAsync($&quot;users/{user.Id}/logins&quot;, data, cancellationToken);
+            await _client.DeleteAsync($&quot;indexes/provider-keys/{loginProvider}/{providerKey}&quot;, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the associated logins for the specified &lt;param ref=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose associated logins to retrieve.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; for the asynchronous operation, containing a list of &lt;see cref=&quot;UserLoginInfo&quot;/&gt; for the specified &lt;paramref name=&quot;user&quot;/&gt;, if any.
+        /// &lt;/returns&gt;
+        public async override Task&lt;IList&lt;UserLoginInfo&gt;&gt; GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var response = await _client.GetAsync&lt;List&lt;TUserLogin&gt;&gt;($&quot;users/{user.Id}/logins&quot;, cancellationToken);
+            var data = response.Data ?? new List&lt;TUserLogin&gt;(0);
+
+            return data.Select(l =&gt; new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName)).ToList();
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the user associated with the specified login provider and login provider key.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider who provided the &lt;paramref name=&quot;providerKey&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
+        /// &lt;/returns&gt;
+        public async override Task&lt;TUser&gt; FindByLoginAsync(string loginProvider, string providerKey,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+            if (userLogin != null)
+            {
+                return await FindUserAsync(userLogin.UserId, cancellationToken);
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the user, if any, associated with the specified, normalized email address.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedEmail&quot;&gt;The normalized email address to return the user for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
+        /// &lt;/returns&gt;
+        public override async Task&lt;TUser&gt; FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            var response = await _client.GetAsync&lt;TKey&gt;($&quot;indexes/users-email/{normalizedEmail}&quot;, cancellationToken);
+            if (response.Data != null)
+            {
+                return await FindByIdAsync(response.Data.ToString(), cancellationToken);
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves all users with the specified claim.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim whose users should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; contains a list of users, if any, that contain the specified claim. 
+        /// &lt;/returns&gt;
+        public async override Task&lt;IList&lt;TUser&gt;&gt; GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TUserClaim&gt;&gt;&gt;($&quot;claims&quot;, cancellationToken);
+            var data = response.Data;
+            var users = new List&lt;TUser&gt;();
+            if (data != null)
+            {
+                var userIds = data.Where(uc =&gt; uc.Values.Any(c =&gt; c.ClaimType == claim.Type &amp;&amp; c.ClaimValue == c.ClaimValue))
+                    .Select(uc =&gt; uc.Key);
+                
+                foreach (var userId in userIds)
+                {
+                    var user = await FindByIdAsync(userId, cancellationToken);
+                    if (user != null)
+                    {
+                        users.Add(user);
+                    }
+                }
+            }
+            return users;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves all users in the specified role.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role whose users should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; contains a list of users, if any, that are in the specified role. 
+        /// &lt;/returns&gt;
+        public async override Task&lt;IList&lt;TUser&gt;&gt; GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrEmpty(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            var users = new List&lt;TUser&gt;();
+
+            if (role != null)
+            {
+                var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TKey&gt;&gt;&gt;($&quot;roles/{normalizedRoleName}&quot;, cancellationToken);
+                var data = response.Data;
+                if (data != null)
+                {
+                    foreach(var keyValues in data)
+                    {
+                        var user = await FindByIdAsync(keyValues.Key, cancellationToken);
+                        if (user != null)
+                        {
+                            users.Add(user);
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
+        protected abstract TKey ParseId(string id);
+
+        /// &lt;summary&gt;
+        /// Return a role with the normalized name if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The normalized role name.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The role if it exists.&lt;/returns&gt;
+        protected override async Task&lt;TRole&gt; FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync&lt;TRole&gt;($&quot;roles/{normalizedRoleName}&quot;, cancellationToken);
+            return response.Data;
+        }
+
+        /// &lt;summary&gt;
+        /// Return a user role for the userId and roleId if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;roleId&quot;&gt;The role&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user role if it exists.&lt;/returns&gt;
+        protected override async Task&lt;TUserRole&gt; FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync&lt;TUserRole&gt;($&quot;users/{userId}/roles/{roleId}&quot;, cancellationToken);
+
+            return response.Data;
+        }
+
+        /// &lt;summary&gt;
+        /// Return a user with the matching userId if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user if it exists.&lt;/returns&gt;
+        protected override Task&lt;TUser&gt; FindUserAsync(TKey userId, CancellationToken cancellationToken)
+        {
+            return FindByIdAsync(userId.ToString(), cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Return a user login with the matching userId, provider, providerKey if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider name.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user login if it exists.&lt;/returns&gt;
+        protected override async Task&lt;TUserLogin&gt; FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserLogin&gt;&gt;($&quot;users/{userId}/logins&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                return data.SingleOrDefault(userLogin =&gt; userLogin.LoginProvider == loginProvider &amp;&amp; userLogin.ProviderKey == providerKey);
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Return a user login with  provider, providerKey if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider name.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user login if it exists.&lt;/returns&gt;
+        protected override async Task&lt;TUserLogin&gt; FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync&lt;TKey&gt;($&quot;indexes/provider-keys/{loginProvider}/{providerKey}&quot;, cancellationToken);
+            var data = response.Data;
+            if (data != null)
+            {
+                return await FindUserLoginAsync(data, loginProvider, providerKey, cancellationToken);
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Find a user token if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The token owner.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider for the token.&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;The name of the token.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user token if it exists.&lt;/returns&gt;
+        protected override async Task&lt;TUserToken&gt; FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TUserToken&gt;&gt;&gt;($&quot;users/{user.Id}/tokens&quot;, cancellationToken);
+            if (response.Data != null)
+            {
+                return response.Data
+                    .SelectMany(d =&gt; d.Values)
+                    .Where(t =&gt; t.LoginProvider == loginProvider &amp;&amp; t.Name == name)
+                    .FirstOrDefault();
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Add a new user token.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;token&quot;&gt;The token to be added.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected override async Task AddUserTokenAsync(TUserToken token)
+        {
+            await _client.PostAsync($&quot;users/{token.UserId}/tokens&quot;, token);
+        }
+
+
+        /// &lt;summary&gt;
+        /// Remove a new user token.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;token&quot;&gt;The token to be removed.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected override async Task RemoveUserTokenAsync(TUserToken token)
+        {
+            await _client.DeleteAsync($&quot;users/{token.UserId}/tokens&quot;);
+        }
+    }
+
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[25,93,25,116,0],[25,117,25,118,0],[25,119,25,120,0],[40,93,40,116,0],[40,117,40,118,0],[40,119,40,120,0],[43,9,43,10,0],[44,13,44,23,0],[45,9,45,10,0],[62,93,62,116,0],[62,117,62,118,0],[62,119,62,120,0],[65,9,65,10,0],[66,13,66,23,0],[67,9,67,10,0],[86,93,86,116,0],[86,117,86,118,0],[86,119,86,120,0],[118,93,118,140,0],[119,9,119,10,0],[120,13,120,32,0],[121,13,121,14,0],[122,17,122,65,0],[124,13,124,30,0],[125,9,125,10,0],[134,9,134,10,0],[135,13,135,62,0],[136,13,136,31,0],[137,13,137,30,0],[138,13,138,14,0],[139,17,139,63,0],[142,13,142,86,0],[143,13,143,46,0],[144,13,144,51,0],[145,13,145,114,0],[146,13,146,111,0],[148,13,148,43,0],[149,9,149,10,0],[158,9,158,10,0],[159,13,159,62,0],[160,13,160,31,0],[161,13,161,30,0],[162,13,162,14,0],[163,17,163,63,0],[166,13,166,125,0],[167,13,167,51,0],[168,13,168,43,0],[169,9,169,10,0],[178,9,178,10,0],[179,13,179,62,0],[180,13,180,31,0],[181,13,181,30,0],[182,13,182,14,0],[183,17,183,63,0],[186,13,186,101,0],[187,13,187,43,0],[188,9,188,10,0],[199,9,199,10,0],[200,13,200,62,0],[201,13,201,31,0],[202,13,202,102,0],[203,13,203,38,0],[204,13,204,29,0],[205,13,205,14,0],[206,17,206,55,0],[207,13,207,14,0],[209,13,209,25,0],[210,9,210,10,0],[221,9,221,10,0],[222,13,222,62,0],[223,13,223,31,0],[224,13,224,123,0],[225,13,225,54,0],[226,13,226,14,0],[227,17,227,78,0],[229,13,229,35,0],[230,9,230,10,0],[240,9,240,10,0],[241,13,241,62,0],[242,13,242,31,0],[243,13,243,30,0],[244,13,244,14,0],[245,17,245,63,0],[247,13,247,63,0],[248,13,248,14,0],[249,17,249,77,0],[251,13,251,89,0],[252,13,252,36,0],[253,13,253,14,0],[254,17,254,136,0],[257,13,257,61,0],[259,13,259,107,0],[260,13,260,113,0],[261,9,261,10,0],[271,9,271,10,0],[272,13,272,62,0],[273,13,273,31,0],[274,13,274,30,0],[275,13,275,14,0],[276,17,276,63,0],[278,13,278,63,0],[279,13,279,14,0],[280,17,280,77,0],[282,13,282,89,0],[283,13,283,36,0],[284,13,284,14,0],[285,17,285,99,0],[286,17,286,38,0],[287,17,287,18,0],[288,21,288,108,0],[289,21,289,107,0],[290,17,290,18,0],[291,13,291,14,0],[292,9,292,10,0],[301,9,301,10,0],[302,13,302,62,0],[303,13,303,31,0],[304,13,304,30,0],[305,13,305,14,0],[306,17,306,63,0],[308,13,308,34,0],[310,13,310,119,0],[311,13,311,43,0],[312,13,312,35,0],[313,13,313,14,0],[314,17,314,109,0],[315,17,315,48,0],[316,17,316,35,0],[317,17,317,18,0],[318,21,319,28,0],[319,28,319,50,0],[319,50,319,65,0],[319,65,319,80,0],[319,28,319,80,0],[319,80,319,73,0],[319,73,319,80,0],[319,80,320,34,0],[320,34,320,64,0],[320,64,321,35,0],[321,35,321,44,0],[321,44,321,55,0],[318,21,321,55,0],[323,13,323,14,0],[324,13,324,40,0],[325,9,325,10,0],[336,9,336,10,0],[337,13,337,62,0],[338,13,338,31,0],[339,13,339,30,0],[340,13,340,14,0],[341,17,341,63,0],[343,13,343,63,0],[344,13,344,14,0],[345,17,345,77,0],[347,13,347,83,0],[348,13,348,30,0],[349,13,349,14,0],[350,17,350,93,0],[351,17,351,41,0],[353,13,353,26,0],[354,9,354,10,0],[363,9,363,10,0],[364,13,364,62,0],[365,13,365,31,0],[366,13,366,30,0],[367,13,367,14,0],[368,17,368,63,0],[370,13,370,116,0],[371,13,371,38,0],[372,13,372,30,0],[373,13,373,14,0],[374,17,374,41,0],[374,41,374,52,0],[374,52,374,63,0],[374,17,374,63,0],[376,13,376,39,0],[377,9,377,10,0],[387,9,387,10,0],[388,13,388,62,0],[389,13,389,31,0],[390,13,390,30,0],[391,13,391,14,0],[392,17,392,63,0],[394,13,394,32,0],[395,13,395,14,0],[396,17,396,65,0],[399,13,399,62,0],[399,62,399,86,0],[399,86,399,97,0],[399,13,399,97,0],[400,13,400,116,0],[401,13,401,38,0],[402,13,402,30,0],[403,13,403,14,0],[404,17,404,43,0],[405,13,405,14,0],[407,13,407,88,0],[408,9,408,10,0],[419,9,419,10,0],[420,13,420,62,0],[421,13,421,31,0],[422,13,422,30,0],[423,13,423,14,0],[424,17,424,63,0],[426,13,426,31,0],[427,13,427,14,0],[428,17,428,64,0],[430,13,430,34,0],[431,13,431,14,0],[432,17,432,67,0],[435,13,435,116,0],[436,13,436,38,0],[437,13,437,30,0],[438,13,438,14,0],[439,17,439,54,0],[439,54,439,112,0],[439,112,439,114,0],[439,17,439,114,0],[440,17,440,24,0],[440,26,440,42,0],[440,43,440,45,0],[440,46,440,59,0],[441,17,441,18,0],[442,21,442,62,0],[443,21,443,60,0],[444,17,444,18,0],[445,17,445,86,0],[446,13,446,14,0],[447,9,447,10,0],[457,9,457,10,0],[458,13,458,31,0],[459,13,459,30,0],[460,13,460,14,0],[461,17,461,63,0],[463,13,463,32,0],[464,13,464,14,0],[465,17,465,65,0],[468,13,468,109,0],[469,13,469,38,0],[470,13,470,30,0],[471,13,471,14,0],[472,17,472,24,0],[472,26,472,35,0],[472,36,472,38,0],[472,39,472,45,0],[473,17,473,18,0],[474,21,474,42,0],[474,42,474,100,0],[474,100,474,102,0],[474,21,474,102,0],[475,17,475,18,0],[476,17,476,86,0],[477,13,477,14,0],[478,9,478,10,0],[489,9,489,10,0],[490,13,490,62,0],[491,13,491,31,0],[492,13,492,30,0],[493,13,493,14,0],[494,17,494,63,0],[496,13,496,31,0],[497,13,497,14,0],[498,17,498,64,0],[501,13,501,115,0],[502,13,502,65,0],[503,13,503,52,0],[505,13,505,88,0],[506,13,506,132,0],[507,9,507,10,0],[519,9,519,10,0],[520,13,520,62,0],[521,13,521,31,0],[522,13,522,30,0],[523,13,523,14,0],[524,17,524,63,0],[526,13,526,115,0],[527,13,527,65,0],[528,13,528,33,0],[528,33,528,97,0],[528,97,528,99,0],[528,13,528,99,0],[530,13,530,88,0],[531,13,531,114,0],[532,9,532,10,0],[543,9,543,10,0],[544,13,544,62,0],[545,13,545,31,0],[546,13,546,30,0],[547,13,547,14,0],[548,17,548,63,0],[551,13,551,115,0],[552,13,552,65,0],[554,13,554,37,0],[554,37,554,109,0],[554,109,554,120,0],[554,13,554,120,0],[555,9,555,10,0],[568,9,568,10,0],[569,13,569,62,0],[570,13,570,31,0],[571,13,571,101,0],[572,13,572,35,0],[573,13,573,14,0],[574,17,574,81,0],[576,13,576,25,0],[577,9,577,10,0],[588,9,588,10,0],[589,13,589,62,0],[590,13,590,31,0],[592,13,592,118,0],[593,13,593,39,0],[594,13,594,14,0],[595,17,595,89,0],[597,13,597,25,0],[598,9,598,10,0],[609,9,609,10,0],[610,13,610,62,0],[611,13,611,31,0],[612,13,612,31,0],[613,13,613,14,0],[614,17,614,64,0],[617,13,617,117,0],[618,13,618,38,0],[619,13,619,43,0],[620,13,620,30,0],[621,13,621,14,0],[622,17,622,48,0],[622,48,622,67,0],[622,67,622,124,0],[622,124,622,125,0],[622,48,622,125,0],[622,125,623,35,0],[623,35,623,41,0],[623,41,623,43,0],[622,17,623,43,0],[625,17,625,24,0],[625,26,625,36,0],[625,37,625,39,0],[625,40,625,47,0],[626,17,626,18,0],[627,21,627,79,0],[628,21,628,38,0],[629,21,629,22,0],[630,25,630,41,0],[631,21,631,22,0],[632,17,632,18,0],[633,13,633,14,0],[634,13,634,26,0],[635,9,635,10,0],[646,9,646,10,0],[647,13,647,62,0],[648,13,648,31,0],[649,13,649,58,0],[650,13,650,14,0],[651,17,651,77,0],[654,13,654,83,0],[655,13,655,43,0],[657,13,657,30,0],[658,13,658,14,0],[659,17,659,135,0],[660,17,660,42,0],[661,17,661,34,0],[662,17,662,18,0],[663,21,663,28,0],[663,29,663,42,0],[663,43,663,45,0],[663,46,663,50,0],[664,21,664,22,0],[665,25,665,90,0],[666,25,666,42,0],[667,25,667,26,0],[668,29,668,45,0],[669,25,669,26,0],[670,21,670,22,0],[671,17,671,18,0],[672,13,672,14,0],[673,13,673,26,0],[674,9,674,10,0],[685,9,685,10,0],[686,13,686,108,0],[687,13,687,34,0],[688,9,688,10,0],[698,9,698,10,0],[699,13,699,115,0],[701,13,701,34,0],[702,9,702,10,0],[711,9,711,10,0],[712,13,712,72,0],[713,9,713,10,0],[724,9,724,10,0],[725,13,725,121,0],[726,13,726,38,0],[727,13,727,30,0],[728,13,728,14,0],[729,17,729,58,0],[729,58,729,138,0],[729,138,729,140,0],[729,17,729,140,0],[731,13,731,25,0],[732,9,732,10,0],[742,9,742,10,0],[743,13,743,132,0],[744,13,744,38,0],[745,13,745,30,0],[746,13,746,14,0],[747,17,747,102,0],[749,13,749,25,0],[750,9,750,10,0],[761,9,761,10,0],[762,13,762,133,0],[763,13,763,39,0],[764,13,764,14,0],[765,17,766,38,0],[766,38,766,46,0],[766,46,767,33,0],[767,33,767,83,0],[767,83,768,39,0],[765,17,768,39,0],[770,13,770,25,0],[771,9,771,10,0],[779,9,779,10,0],[780,13,780,76,0],[781,9,781,10,0],[790,9,790,10,0],[791,13,791,71,0],[792,9,792,10,0]]);
+    </script>
+  </body>
+</html>

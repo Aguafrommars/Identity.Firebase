@@ -2,72 +2,65 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\RoleStore.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordTokenManager.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Aguacongas.Identity.Firebase
+namespace Aguacongas.Firebase.TokenManager
 {
-    public class RoleStore&lt;TRole&gt; : IRoleStore&lt;TRole&gt; where TRole : class
+    public class EmailPasswordTokenManager : IFirebaseTokenManager, IDisposable
     {
-        public Task&lt;IdentityResult&gt; CreateAsync(TRole role, CancellationToken cancellationToken)
+        private readonly HttpClient _httpClient;
+        private readonly EmailPasswordOptions _options;
+        private readonly AuthRequest _authRequest;
+        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
         {
-            throw new NotImplementedException();
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        private DateTime _nextRenewTime = DateTime.MinValue;
+        private string _authKey;
+
+
+        public EmailPasswordTokenManager(HttpClient httpClient, IOptions&lt;EmailPasswordOptions&gt; options)
+        {
+            _httpClient = httpClient;
+            _options = options.Value;
+            _authRequest = new AuthRequest
+            {
+                Email = _options.Email,
+                Password = _options.Password
+            };            
         }
-
-        public Task&lt;IdentityResult&gt; DeleteAsync(TRole role, CancellationToken cancellationToken)
+        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
-        }
+            if (_nextRenewTime &gt; DateTime.UtcNow.AddSeconds(-1))
+            {
+                return _authKey;
+            }
 
+            var content = _httpClient.CreateJsonContent(_authRequest, _jsonSerializerSettings);
 
-        public Task&lt;TRole&gt; FindByIdAsync(string roleId, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+            var response = await _httpClient.PostAsync($&quot;{_options.SignUpUrl}?key={_options.ApiKey}&quot;, content, cancellationToken);
 
-        public Task&lt;TRole&gt; FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+            var authResponse = await response.DeserializeResponseAsync&lt;AuthResponse&gt;(_jsonSerializerSettings);
+            var data = authResponse.Data;
+            _authKey = data.IdToken;
+            _nextRenewTime = DateTime.UtcNow.AddSeconds(data.ExpiresIn);
 
-        public Task&lt;string&gt; GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task&lt;string&gt; GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task&lt;string&gt; GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task&lt;IdentityResult&gt; UpdateAsync(TRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            return _authKey;
         }
 
         #region IDisposable Support
@@ -79,29 +72,17 @@ namespace Aguacongas.Identity.Firebase
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    _httpClient.Dispose();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
 
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~UserStore() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
         #endregion
     }
@@ -109,7 +90,7 @@ namespace Aguacongas.Identity.Firebase
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[13,9,13,10,0],[14,13,14,49,0],[18,9,18,10,0],[19,13,19,49,0],[24,9,24,10,0],[25,13,25,49,0],[29,9,29,10,0],[30,13,30,49,0],[34,9,34,10,0],[35,13,35,49,0],[39,9,39,10,0],[40,13,40,49,0],[44,9,44,10,0],[45,13,45,49,0],[49,9,49,10,0],[50,13,50,49,0],[54,9,54,10,0],[55,13,55,49,0],[59,9,59,10,0],[60,13,60,49,0],[64,9,64,44,0],[67,9,67,10,0],[68,13,68,32,0],[69,13,69,14,0],[70,17,70,31,0],[71,17,71,18,0],[73,17,73,18,0],[78,17,78,38,0],[79,13,79,14,0],[80,9,80,10,0],[90,9,90,10,0],[92,13,92,27,0],[95,9,95,10,0]]);
+      highlightRanges([[16,9,21,11,1],[23,9,23,61,1],[27,9,27,104,1],[28,9,28,10,1],[29,13,29,38,1],[30,13,30,38,1],[31,13,35,15,1],[36,9,36,10,1],[38,9,38,10,1],[39,13,39,65,1],[40,13,40,14,1],[41,17,41,33,1],[44,13,44,96,1],[46,13,46,131,1],[48,13,48,111,1],[49,13,49,42,1],[50,13,50,37,1],[51,13,51,73,1],[53,13,53,29,1],[54,9,54,10,1],[57,9,57,44,1],[60,9,60,10,0],[61,13,61,32,0],[62,13,62,14,0],[63,17,63,31,0],[64,17,64,18,0],[65,21,65,43,0],[66,17,66,18,0],[68,17,68,38,0],[69,13,69,14,0],[70,9,70,10,0],[74,9,74,10,0],[75,13,75,27,0],[76,9,76,10,0]]);
     </script>
   </body>
 </html>

@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthRequest.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\Internal\KeyValues.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
@@ -12,21 +12,19 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Aguacongas.Firebase.TokenManager
+namespace Aguacongas.Identity.Firebase.Internal
 {
-    public class AuthRequest
+    public class KeyValues&lt;T&gt;
     {
-        public string Email { get; set; }
+        public string Key { get; set; }
 
-        public string Password { get; set; }
-
-        public bool ReturnSecureToken { get; set; } = true;
+        public IEnumerable&lt;T&gt; Values { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,31,9,35,1],[9,36,9,40,1],[11,34,11,38,1],[11,39,11,43,1],[13,41,13,45,1],[13,46,13,50,0],[13,55,13,59,1]]);
+      highlightRanges([[9,29,9,33,0],[9,34,9,38,0],[11,40,11,44,0],[11,45,11,49,0]]);
     </script>
   </body>
 </html>

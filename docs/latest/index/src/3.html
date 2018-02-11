@@ -2,41 +2,29 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\Http\HttpExtensions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseResponse.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase
 {
-    public static class HttpExtensions
+    public class FirebaseResponse&lt;T&gt;
     {
-        public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null)
-        {
-            return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
-        }
-        public static async Task&lt;T&gt; DeserializeResponseAsync&lt;T&gt;(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
-        {
-            response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject&lt;T&gt;(jsonResponse, jsonSerializerSettings);
-        }
+        public T Data { get; set; }
 
+        public string Etag { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[14,9,14,10,1],[15,13,15,132,1],[16,9,16,10,1],[18,9,18,10,1],[19,13,19,48,1],[20,13,20,75,1],[21,13,21,91,1],[22,9,22,10,1]]);
+      highlightRanges([[9,25,9,29,1],[9,30,9,34,1],[11,30,11,34,1],[11,35,11,39,1]]);
     </script>
   </body>
 </html>
