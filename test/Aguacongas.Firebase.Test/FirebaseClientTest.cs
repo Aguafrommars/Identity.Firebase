@@ -202,7 +202,7 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var result = await sut.GetAsync<string>("test");
-            Assert.Null(result);
+            Assert.Null(result.Data);
         }
 
         private FirebaseClient CreateSut(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc, FirebaseOptions options)
