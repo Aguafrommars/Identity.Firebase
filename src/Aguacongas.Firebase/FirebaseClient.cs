@@ -134,6 +134,7 @@ namespace Aguacongas.Firebase
                 if (disposing)
                 {
                     _httpClient.Dispose();
+                    _tokenManager.Dispose();
                 }
 
                 disposedValue = true;

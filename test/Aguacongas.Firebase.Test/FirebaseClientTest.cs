@@ -192,17 +192,18 @@ namespace Aguacongase.Identity.Firebase.Test
                 DatabaseUrl = "http://test",
             };
 
-            var sut = CreateSut((request, cancellationToken) =>
+            using (var sut = CreateSut((request, cancellationToken) =>
+             {
+                 Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.OriginalString);
+                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                 {
+                     Content = new StringContent(JsonConvert.SerializeObject(null))
+                 });
+             }, options))
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.OriginalString);
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(null))
-                });
-            }, options);
-
-            var result = await sut.GetAsync<string>("test");
-            Assert.Null(result.Data);
+                var result = await sut.GetAsync<string>("test");
+                Assert.Null(result.Data);
+            }
         }
 
         private FirebaseClient CreateSut(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc, FirebaseOptions options)
