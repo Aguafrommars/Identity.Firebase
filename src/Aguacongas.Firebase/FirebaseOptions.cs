@@ -10,7 +10,5 @@ namespace Aguacongas.Firebase
         public string DatabaseUrl { get; set; }
 
         public JsonSerializerSettings JsonSerializerSettings { get; set; }
-
-        public IFirebaseTokenManager FirebaseTokenManager { get; set; }
     }
 }

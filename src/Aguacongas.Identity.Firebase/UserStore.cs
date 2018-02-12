@@ -143,7 +143,11 @@ namespace Aguacongas.Identity.Firebase
             user.Id = ParseId(response.Data);
             user.ConcurrencyStamp = response.Etag;
             await _client.PutAsync($"indexes/users-names/{user.NormalizedUserName}", user.Id, cancellationToken);
-            await _client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken);
+
+            if(!string.IsNullOrEmpty(user.NormalizedEmail))
+            {
+                await _client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken);
+            }            
 
             return IdentityResult.Success;
         }
