@@ -223,7 +223,7 @@ namespace Aguacongase.Identity.Firebase.Test
             var tokenOptionsMock = new Mock<IOptions<EmailPasswordOptions>>();
             tokenOptionsMock.SetupGet(m => m.Value).Returns(tokenOptions);
 
-            options.FirebaseTokenManager = new EmailPasswordTokenManager(new HttpClient(new DelegatingHandlerStub((request, cancellationToken) =>
+            var tokenManager = new EmailPasswordTokenManager(new HttpClient(new DelegatingHandlerStub((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -241,7 +241,7 @@ namespace Aguacongase.Identity.Firebase.Test
                 });
             })), tokenOptionsMock.Object);
 
-            return new FirebaseClient(client, optionsMock.Object);
+            return new FirebaseClient(client, tokenManager, optionsMock.Object);
         }
     }
 }
