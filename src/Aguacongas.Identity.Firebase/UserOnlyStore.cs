@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,7 +108,10 @@ namespace Aguacongas.Identity.Firebase
             user.Id = ParseId(response.Data);
             user.ConcurrencyStamp = response.Etag;
             await _client.PutAsync($"indexes/users-names/{user.NormalizedUserName}", user.Id, cancellationToken);
-            await _client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken);
+            if (!string.IsNullOrEmpty(user.NormalizedEmail))
+            {
+                await _client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken);
+            }
 
             return IdentityResult.Success;
         }
@@ -127,8 +131,19 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, user.ConcurrencyStamp);
-            user.ConcurrencyStamp = response.Etag;
+            try
+            {
+                var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, user.ConcurrencyStamp);
+                user.ConcurrencyStamp = response.Etag;
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
             return IdentityResult.Success;
         }
 
@@ -147,7 +162,18 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await _client.DeleteAsync($"users/{user.Id}", cancellationToken, user.ConcurrencyStamp);
+            try
+            {
+                await _client.DeleteAsync($"users/{user.Id}", cancellationToken, true, user.ConcurrencyStamp);
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
             return IdentityResult.Success;
         }
 
@@ -454,12 +480,12 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            var response = await _client.GetAsync<IEnumerable<KeyValues<TUserClaim>>>($"claims", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<KeyValue<IEnumerable<TUserClaim>>>>($"claims", cancellationToken);
             var data = response.Data;
             var users = new List<TUser>();
             if (data != null)
             {
-                var userIds = data.Where(uc => uc.Values.Any(c => c.ClaimType == claim.Type && c.ClaimValue == c.ClaimValue))
+                var userIds = data.Where(uc => uc.Value.Any(c => c.ClaimType == claim.Type && c.ClaimValue == c.ClaimValue))
                     .Select(uc => uc.Key);
 
                 foreach (var userId in userIds)
@@ -534,11 +560,17 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user token if it exists.</returns>
         protected override async Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<IEnumerable<KeyValues<TUserToken>>>($"users/{user.Id}/tokens", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<KeyValue<KeyValue<string>>>>($"users/{user.Id}/tokens", cancellationToken);
             if (response.Data != null)
             {
                 return response.Data
-                    .SelectMany(d => d.Values)
+                    .Select(d => new TUserToken
+                    {
+                        UserId = user.Id,
+                        LoginProvider = d.Key,
+                        Name = d.Value.Key,
+                        Value = d.Value.Value
+                    })
                     .Where(t => t.LoginProvider == loginProvider && t.Name == name)
                     .FirstOrDefault();
             }
@@ -552,7 +584,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task AddUserTokenAsync(TUserToken token)
         {
-            await _client.PostAsync($"users/{token.UserId}/tokens", token);
+            await _client.PutAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}", token);
         }
 
 
@@ -563,7 +595,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task RemoveUserTokenAsync(TUserToken token)
         {
-            await _client.DeleteAsync($"users/{token.UserId}/tokens");
+            await _client.DeleteAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}");
         }
     }
 }

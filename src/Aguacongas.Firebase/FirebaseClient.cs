@@ -53,7 +53,7 @@ namespace Aguacongas.Firebase
             return await GetResponse<T>(response);
         }
 
-        public async Task<FirebaseResponse<T>> PatchAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken), string etag = null)
+        public async Task<FirebaseResponse<T>> PatchAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (data == null)
             {
@@ -62,22 +62,23 @@ namespace Aguacongas.Firebase
 
             var message = new HttpRequestMessage(new HttpMethod("PATCH"), await GetFirebaseUrl(url, cancellationToken))
             {
-                Content = _httpClient.CreateJsonContent(data, _jsonSerializerSettings, etag: etag)
+                Content = _httpClient.CreateJsonContent(data, _jsonSerializerSettings)
             };
 
             var response = await _httpClient.SendAsync(message, cancellationToken);
             return await GetResponse<T>(response);
         }
 
-        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), string etag = null)
+        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
         {
             var message = new HttpRequestMessage(new HttpMethod("DELETE"), await GetFirebaseUrl(url, cancellationToken));
             message.Headers.SetIfMath(etag);
+            message.Headers.SetRequestEtag(requestEtag);
 
             using (var response =
                 await _httpClient.SendAsync(message, cancellationToken))
             {
-                response.EnsureSuccessStatusCode();
+                response.EnsureIsSuccess();
             }                
         }
 

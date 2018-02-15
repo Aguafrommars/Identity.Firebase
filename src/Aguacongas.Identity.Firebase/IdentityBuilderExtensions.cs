@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 roleStoreType = typeof(RoleStore<>).MakeGenericType(roleType);
 
                 services.TryAddScoped(typeof(IUserStore<>).MakeGenericType(userType), userStoreType);
-                services.TryAddScoped(typeof(IRoleStore<>).MakeGenericType(userType), roleStoreType);
+                services.TryAddScoped(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
             }
             else
             {   // No Roles

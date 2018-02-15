@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -158,7 +160,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -167,8 +169,20 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, user.ConcurrencyStamp);
-            user.ConcurrencyStamp = response.Etag;
+            try
+            {
+                var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, user.ConcurrencyStamp);
+                user.ConcurrencyStamp = response.Etag;
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
+            
             return IdentityResult.Success;
         }
 
@@ -187,7 +201,18 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await _client.DeleteAsync($"users/{user.Id}", cancellationToken, user.ConcurrencyStamp);
+            try
+            {
+                await _client.DeleteAsync($"users/{user.Id}", cancellationToken, true, user.ConcurrencyStamp);
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
             return IdentityResult.Success;
         }
 
@@ -261,7 +286,6 @@ namespace Aguacongas.Identity.Firebase
             var userRole = CreateUserRole(user, roleEntity);
 
             await _client.PutAsync($"users/{user.Id}/roles/{roleEntity.Id}", userRole, cancellationToken);
-            await _client.PutAsync($"roles/{normalizedRoleName}/{user.Id}", userRole.RoleId, cancellationToken);
         }
 
         /// <summary>
@@ -290,7 +314,6 @@ namespace Aguacongas.Identity.Firebase
                 if (userRole != null)
                 {
                     await _client.DeleteAsync($"users/{user.Id}/roles/{roleEntity.Id}", cancellationToken);
-                    await _client.DeleteAsync($"roles/{normalizedRoleName}/{user.Id}", cancellationToken);
                 }
             }
         }
@@ -618,14 +641,14 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            var response = await _client.GetAsync<IEnumerable<KeyValues<TUserClaim>>>($"claims", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<KeyValue<IEnumerable<TUserClaim>>>>($"claims", cancellationToken);
             var data = response.Data;
             var users = new List<TUser>();
             if (data != null)
             {
-                var userIds = data.Where(uc => uc.Values.Any(c => c.ClaimType == claim.Type && c.ClaimValue == c.ClaimValue))
+                var userIds = data.Where(uc => uc.Value.Any(c => c.ClaimType == claim.Type && c.ClaimValue == c.ClaimValue))
                     .Select(uc => uc.Key);
-                
+
                 foreach (var userId in userIds)
                 {
                     var user = await FindByIdAsync(userId, cancellationToken);
@@ -660,7 +683,7 @@ namespace Aguacongas.Identity.Firebase
 
             if (role != null)
             {
-                var response = await _client.GetAsync<IEnumerable<KeyValues<TKey>>>($"roles/{normalizedRoleName}", cancellationToken);
+                var response = await _client.GetAsync<IEnumerable<KeyValue<TKey>>>($"roles/{normalizedRoleName}", cancellationToken);
                 var data = response.Data;
                 if (data != null)
                 {
@@ -687,8 +710,20 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The role if it exists.</returns>
         protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<TRole>($"roles/{normalizedRoleName}", cancellationToken);
-            return response.Data;
+            var response = await _client.GetAsync<string>($"indexes/role-name/{normalizedRoleName}", cancellationToken);
+            if (response.Data == null)
+            {
+                return null;
+            }
+
+            var roleResponse = await _client.GetAsync<TRole>($"roles/{response.Data}", cancellationToken, true);
+            var role = roleResponse.Data;
+            if (role != null)
+            {
+                role.ConcurrencyStamp = response.Etag;
+            }            
+
+            return role;
         }
 
         /// <summary>
@@ -763,11 +798,17 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user token if it exists.</returns>
         protected override async Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<IEnumerable<KeyValues<TUserToken>>>($"users/{user.Id}/tokens", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<KeyValue<KeyValue<string>>>>($"users/{user.Id}/tokens", cancellationToken);
             if (response.Data != null)
             {
                 return response.Data
-                    .SelectMany(d => d.Values)
+                    .Select(d => new TUserToken
+                    {
+                        UserId = user.Id,
+                        LoginProvider = d.Key,
+                        Name = d.Value.Key,
+                        Value = d.Value.Value
+                    })
                     .Where(t => t.LoginProvider == loginProvider && t.Name == name)
                     .FirstOrDefault();
             }
@@ -781,7 +822,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task AddUserTokenAsync(TUserToken token)
         {
-            await _client.PostAsync($"users/{token.UserId}/tokens", token);
+            await _client.PutAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}", token);
         }
 
 
@@ -792,7 +833,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task RemoveUserTokenAsync(TUserToken token)
         {
-            await _client.DeleteAsync($"users/{token.UserId}/tokens");
+            await _client.DeleteAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}");
         }
     }
 

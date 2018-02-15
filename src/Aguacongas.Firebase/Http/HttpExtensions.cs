@@ -44,7 +44,8 @@ namespace Aguacongas.Firebase
         }
         public static async Task<FirebaseResponse<T>> DeserializeResponseAsync<T>(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
         {
-            response.EnsureSuccessStatusCode();
+            response.EnsureIsSuccess();
+            
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return new FirebaseResponse<T>
             {
@@ -53,5 +54,12 @@ namespace Aguacongas.Firebase
             };
         }
 
+        public static void EnsureIsSuccess(this HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, response.Headers.ETag?.Tag);
+            }
+        }
     }
 }
