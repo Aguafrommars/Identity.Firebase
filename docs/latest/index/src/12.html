@@ -2,52 +2,37 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\UserStore.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\UserOnlyStore.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Aguacongas.Firebase;
 using Aguacongas.Identity.Firebase.Internal;
 using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aguacongas.Identity.Firebase
 {
     /// &lt;summary&gt;
-    /// Represents a new instance of a persistence store for users, using the default implementation
-    /// of &lt;see cref=&quot;IdentityUser{TKey}&quot;/&gt; with a string as a primary key.
-    /// &lt;/summary&gt;
-    public class UserStore : UserStore&lt;IdentityUser&lt;string&gt;&gt;
-    {
-        /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;UserStore&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
-        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-    }
-
-    /// &lt;summary&gt;
     /// Creates a new instance of a persistence store for the specified user type.
     /// &lt;/summary&gt;
     /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
-    public class UserStore&lt;TUser&gt; : UserStore&lt;TUser, IdentityRole, string&gt;
-        where TUser : IdentityUser&lt;string&gt;, new()
+    public class UserOnlyStore&lt;TUser&gt; : UserOnlyStore&lt;TUser, string&gt; where TUser : IdentityUser&lt;string&gt;, new()
     {
         /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser}&quot;/&gt;.
+        /// Constructs a new instance of &lt;see cref=&quot;UserOnlyStore{TUser}&quot;/&gt;.
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;client&quot;&gt;The &lt;see cref=&quot;IFirebaseClient&quot;/&gt;.&lt;/param&gt;
         /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
 
         protected override string ParseId(string id)
         {
@@ -59,73 +44,53 @@ namespace Aguacongas.Identity.Firebase
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// &lt;/summary&gt;
     /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
-    public class UserStore&lt;TUser, TRole&gt; : UserStore&lt;TUser, TRole, string&gt;
-        where TUser : IdentityUser&lt;string&gt;
-        where TRole : IdentityRole&lt;string&gt;
-    {
-        /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser, TRole, TContext}&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
-        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
-    }
-
-    /// &lt;summary&gt;
-    /// Represents a new instance of a persistence store for the specified user and role types.
-    /// &lt;/summary&gt;
-    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
     /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
-    public abstract class UserStore&lt;TUser, TRole, TKey&gt; : UserStore&lt;TUser, TRole, TKey, IdentityUserClaim&lt;TKey&gt;, IdentityUserRole&lt;TKey&gt;, IdentityUserLogin&lt;TKey&gt;, IdentityUserToken&lt;TKey&gt;, IdentityRoleClaim&lt;TKey&gt;&gt;
+    public abstract class UserOnlyStore&lt;TUser, TKey&gt; : UserOnlyStore&lt;TUser, TKey, IdentityUserClaim&lt;TKey&gt;, IdentityUserLogin&lt;TKey&gt;, IdentityUserToken&lt;TKey&gt;&gt;
         where TUser : IdentityUser&lt;TKey&gt;
-        where TRole : IdentityRole&lt;TKey&gt;
         where TKey : IEquatable&lt;TKey&gt;
     {
         /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser, TRole, TContext, TKey}&quot;/&gt;.
+        /// Constructs a new instance of &lt;see cref=&quot;UserStore{TUser, TRole, TKey}&quot;/&gt;.
         /// &lt;/summary&gt;
         /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
         /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
 
     /// &lt;summary&gt;
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// &lt;/summary&gt;
     /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
     /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
     /// &lt;typeparam name=&quot;TUserClaim&quot;&gt;The type representing a claim.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TUserRole&quot;&gt;The type representing a user role.&lt;/typeparam&gt;
     /// &lt;typeparam name=&quot;TUserLogin&quot;&gt;The type representing a user external login.&lt;/typeparam&gt;
     /// &lt;typeparam name=&quot;TUserToken&quot;&gt;The type representing a user token.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TRoleClaim&quot;&gt;The type representing a role claim.&lt;/typeparam&gt;
-    public abstract class UserStore&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt; :
-        UserStoreBase&lt;TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt;
+    public abstract class UserOnlyStore&lt;TUser, TKey, TUserClaim, TUserLogin, TUserToken&gt; :
+        UserStoreBase&lt;TUser, TKey, TUserClaim, TUserLogin, TUserToken&gt;,
+        IUserLoginStore&lt;TUser&gt;,
+        IUserClaimStore&lt;TUser&gt;,
+        IUserPasswordStore&lt;TUser&gt;,
+        IUserSecurityStampStore&lt;TUser&gt;,
+        IUserEmailStore&lt;TUser&gt;,
+        IUserLockoutStore&lt;TUser&gt;,
+        IUserPhoneNumberStore&lt;TUser&gt;,
+        IUserTwoFactorStore&lt;TUser&gt;,
+        IUserAuthenticationTokenStore&lt;TUser&gt;,
+        IUserAuthenticatorKeyStore&lt;TUser&gt;,
+        IUserTwoFactorRecoveryCodeStore&lt;TUser&gt;
         where TUser : IdentityUser&lt;TKey&gt;
-        where TRole : IdentityRole&lt;TKey&gt;
         where TKey : IEquatable&lt;TKey&gt;
         where TUserClaim : IdentityUserClaim&lt;TKey&gt;, new()
-        where TUserRole : IdentityUserRole&lt;TKey&gt;, new()
         where TUserLogin : IdentityUserLogin&lt;TKey&gt;, new()
         where TUserToken : IdentityUserToken&lt;TKey&gt;, new()
-        where TRoleClaim : IdentityRoleClaim&lt;TKey&gt;, new()
     {
         private readonly IFirebaseClient _client;
-
         /// &lt;summary&gt;
         /// Creates a new instance of the store.
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;client&quot;&gt;The client used to access the store.&lt;/param&gt;
+        /// &lt;param name=&quot;context&quot;&gt;The context used to access the store.&lt;/param&gt;
         /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; used to describe store errors.&lt;/param&gt;
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             if (client == null)
             {
@@ -153,11 +118,10 @@ namespace Aguacongas.Identity.Firebase
             user.Id = ParseId(response.Data);
             user.ConcurrencyStamp = response.Etag;
             await _client.PutAsync($&quot;indexes/users-names/{user.NormalizedUserName}&quot;, user.Id, cancellationToken);
-
-            if(!string.IsNullOrEmpty(user.NormalizedEmail))
+            if (!string.IsNullOrEmpty(user.NormalizedEmail))
             {
                 await _client.PutAsync($&quot;indexes/users-email/{user.NormalizedEmail}&quot;, user.Id, cancellationToken);
-            }            
+            }
 
             return IdentityResult.Success;
         }
@@ -177,8 +141,19 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var response = await _client.PutAsync($&quot;users/{user.Id}&quot;, user, cancellationToken, true, user.ConcurrencyStamp);
-            user.ConcurrencyStamp = response.Etag;
+            try
+            {
+                var response = await _client.PutAsync($&quot;users/{user.Id}&quot;, user, cancellationToken, true, user.ConcurrencyStamp);
+                user.ConcurrencyStamp = response.Etag;
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
             return IdentityResult.Success;
         }
 
@@ -197,7 +172,18 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            await _client.DeleteAsync($&quot;users/{user.Id}&quot;, cancellationToken, user.ConcurrencyStamp);
+            try
+            {
+                await _client.DeleteAsync($&quot;users/{user.Id}&quot;, cancellationToken, true, user.ConcurrencyStamp);
+            }
+            catch (FirebaseException e)
+            {
+                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                throw;
+            }
             return IdentityResult.Success;
         }
 
@@ -215,11 +201,11 @@ namespace Aguacongas.Identity.Firebase
             ThrowIfDisposed();
             var response = await _client.GetAsync&lt;TUser&gt;($&quot;users/{userId}&quot;, cancellationToken, true);
             var user = response.Data;
-            if(user != null)
+            if (user != null)
             {
                 user.ConcurrencyStamp = response.Etag;
             }
-            
+
             return user;
         }
 
@@ -241,130 +227,6 @@ namespace Aguacongas.Identity.Firebase
                 return await FindByIdAsync(response.Data, cancellationToken);
             }
             return default(TUser);
-        }
-
-        /// &lt;summary&gt;
-        /// Adds the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; to the specified &lt;paramref name=&quot;user&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;user&quot;&gt;The user to add the role to.&lt;/param&gt;
-        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to add.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public async override Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (roleEntity == null)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, &quot;RoleNotFound {0}&quot;, normalizedRoleName));
-            }
-
-            var userRole = CreateUserRole(user, roleEntity);
-
-            await _client.PutAsync($&quot;users/{user.Id}/roles/{roleEntity.Id}&quot;, userRole, cancellationToken);
-            await _client.PutAsync($&quot;roles/{normalizedRoleName}/{user.Id}&quot;, userRole.RoleId, cancellationToken);
-        }
-
-        /// &lt;summary&gt;
-        /// Removes the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; from the specified &lt;paramref name=&quot;user&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;user&quot;&gt;The user to remove the role from.&lt;/param&gt;
-        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to remove.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public async override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (roleEntity != null)
-            {
-                var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
-                if (userRole != null)
-                {
-                    await _client.DeleteAsync($&quot;users/{user.Id}/roles/{roleEntity.Id}&quot;, cancellationToken);
-                    await _client.DeleteAsync($&quot;roles/{normalizedRoleName}/{user.Id}&quot;, cancellationToken);
-                }
-            }
-        }
-
-        /// &lt;summary&gt;
-        /// Retrieves the roles the specified &lt;paramref name=&quot;user&quot;/&gt; is a member of.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;user&quot;&gt;The user whose roles should be retrieved.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the roles the user is a member of.&lt;/returns&gt;
-        public override async Task&lt;IList&lt;string&gt;&gt; GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var userId = user.Id;
-
-            var response = await _client.GetAsync&lt;IEnumerable&lt;TUserRole&gt;&gt;($&quot;users/{userId}/roles&quot;, cancellationToken);
-            var userRoles = response.Data;
-            if (userRoles != null)
-            {
-                var rolesResponse = await _client.GetAsync&lt;IEnumerable&lt;TRole&gt;&gt;($&quot;roles&quot;, cancellationToken);
-                var roles = rolesResponse.Data;
-                if (roles != null)
-                {
-                    return (from userRole in userRoles
-                           join role in roles on userRole.RoleId equals role.Id
-                           where userRole.UserId.Equals(userId)
-                           select role.Name).ToList();
-                }
-            }
-            return new List&lt;string&gt;(0);
-        }
-
-        /// &lt;summary&gt;
-        /// Returns a flag indicating if the specified user is a member of the give &lt;paramref name=&quot;normalizedRoleName&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;user&quot;&gt;The user whose role membership should be checked.&lt;/param&gt;
-        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to check membership of&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; containing a flag indicating if the specified user is a member of the given group. If the 
-        /// user is a member of the group the returned value with be true, otherwise it will be false.&lt;/returns&gt;
-        public override async Task&lt;bool&gt; IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            if (role != null)
-            {
-                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
-                return userRole != null;
-            }
-            return false;
         }
 
         /// &lt;summary&gt;
@@ -417,7 +279,7 @@ namespace Aguacongas.Identity.Firebase
             {
                 userClaims.AddRange(data);
             }
-            
+
             await _client.PutAsync($&quot;claims/{user.Id}&quot;, userClaims, cancellationToken);
         }
 
@@ -628,14 +490,14 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TUserClaim&gt;&gt;&gt;($&quot;claims&quot;, cancellationToken);
+            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValue&lt;IEnumerable&lt;TUserClaim&gt;&gt;&gt;&gt;($&quot;claims&quot;, cancellationToken);
             var data = response.Data;
             var users = new List&lt;TUser&gt;();
             if (data != null)
             {
-                var userIds = data.Where(uc =&gt; uc.Values.Any(c =&gt; c.ClaimType == claim.Type &amp;&amp; c.ClaimValue == c.ClaimValue))
+                var userIds = data.Where(uc =&gt; uc.Value.Any(c =&gt; c.ClaimType == claim.Type &amp;&amp; c.ClaimValue == c.ClaimValue))
                     .Select(uc =&gt; uc.Key);
-                
+
                 foreach (var userId in userIds)
                 {
                     var user = await FindByIdAsync(userId, cancellationToken);
@@ -648,72 +510,7 @@ namespace Aguacongas.Identity.Firebase
             return users;
         }
 
-        /// &lt;summary&gt;
-        /// Retrieves all users in the specified role.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role whose users should be retrieved.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;
-        /// The &lt;see cref=&quot;Task&quot;/&gt; contains a list of users, if any, that are in the specified role. 
-        /// &lt;/returns&gt;
-        public async override Task&lt;IList&lt;TUser&gt;&gt; GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (string.IsNullOrEmpty(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            var users = new List&lt;TUser&gt;();
-
-            if (role != null)
-            {
-                var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TKey&gt;&gt;&gt;($&quot;roles/{normalizedRoleName}&quot;, cancellationToken);
-                var data = response.Data;
-                if (data != null)
-                {
-                    foreach(var keyValues in data)
-                    {
-                        var user = await FindByIdAsync(keyValues.Key, cancellationToken);
-                        if (user != null)
-                        {
-                            users.Add(user);
-                        }
-                    }
-                }
-            }
-            return users;
-        }
-
         protected abstract TKey ParseId(string id);
-
-        /// &lt;summary&gt;
-        /// Return a role with the normalized name if it exists.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The normalized role name.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The role if it exists.&lt;/returns&gt;
-        protected override async Task&lt;TRole&gt; FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            var response = await _client.GetAsync&lt;TRole&gt;($&quot;roles/{normalizedRoleName}&quot;, cancellationToken);
-            return response.Data;
-        }
-
-        /// &lt;summary&gt;
-        /// Return a user role for the userId and roleId if it exists.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
-        /// &lt;param name=&quot;roleId&quot;&gt;The role&#39;s id.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The user role if it exists.&lt;/returns&gt;
-        protected override async Task&lt;TUserRole&gt; FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
-        {
-            var response = await _client.GetAsync&lt;TUserRole&gt;($&quot;users/{userId}/roles/{roleId}&quot;, cancellationToken);
-
-            return response.Data;
-        }
 
         /// &lt;summary&gt;
         /// Return a user with the matching userId if it exists.
@@ -773,11 +570,17 @@ namespace Aguacongas.Identity.Firebase
         /// &lt;returns&gt;The user token if it exists.&lt;/returns&gt;
         protected override async Task&lt;TUserToken&gt; FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValues&lt;TUserToken&gt;&gt;&gt;($&quot;users/{user.Id}/tokens&quot;, cancellationToken);
+            var response = await _client.GetAsync&lt;IEnumerable&lt;KeyValue&lt;KeyValue&lt;string&gt;&gt;&gt;&gt;($&quot;users/{user.Id}/tokens&quot;, cancellationToken);
             if (response.Data != null)
             {
                 return response.Data
-                    .SelectMany(d =&gt; d.Values)
+                    .Select(d =&gt; new TUserToken
+                    {
+                        UserId = user.Id,
+                        LoginProvider = d.Key,
+                        Name = d.Value.Key,
+                        Value = d.Value.Value
+                    })
                     .Where(t =&gt; t.LoginProvider == loginProvider &amp;&amp; t.Name == name)
                     .FirstOrDefault();
             }
@@ -791,7 +594,7 @@ namespace Aguacongas.Identity.Firebase
         /// &lt;returns&gt;&lt;/returns&gt;
         protected override async Task AddUserTokenAsync(TUserToken token)
         {
-            await _client.PostAsync($&quot;users/{token.UserId}/tokens&quot;, token);
+            await _client.PutAsync($&quot;users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}&quot;, token);
         }
 
 
@@ -802,15 +605,14 @@ namespace Aguacongas.Identity.Firebase
         /// &lt;returns&gt;&lt;/returns&gt;
         protected override async Task RemoveUserTokenAsync(TUserToken token)
         {
-            await _client.DeleteAsync($&quot;users/{token.UserId}/tokens&quot;);
+            await _client.DeleteAsync($&quot;users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}&quot;);
         }
     }
-
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[25,93,25,116,1],[25,117,25,118,1],[25,119,25,120,1],[40,93,40,116,1],[40,117,40,118,1],[40,119,40,120,1],[43,9,43,10,0],[44,13,44,23,0],[45,9,45,10,0],[62,93,62,116,1],[62,117,62,118,1],[62,119,62,120,1],[65,9,65,10,1],[66,13,66,23,1],[67,9,67,10,1],[86,93,86,116,1],[86,117,86,118,1],[86,119,86,120,1],[118,93,118,140,1],[119,9,119,10,1],[120,13,120,32,1],[121,13,121,14,1],[122,17,122,65,1],[124,13,124,30,1],[125,9,125,10,1],[134,9,134,10,1],[135,13,135,62,1],[136,13,136,31,1],[137,13,137,30,1],[138,13,138,14,1],[139,17,139,63,1],[142,13,142,86,1],[143,13,143,46,1],[144,13,144,51,1],[145,13,145,114,1],[147,13,147,60,1],[148,13,148,14,1],[149,17,149,115,1],[150,13,150,14,1],[152,13,152,43,1],[153,9,153,10,1],[162,9,162,10,1],[163,13,163,62,1],[164,13,164,31,1],[165,13,165,30,1],[166,13,166,14,1],[167,17,167,63,1],[170,13,170,125,0],[171,13,171,51,0],[172,13,172,43,0],[173,9,173,10,0],[182,9,182,10,1],[183,13,183,62,1],[184,13,184,31,1],[185,13,185,30,1],[186,13,186,14,1],[187,17,187,63,1],[190,13,190,101,1],[191,13,191,43,1],[192,9,192,10,1],[203,9,203,10,1],[204,13,204,62,1],[205,13,205,31,1],[206,13,206,102,0],[207,13,207,38,0],[208,13,208,29,0],[209,13,209,14,0],[210,17,210,55,0],[211,13,211,14,0],[213,13,213,25,0],[214,9,214,10,0],[225,9,225,10,1],[226,13,226,62,1],[227,13,227,31,1],[228,13,228,123,1],[229,13,229,54,1],[230,13,230,14,0],[231,17,231,78,0],[233,13,233,35,1],[234,9,234,10,1],[244,9,244,10,1],[245,13,245,62,1],[246,13,246,31,1],[247,13,247,30,1],[248,13,248,14,1],[249,17,249,63,1],[251,13,251,63,1],[252,13,252,14,1],[253,17,253,77,1],[255,13,255,89,0],[256,13,256,36,0],[257,13,257,14,0],[258,17,258,136,0],[261,13,261,61,0],[263,13,263,107,0],[264,13,264,113,0],[265,9,265,10,0],[275,9,275,10,1],[276,13,276,62,1],[277,13,277,31,1],[278,13,278,30,1],[279,13,279,14,1],[280,17,280,63,1],[282,13,282,63,1],[283,13,283,14,1],[284,17,284,77,1],[286,13,286,89,0],[287,13,287,36,0],[288,13,288,14,0],[289,17,289,99,0],[290,17,290,38,0],[291,17,291,18,0],[292,21,292,108,0],[293,21,293,107,0],[294,17,294,18,0],[295,13,295,14,0],[296,9,296,10,0],[305,9,305,10,1],[306,13,306,62,1],[307,13,307,31,1],[308,13,308,30,1],[309,13,309,14,1],[310,17,310,63,1],[312,13,312,34,0],[314,13,314,119,0],[315,13,315,43,0],[316,13,316,35,0],[317,13,317,14,0],[318,17,318,109,0],[319,17,319,48,0],[320,17,320,35,0],[321,17,321,18,0],[322,21,323,28,0],[323,28,323,50,0],[323,50,323,65,0],[323,65,323,80,0],[323,28,323,80,0],[323,80,323,73,0],[323,73,323,80,0],[323,80,324,34,0],[324,34,324,64,0],[324,64,325,35,0],[325,35,325,44,0],[325,44,325,55,0],[322,21,325,55,0],[327,13,327,14,0],[328,13,328,40,0],[329,9,329,10,0],[340,9,340,10,1],[341,13,341,62,1],[342,13,342,31,1],[343,13,343,30,1],[344,13,344,14,1],[345,17,345,63,1],[347,13,347,63,1],[348,13,348,14,1],[349,17,349,77,1],[351,13,351,83,0],[352,13,352,30,0],[353,13,353,14,0],[354,17,354,93,0],[355,17,355,41,0],[357,13,357,26,0],[358,9,358,10,0],[367,9,367,10,1],[368,13,368,62,1],[369,13,369,31,1],[370,13,370,30,1],[371,13,371,14,1],[372,17,372,63,1],[374,13,374,116,0],[375,13,375,38,0],[376,13,376,30,0],[377,13,377,14,0],[378,17,378,41,0],[378,41,378,52,0],[378,52,378,63,0],[378,17,378,63,0],[380,13,380,39,0],[381,9,381,10,0],[391,9,391,10,1],[392,13,392,62,1],[393,13,393,31,1],[394,13,394,30,1],[395,13,395,14,1],[396,17,396,63,1],[398,13,398,32,1],[399,13,399,14,1],[400,17,400,65,1],[403,13,403,62,0],[403,62,403,86,0],[403,86,403,97,0],[403,13,403,97,0],[404,13,404,116,0],[405,13,405,38,0],[406,13,406,30,0],[407,13,407,14,0],[408,17,408,43,0],[409,13,409,14,0],[411,13,411,88,0],[412,9,412,10,0],[423,9,423,10,1],[424,13,424,62,1],[425,13,425,31,1],[426,13,426,30,1],[427,13,427,14,1],[428,17,428,63,1],[430,13,430,31,0],[431,13,431,14,0],[432,17,432,64,0],[434,13,434,34,0],[435,13,435,14,0],[436,17,436,67,0],[439,13,439,116,0],[440,13,440,38,0],[441,13,441,30,0],[442,13,442,14,0],[443,17,443,54,0],[443,54,443,112,0],[443,112,443,114,0],[443,17,443,114,0],[444,17,444,24,0],[444,26,444,42,0],[444,43,444,45,0],[444,46,444,59,0],[445,17,445,18,0],[446,21,446,62,0],[447,21,447,60,0],[448,17,448,18,0],[449,17,449,86,0],[450,13,450,14,0],[451,9,451,10,0],[461,9,461,10,1],[462,13,462,31,1],[463,13,463,30,1],[464,13,464,14,1],[465,17,465,63,1],[467,13,467,32,1],[468,13,468,14,1],[469,17,469,65,1],[472,13,472,109,0],[473,13,473,38,0],[474,13,474,30,0],[475,13,475,14,0],[476,17,476,24,0],[476,26,476,35,0],[476,36,476,38,0],[476,39,476,45,0],[477,17,477,18,0],[478,21,478,42,0],[478,42,478,100,0],[478,100,478,102,0],[478,21,478,102,0],[479,17,479,18,0],[480,17,480,86,0],[481,13,481,14,0],[482,9,482,10,0],[493,9,493,10,1],[494,13,494,62,1],[495,13,495,31,1],[496,13,496,30,1],[497,13,497,14,1],[498,17,498,63,1],[500,13,500,31,1],[501,13,501,14,1],[502,17,502,64,1],[505,13,505,115,0],[506,13,506,65,0],[507,13,507,52,0],[509,13,509,88,0],[510,13,510,132,0],[511,9,511,10,0],[523,9,523,10,1],[524,13,524,62,1],[525,13,525,31,1],[526,13,526,30,1],[527,13,527,14,1],[528,17,528,63,1],[530,13,530,115,0],[531,13,531,65,0],[532,13,532,33,0],[532,33,532,97,0],[532,97,532,99,0],[532,13,532,99,0],[534,13,534,88,0],[535,13,535,114,0],[536,9,536,10,0],[547,9,547,10,1],[548,13,548,62,1],[549,13,549,31,1],[550,13,550,30,1],[551,13,551,14,1],[552,17,552,63,1],[555,13,555,115,0],[556,13,556,65,0],[558,13,558,37,0],[558,37,558,109,0],[558,109,558,120,0],[558,13,558,120,0],[559,9,559,10,0],[572,9,572,10,1],[573,13,573,62,1],[574,13,574,31,1],[575,13,575,101,0],[576,13,576,35,0],[577,13,577,14,0],[578,17,578,81,0],[580,13,580,25,0],[581,9,581,10,0],[592,9,592,10,0],[593,13,593,62,0],[594,13,594,31,0],[596,13,596,118,0],[597,13,597,39,0],[598,13,598,14,0],[599,17,599,89,0],[601,13,601,25,0],[602,9,602,10,0],[613,9,613,10,0],[614,13,614,62,0],[615,13,615,31,0],[616,13,616,31,0],[617,13,617,14,0],[618,17,618,64,0],[621,13,621,117,0],[622,13,622,38,0],[623,13,623,43,0],[624,13,624,30,0],[625,13,625,14,0],[626,17,626,48,0],[626,48,626,67,0],[626,67,626,124,0],[626,124,626,125,0],[626,48,626,125,0],[626,125,627,35,0],[627,35,627,41,0],[627,41,627,43,0],[626,17,627,43,0],[629,17,629,24,0],[629,26,629,36,0],[629,37,629,39,0],[629,40,629,47,0],[630,17,630,18,0],[631,21,631,79,0],[632,21,632,38,0],[633,21,633,22,0],[634,25,634,41,0],[635,21,635,22,0],[636,17,636,18,0],[637,13,637,14,0],[638,13,638,26,0],[639,9,639,10,0],[650,9,650,10,0],[651,13,651,62,0],[652,13,652,31,0],[653,13,653,58,0],[654,13,654,14,0],[655,17,655,77,0],[658,13,658,83,0],[659,13,659,43,0],[661,13,661,30,0],[662,13,662,14,0],[663,17,663,135,0],[664,17,664,42,0],[665,17,665,34,0],[666,17,666,18,0],[667,21,667,28,0],[667,29,667,42,0],[667,43,667,45,0],[667,46,667,50,0],[668,21,668,22,0],[669,25,669,90,0],[670,25,670,42,0],[671,25,671,26,0],[672,29,672,45,0],[673,25,673,26,0],[674,21,674,22,0],[675,17,675,18,0],[676,13,676,14,0],[677,13,677,26,0],[678,9,678,10,0],[689,9,689,10,0],[690,13,690,108,0],[691,13,691,34,0],[692,9,692,10,0],[702,9,702,10,0],[703,13,703,115,0],[705,13,705,34,0],[706,9,706,10,0],[715,9,715,10,0],[716,13,716,72,0],[717,9,717,10,0],[728,9,728,10,0],[729,13,729,121,0],[730,13,730,38,0],[731,13,731,30,0],[732,13,732,14,0],[733,17,733,58,0],[733,58,733,138,0],[733,138,733,140,0],[733,17,733,140,0],[735,13,735,25,0],[736,9,736,10,0],[746,9,746,10,0],[747,13,747,132,0],[748,13,748,38,0],[749,13,749,30,0],[750,13,750,14,0],[751,17,751,102,0],[753,13,753,25,0],[754,9,754,10,0],[765,9,765,10,0],[766,13,766,133,0],[767,13,767,39,0],[768,13,768,14,0],[769,17,770,38,0],[770,38,770,46,0],[770,46,771,33,0],[771,33,771,83,0],[771,83,772,39,0],[769,17,772,39,0],[774,13,774,25,0],[775,9,775,10,0],[783,9,783,10,0],[784,13,784,76,0],[785,9,785,10,0],[794,9,794,10,0],[795,13,795,71,0],[796,9,796,10,0]]);
+      highlightRanges([[25,97,25,120,0],[25,121,25,122,0],[25,123,25,124,0],[28,9,28,10,0],[29,13,29,23,0],[30,9,30,10,0],[47,97,47,120,0],[47,121,47,122,0],[47,123,47,124,0],[83,97,83,144,0],[84,9,84,10,0],[85,13,85,32,0],[86,13,86,14,0],[87,17,87,65,0],[89,13,89,30,0],[90,9,90,10,0],[99,9,99,10,0],[100,13,100,62,0],[101,13,101,31,0],[102,13,102,30,0],[103,13,103,14,0],[104,17,104,63,0],[107,13,107,86,0],[108,13,108,46,0],[109,13,109,51,0],[110,13,110,114,0],[111,13,111,61,0],[112,13,112,14,0],[113,17,113,115,0],[114,13,114,14,0],[116,13,116,43,0],[117,9,117,10,0],[126,9,126,10,0],[127,13,127,62,0],[128,13,128,31,0],[129,13,129,30,0],[130,13,130,14,0],[131,17,131,63,0],[135,13,135,14,0],[136,17,136,129,0],[137,17,137,55,0],[138,13,138,14,0],[139,13,139,40,0],[140,13,140,14,0],[141,17,141,71,0],[142,17,142,18,0],[143,21,143,87,0],[145,17,145,23,0],[147,13,147,43,0],[148,9,148,10,0],[157,9,157,10,0],[158,13,158,62,0],[159,13,159,31,0],[160,13,160,30,0],[161,13,161,14,0],[162,17,162,63,0],[166,13,166,14,0],[167,17,167,111,0],[168,13,168,14,0],[169,13,169,40,0],[170,13,170,14,0],[171,17,171,71,0],[172,17,172,18,0],[173,21,173,87,0],[175,17,175,23,0],[177,13,177,43,0],[178,9,178,10,0],[189,9,189,10,0],[190,13,190,62,0],[191,13,191,31,0],[192,13,192,102,0],[193,13,193,38,0],[194,13,194,30,0],[195,13,195,14,0],[196,17,196,55,0],[197,13,197,14,0],[199,13,199,25,0],[200,9,200,10,0],[211,9,211,10,0],[212,13,212,62,0],[213,13,213,31,0],[214,13,214,123,0],[215,13,215,54,0],[216,13,216,14,0],[217,17,217,78,0],[219,13,219,35,0],[220,9,220,10,0],[229,9,229,10,0],[230,13,230,62,0],[231,13,231,31,0],[232,13,232,30,0],[233,13,233,14,0],[234,17,234,63,0],[236,13,236,116,0],[237,13,237,38,0],[238,13,238,30,0],[239,13,239,14,0],[240,17,240,41,0],[240,41,240,52,0],[240,52,240,63,0],[240,17,240,63,0],[242,13,242,39,0],[243,9,243,10,0],[253,9,253,10,0],[254,13,254,62,0],[255,13,255,31,0],[256,13,256,30,0],[257,13,257,14,0],[258,17,258,63,0],[260,13,260,32,0],[261,13,261,14,0],[262,17,262,65,0],[265,13,265,62,0],[265,62,265,86,0],[265,86,265,97,0],[265,13,265,97,0],[266,13,266,116,0],[267,13,267,38,0],[268,13,268,30,0],[269,13,269,14,0],[270,17,270,43,0],[271,13,271,14,0],[273,13,273,88,0],[274,9,274,10,0],[285,9,285,10,0],[286,13,286,62,0],[287,13,287,31,0],[288,13,288,30,0],[289,13,289,14,0],[290,17,290,63,0],[292,13,292,31,0],[293,13,293,14,0],[294,17,294,64,0],[296,13,296,34,0],[297,13,297,14,0],[298,17,298,67,0],[301,13,301,116,0],[302,13,302,38,0],[303,13,303,30,0],[304,13,304,14,0],[305,17,305,54,0],[305,54,305,112,0],[305,112,305,114,0],[305,17,305,114,0],[306,17,306,24,0],[306,26,306,42,0],[306,43,306,45,0],[306,46,306,59,0],[307,17,307,18,0],[308,21,308,62,0],[309,21,309,60,0],[310,17,310,18,0],[311,17,311,86,0],[312,13,312,14,0],[313,9,313,10,0],[323,9,323,10,0],[324,13,324,31,0],[325,13,325,30,0],[326,13,326,14,0],[327,17,327,63,0],[329,13,329,32,0],[330,13,330,14,0],[331,17,331,65,0],[334,13,334,109,0],[335,13,335,38,0],[336,13,336,30,0],[337,13,337,14,0],[338,17,338,24,0],[338,26,338,35,0],[338,36,338,38,0],[338,39,338,45,0],[339,17,339,18,0],[340,21,340,42,0],[340,42,340,100,0],[340,100,340,102,0],[340,21,340,102,0],[341,17,341,18,0],[342,17,342,86,0],[343,13,343,14,0],[344,9,344,10,0],[355,9,355,10,0],[356,13,356,62,0],[357,13,357,31,0],[358,13,358,30,0],[359,13,359,14,0],[360,17,360,63,0],[362,13,362,31,0],[363,13,363,14,0],[364,17,364,64,0],[367,13,367,115,0],[368,13,368,65,0],[369,13,369,52,0],[371,13,371,88,0],[372,13,372,132,0],[373,9,373,10,0],[385,9,385,10,0],[386,13,386,62,0],[387,13,387,31,0],[388,13,388,30,0],[389,13,389,14,0],[390,17,390,63,0],[392,13,392,115,0],[393,13,393,65,0],[394,13,394,33,0],[394,33,394,97,0],[394,97,394,99,0],[394,13,394,99,0],[396,13,396,88,0],[397,13,397,114,0],[398,9,398,10,0],[409,9,409,10,0],[410,13,410,62,0],[411,13,411,31,0],[412,13,412,30,0],[413,13,413,14,0],[414,17,414,63,0],[417,13,417,115,0],[418,13,418,65,0],[420,13,420,37,0],[420,37,420,109,0],[420,109,420,120,0],[420,13,420,120,0],[421,9,421,10,0],[434,9,434,10,0],[435,13,435,62,0],[436,13,436,31,0],[437,13,437,101,0],[438,13,438,35,0],[439,13,439,14,0],[440,17,440,81,0],[442,13,442,25,0],[443,9,443,10,0],[454,9,454,10,0],[455,13,455,62,0],[456,13,456,31,0],[458,13,458,118,0],[459,13,459,39,0],[460,13,460,14,0],[461,17,461,89,0],[463,13,463,25,0],[464,9,464,10,0],[475,9,475,10,0],[476,13,476,62,0],[477,13,477,31,0],[478,13,478,31,0],[479,13,479,14,0],[480,17,480,64,0],[483,13,483,129,0],[484,13,484,38,0],[485,13,485,43,0],[486,13,486,30,0],[487,13,487,14,0],[488,17,488,48,0],[488,48,488,66,0],[488,66,488,123,0],[488,123,488,124,0],[488,48,488,124,0],[488,124,489,35,0],[489,35,489,41,0],[489,41,489,43,0],[488,17,489,43,0],[491,17,491,24,0],[491,26,491,36,0],[491,37,491,39,0],[491,40,491,47,0],[492,17,492,18,0],[493,21,493,79,0],[494,21,494,38,0],[495,21,495,22,0],[496,25,496,41,0],[497,21,497,22,0],[498,17,498,18,0],[499,13,499,14,0],[500,13,500,26,0],[501,9,501,10,0],[512,9,512,10,0],[513,13,513,72,0],[514,9,514,10,0],[525,9,525,10,0],[526,13,526,121,0],[527,13,527,38,0],[528,13,528,30,0],[529,13,529,14,0],[530,17,530,58,0],[530,58,530,138,0],[530,138,530,140,0],[530,17,530,140,0],[532,13,532,25,0],[533,9,533,10,0],[543,9,543,10,0],[544,13,544,132,0],[545,13,545,38,0],[546,13,546,30,0],[547,13,547,14,0],[548,17,548,102,0],[550,13,550,25,0],[551,9,551,10,0],[562,9,562,10,0],[563,13,563,138,0],[564,13,564,39,0],[565,13,565,14,0],[566,17,567,34,0],[567,34,573,22,0],[573,22,574,33,0],[574,33,574,83,0],[574,83,575,39,0],[566,17,575,39,0],[577,13,577,25,0],[578,9,578,10,0],[586,9,586,10,0],[587,13,587,110,0],[588,9,588,10,0],[597,9,597,10,0],[598,13,598,106,0],[599,9,599,10,0]]);
     </script>
   </body>
 </html>

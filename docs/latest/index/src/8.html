@@ -2,95 +2,32 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordTokenManager.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordOptions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Aguacongas.Firebase.TokenManager
 {
-    public class EmailPasswordTokenManager : IFirebaseTokenManager, IDisposable
+    public class EmailPasswordOptions
     {
-        private readonly HttpClient _httpClient;
-        private readonly EmailPasswordOptions _options;
-        private readonly AuthRequest _authRequest;
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
+        public string Email { get; set; }
 
-        private DateTime _nextRenewTime = DateTime.MinValue;
-        private string _authKey;
+        public string Password { get; set; }
+        public string ApiKey { get; set; }
 
-
-        public EmailPasswordTokenManager(HttpClient httpClient, IOptions&lt;EmailPasswordOptions&gt; options)
-        {
-            _httpClient = httpClient;
-            _options = options.Value;
-            _authRequest = new AuthRequest
-            {
-                Email = _options.Email,
-                Password = _options.Password
-            };            
-        }
-        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (_nextRenewTime &gt; DateTime.UtcNow.AddSeconds(-1))
-            {
-                return _authKey;
-            }
-
-            var content = _httpClient.CreateJsonContent(_authRequest, _jsonSerializerSettings);
-
-            var response = await _httpClient.PostAsync($&quot;{_options.SignUpUrl}?key={_options.ApiKey}&quot;, content, cancellationToken);
-
-            var authResponse = await response.DeserializeResponseAsync&lt;AuthResponse&gt;(_jsonSerializerSettings);
-            var data = authResponse.Data;
-            _authKey = data.IdToken;
-            _nextRenewTime = DateTime.UtcNow.AddSeconds(data.ExpiresIn);
-
-            return _authKey;
-        }
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _httpClient.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        #endregion
+        public string SignUpUrl { get; set; } = &quot;https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword&quot;;
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[16,9,21,11,1],[23,9,23,61,1],[27,9,27,104,1],[28,9,28,10,1],[29,13,29,38,1],[30,13,30,38,1],[31,13,35,15,1],[36,9,36,10,1],[38,9,38,10,1],[39,13,39,65,1],[40,13,40,14,1],[41,17,41,33,1],[44,13,44,96,1],[46,13,46,131,1],[48,13,48,111,1],[49,13,49,42,1],[50,13,50,37,1],[51,13,51,73,1],[53,13,53,29,1],[54,9,54,10,1],[57,9,57,44,1],[60,9,60,10,1],[61,13,61,32,1],[62,13,62,14,1],[63,17,63,31,1],[64,17,64,18,1],[65,21,65,43,1],[66,17,66,18,1],[68,17,68,38,1],[69,13,69,14,1],[70,9,70,10,1],[74,9,74,10,1],[75,13,75,27,1],[76,9,76,10,1]]);
+      highlightRanges([[9,31,9,35,1],[9,36,9,40,1],[11,34,11,38,1],[11,39,11,43,1],[12,32,12,36,1],[12,37,12,41,1],[14,35,14,39,1],[14,40,14,44,1],[14,49,14,124,1]]);
     </script>
   </body>
 </html>
