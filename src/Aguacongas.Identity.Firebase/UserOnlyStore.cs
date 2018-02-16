@@ -75,6 +75,7 @@ namespace Aguacongas.Identity.Firebase
         where TUserToken : IdentityUserToken<TKey>, new()
     {
         private readonly IFirebaseClient _client;
+
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
@@ -500,7 +501,67 @@ namespace Aguacongas.Identity.Firebase
             return users;
         }
 
-        protected abstract TKey ParseId(string id);
+        /// <summary>
+        /// Return a user login with the matching userId, provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        internal Task<TUserLogin> FindUserLoginInternalAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            return FindUserLoginAsync(userId, loginProvider, providerKey, cancellationToken);
+        }
+
+        /// <summary>
+        /// Return a user login with  provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        internal Task<TUserLogin> FindUserLoginInternalAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            return FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+        }
+
+        /// <summary>
+        /// Find a user token if it exists.
+        /// </summary>
+        /// <param name="user">The token owner.</param>
+        /// <param name="loginProvider">The login provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user token if it exists.</returns>
+        internal Task<TUserToken> FindTokenInternalAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            return FindTokenAsync(user, loginProvider, name, cancellationToken);
+        }
+
+        /// <summary>
+        /// Add a new user token.
+        /// </summary>
+        /// <param name="token">The token to be added.</param>
+        /// <returns></returns>
+        internal Task AddUserTokenInternalAsync(TUserToken token)
+        {
+            return AddUserTokenAsync(token);
+        }
+
+
+        /// <summary>
+        /// Remove a new user token.
+        /// </summary>
+        /// <param name="token">The token to be removed.</param>
+        /// <returns></returns>
+        internal Task RemoveUserTokenInternalAsync(TUserToken token)
+        {
+            return RemoveUserTokenAsync(token);
+        }
+
+
+        protected abstract TKey ParseId(string id);        
 
         /// <summary>
         /// Return a user with the matching userId if it exists.
