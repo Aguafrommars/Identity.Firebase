@@ -1,6 +1,7 @@
 ﻿using Aguacongas.Firebase;
 using Aguacongas.Firebase.TokenManager;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Test;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
@@ -139,9 +140,11 @@ namespace Aguacongas.Identity.Firebase.Test
                 It.IsAny<bool>(),
                 It.IsAny<string>()), Times.Never);
 
+            clientMock.Setup(m => m.DeleteAsync($"users/{user.Id}", It.IsAny<CancellationToken>(), true, It.IsAny<string>())).Returns(Task.CompletedTask);
+
             IdentityResultAssert.IsSuccess(await manager.DeleteAsync(user));
 
-            clientMock.Verify(m => m.DeleteAsync($"users/{user.Id}", It.IsAny<CancellationToken>(), true, user.ConcurrencyStamp), Times.Once);
+            clientMock.Verify(m => m.DeleteAsync($"users/{user.Id}", It.IsAny<CancellationToken>(), true, It.IsAny<string>()), Times.Once);
 
             user.Email = "test@test.com";
 
@@ -215,7 +218,7 @@ namespace Aguacongas.Identity.Firebase.Test
                     Etag = Guid.NewGuid().ToString()
                 });
             clientMock2.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith("users/")), It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test"));
+               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
 
             var user1 = await manager1.FindByIdAsync(user.Id);
             var user2 = await manager2.FindByIdAsync(user.Id);
@@ -263,7 +266,7 @@ namespace Aguacongas.Identity.Firebase.Test
                     Etag = Guid.NewGuid().ToString()
                 });
             clientMock2.Setup(m => m.DeleteAsync(It.Is<string>(value => value.StartsWith("users/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test"));
+                .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
 
             var user1 = await manager1.FindByIdAsync(user.Id);
             var user2 = await manager2.FindByIdAsync(user.Id);
@@ -296,7 +299,7 @@ namespace Aguacongas.Identity.Firebase.Test
 
             var manager2 = CreateRoleManager(out Mock<IFirebaseClient> clientMock2);
             clientMock2.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test"));
+               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
 
             var role1 = await manager1.FindByIdAsync(role.Id);
             var role2 = await manager2.FindByIdAsync(role.Id);
@@ -330,7 +333,7 @@ namespace Aguacongas.Identity.Firebase.Test
 
             var manager2 = CreateRoleManager(out Mock<IFirebaseClient> clientMock2);
             clientMock2.Setup(m => m.DeleteAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test"));
+               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
 
             var role1 = await manager1.FindByIdAsync(role.Id);
             var role2 = await manager2.FindByIdAsync(role.Id);
@@ -347,7 +350,7 @@ namespace Aguacongas.Identity.Firebase.Test
         public async Task FindByIdTest()
         {
             var user = CreateTestUser();
-            var manager = await LazyLoadTestSetup(user);
+            var manager = await TestSetup(user);
 
             var userById = await manager.FindByIdAsync(user.Id.ToString());
             Assert.Equal(2, (await manager.GetClaimsAsync(userById)).Count);
@@ -359,7 +362,7 @@ namespace Aguacongas.Identity.Firebase.Test
         public async Task FindByNameTest()
         {
             var user = CreateTestUser();
-            var manager = await LazyLoadTestSetup(user);
+            var manager = await TestSetup(user);
 
             var userByName = await manager.FindByNameAsync(user.UserName);
             Assert.Equal(2, (await manager.GetClaimsAsync(userByName)).Count);
@@ -371,7 +374,7 @@ namespace Aguacongas.Identity.Firebase.Test
         public async Task FindByLoginTest()
         {
             var user = CreateTestUser();
-            var manager = await LazyLoadTestSetup(user);
+            var manager = await TestSetup(user);
 
             var userByLogin = await manager.FindByLoginAsync("provider", user.Id.ToString());
             Assert.Equal(2, (await manager.GetClaimsAsync(userByLogin)).Count);
@@ -383,7 +386,7 @@ namespace Aguacongas.Identity.Firebase.Test
         public async Task FindByEmailTest()
         {
             var user = CreateTestUser();
-            var manager = await LazyLoadTestSetup(user);
+            var manager = await TestSetup(user);
 
             var userByEmail = await manager.FindByEmailAsync(user.Email);
             Assert.Equal(2, (await manager.GetClaimsAsync(userByEmail)).Count);
@@ -391,7 +394,7 @@ namespace Aguacongas.Identity.Firebase.Test
             Assert.Equal(2, (await manager.GetRolesAsync(userByEmail)).Count);
         }
 
-        private async Task<UserManager<IdentityUser>> LazyLoadTestSetup(IdentityUser user)
+        private async Task<UserManager<IdentityUser>> TestSetup(IdentityUser user)
         {
             var manager = CreateManager(out Mock<IFirebaseClient> clientMock);
             var role = CreateRoleManager(out Mock<IFirebaseClient> clientMockRole);
@@ -402,11 +405,11 @@ namespace Aguacongas.Identity.Firebase.Test
             clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/provider-keys/")), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<string>());
 
-            clientMock.Setup(m => m.GetAsync<List<IdentityUserLogin<string>>>(It.Is<string>(value => value== $"users/{user.Id}/logins"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<List<IdentityUserLogin<string>>>(It.Is<string>(value => value== $"users-logins/{user.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<List<IdentityUserLogin<string>>>());
 
             List<IdentityUserLogin<string>> logins = new List<IdentityUserLogin<string>>();
-            clientMock.Setup(m => m.PutAsync(It.Is<string>(value => value == $"users/{user.Id}/logins"),
+            clientMock.Setup(m => m.PutAsync(It.Is<string>(value => value == $"users-logins/{user.Id}"),
                It.IsAny<List<IdentityUserLogin<string>>>(),
                It.IsAny<CancellationToken>(),
                It.IsAny<bool>(),
@@ -448,7 +451,7 @@ namespace Aguacongas.Identity.Firebase.Test
                     Data = admin
                 });
 
-            clientMock.Setup(m => m.GetAsync<IdentityUserRole<string>>(It.Is<string>(value => value == $"users/{user.Id}/roles/{admin.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<IdentityUserRole<string>>(It.Is<string>(value => value == $"users-roles/{user.Id}/{admin.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<IdentityUserRole<string>>());
 
             clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value == $"indexes/role-name/{local.NormalizedName}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
@@ -463,11 +466,11 @@ namespace Aguacongas.Identity.Firebase.Test
                     Data = local
                 });
 
-            clientMock.Setup(m => m.GetAsync<IdentityUserRole<string>>(It.Is<string>(value => value == $"users/{user.Id}/roles/{local.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<IdentityUserRole<string>>(It.Is<string>(value => value == $"users-roles/{user.Id}/{local.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<IdentityUserRole<string>>());
 
             List<IdentityUserRole<string>> roles = new List<IdentityUserRole<string>>();
-            clientMock.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith($"users/{user.Id}/roles/")),
+            clientMock.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith($"users-roles/{user.Id}/")),
                It.IsAny<IdentityUserRole<string>>(),
                It.IsAny<CancellationToken>(),
                It.IsAny<bool>(),
@@ -516,13 +519,13 @@ namespace Aguacongas.Identity.Firebase.Test
                     Data = claims
                 });
 
-            clientMock.Setup(m => m.GetAsync<List<IdentityUserLogin<string>>>(It.Is<string>(value => value == $"users/{user.Id}/logins"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<List<IdentityUserLogin<string>>>(It.Is<string>(value => value == $"users-logins/{user.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<List<IdentityUserLogin<string>>>
                 {
                     Data = logins
                 });
 
-            clientMock.Setup(m => m.GetAsync<IEnumerable<IdentityUserRole<string>>>(It.Is<string>(value => value == $"users/{user.Id}/roles"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<IEnumerable<IdentityUserRole<string>>>(It.Is<string>(value => value == $"users-roles/{user.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<IEnumerable<IdentityUserRole<string>>>
                 {
                     Data = roles
@@ -552,7 +555,7 @@ namespace Aguacongas.Identity.Firebase.Test
                     Data = user.Id
                 });
 
-            clientMock.Setup(m => m.GetAsync<IEnumerable<IdentityUserLogin<string>>>(It.Is<string>(value => value == $"users/{user.Id}/logins"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<IEnumerable<IdentityUserLogin<string>>>(It.Is<string>(value => value == $"users-logins/{user.Id}"), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
                 .ReturnsAsync(new FirebaseResponse<IEnumerable<IdentityUserLogin<string>>>
                 {
                     Data = logins

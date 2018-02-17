@@ -40,11 +40,6 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, new UserOnlyStore<TUser>(client, describer), describer) { }
-
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
     }
 
     /// <summary>
@@ -62,11 +57,6 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, new UserOnlyStore<TUser>(client, describer), describer) { }
-
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
     }
 
     /// <summary>
@@ -75,7 +65,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     /// <typeparam name="TRole">The type representing a role.</typeparam>
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public abstract class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
+    public class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
         where TKey : IEquatable<TKey>
@@ -99,7 +89,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public abstract class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
+    public class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
         UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
@@ -139,9 +129,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.CreateAsync(user, cancellationToken);
-        }
+            => _userOnlyStore.CreateAsync(user, cancellationToken);
 
         /// <summary>
         /// Updates the specified <paramref name="user"/> in the user store.
@@ -150,9 +138,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.UpdateAsync(user, cancellationToken);
-        }
+            => _userOnlyStore.UpdateAsync(user, cancellationToken);
 
         /// <summary>
         /// Deletes the specified <paramref name="user"/> from the user store.
@@ -161,9 +147,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
         public override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.DeleteAsync(user, cancellationToken);
-        }
+            => _userOnlyStore.DeleteAsync(user, cancellationToken);
 
         /// <summary>
         /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
@@ -174,9 +158,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
         public override Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.FindByIdAsync(userId, cancellationToken);
-        }
+            => _userOnlyStore.FindByIdAsync(userId, cancellationToken);
 
         /// <summary>
         /// Finds and returns a user, if any, who has the specified normalized user name.
@@ -187,9 +169,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
         public override Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.FindByNameAsync(normalizedUserName, cancellationToken);
-        }
+            => _userOnlyStore.FindByNameAsync(normalizedUserName, cancellationToken);
 
         /// <summary>
         /// Adds the given <paramref name="normalizedRoleName"/> to the specified <paramref name="user"/>.
@@ -218,7 +198,7 @@ namespace Aguacongas.Identity.Firebase
 
             var userRole = CreateUserRole(user, roleEntity);
 
-            await _client.PutAsync($"users/{user.Id}/roles/{roleEntity.Id}", userRole, cancellationToken);
+            await _client.PutAsync($"users-roles/{user.Id}/{roleEntity.Id}", userRole, cancellationToken);
         }
 
         /// <summary>
@@ -246,7 +226,7 @@ namespace Aguacongas.Identity.Firebase
                 var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
                 if (userRole != null)
                 {
-                    await _client.DeleteAsync($"users/{user.Id}/roles/{roleEntity.Id}", cancellationToken);
+                    await _client.DeleteAsync($"users-roles/{user.Id}/{roleEntity.Id}", cancellationToken);
                 }
             }
         }
@@ -267,7 +247,7 @@ namespace Aguacongas.Identity.Firebase
             }
             var userId = user.Id;
 
-            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users/{userId}/roles", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users-roles/{userId}", cancellationToken);
             var userRoles = response.Data;
             if (userRoles != null)
             {
@@ -320,9 +300,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
         public override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.GetClaimsAsync(user, cancellationToken);
-        }
+            => _userOnlyStore.GetClaimsAsync(user, cancellationToken);
 
         /// <summary>
         /// Adds the <paramref name="claims"/> given to the specified <paramref name="user"/>.
@@ -332,9 +310,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.AddClaimsAsync(user, claims, cancellationToken);
-        }
+            => _userOnlyStore.AddClaimsAsync(user, claims, cancellationToken);
 
         /// <summary>
         /// Replaces the <paramref name="claim"/> on the specified <paramref name="user"/>, with the <paramref name="newClaim"/>.
@@ -345,9 +321,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.ReplaceClaimAsync(user, claim, newClaim, cancellationToken);
-        }
+            => _userOnlyStore.ReplaceClaimAsync(user, claim, newClaim, cancellationToken);
 
         /// <summary>
         /// Removes the <paramref name="claims"/> given from the specified <paramref name="user"/>.
@@ -357,9 +331,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.RemoveClaimsAsync(user, claims, cancellationToken);
-        }
+            => _userOnlyStore.RemoveClaimsAsync(user, claims, cancellationToken);
 
         /// <summary>
         /// Adds the <paramref name="login"/> given to the specified <paramref name="user"/>.
@@ -370,9 +342,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task AddLoginAsync(TUser user, UserLoginInfo login,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.AddLoginAsync(user, login, cancellationToken);
-        }
+            => _userOnlyStore.AddLoginAsync(user, login, cancellationToken);
 
         /// <summary>
         /// Removes the <paramref name="loginProvider"/> given from the specified <paramref name="user"/>.
@@ -384,9 +354,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.RemoveLoginAsync(user, loginProvider, providerKey, cancellationToken);
-        }
+            => _userOnlyStore.RemoveLoginAsync(user, loginProvider, providerKey, cancellationToken);
 
         /// <summary>
         /// Retrieves the associated logins for the specified <param ref="user"/>.
@@ -397,9 +365,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
         /// </returns>
         public override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.GetLoginsAsync(user, cancellationToken);
-        }
+            => _userOnlyStore.GetLoginsAsync(user, cancellationToken);
 
         /// <summary>
         /// Retrieves the user associated with the specified login provider and login provider key.
@@ -412,9 +378,7 @@ namespace Aguacongas.Identity.Firebase
         /// </returns>
         public override Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.FindByLoginAsync(loginProvider, providerKey, cancellationToken);
-        }
+            => _userOnlyStore.FindByLoginAsync(loginProvider, providerKey, cancellationToken);
 
         /// <summary>
         /// Gets the user, if any, associated with the specified, normalized email address.
@@ -425,9 +389,7 @@ namespace Aguacongas.Identity.Firebase
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
         public override Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.FindByEmailAsync(normalizedEmail, cancellationToken);
-        }
+            => _userOnlyStore.FindByEmailAsync(normalizedEmail, cancellationToken);
 
         /// <summary>
         /// Retrieves all users with the specified claim.
@@ -438,9 +400,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
         /// </returns>
         public override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _userOnlyStore.GetUsersForClaimAsync(claim, cancellationToken);
-        }
+            => _userOnlyStore.GetUsersForClaimAsync(claim, cancellationToken);
 
         /// <summary>
         /// Retrieves all users in the specified role.
@@ -481,8 +441,6 @@ namespace Aguacongas.Identity.Firebase
             return users;
         }
 
-        protected abstract TKey ParseId(string id);
-
         /// <summary>
         /// Return a role with the normalized name if it exists.
         /// </summary>
@@ -516,7 +474,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user role if it exists.</returns>
         protected override async Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<TUserRole>($"users/{userId}/roles/{roleId}", cancellationToken);
+            var response = await _client.GetAsync<TUserRole>($"users-roles/{userId}/{roleId}", cancellationToken);
 
             return response.Data;
         }
@@ -528,10 +486,8 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user if it exists.</returns>
         protected override Task<TUser> FindUserAsync(TKey userId, CancellationToken cancellationToken)
-        {
-            return FindByIdAsync(userId.ToString(), cancellationToken);
-        }
-
+            => FindByIdAsync(userId.ToString(), cancellationToken);
+        
         /// <summary>
         /// Return a user login with the matching userId, provider, providerKey if it exists.
         /// </summary>
@@ -541,9 +497,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user login if it exists.</returns>
         protected override Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
-        {
-            return _userOnlyStore.FindUserLoginInternalAsync(userId, loginProvider, providerKey, cancellationToken);
-        }
+            => _userOnlyStore.FindUserLoginInternalAsync(userId, loginProvider, providerKey, cancellationToken);
 
         /// <summary>
         /// Return a user login with  provider, providerKey if it exists.
@@ -553,9 +507,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user login if it exists.</returns>
         protected override Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
-        {
-            return _userOnlyStore.FindUserLoginInternalAsync(loginProvider, providerKey, cancellationToken);
-        }
+            => _userOnlyStore.FindUserLoginInternalAsync(loginProvider, providerKey, cancellationToken);
 
         /// <summary>
         /// Find a user token if it exists.
@@ -566,9 +518,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user token if it exists.</returns>
         protected override Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
-        {
-            return _userOnlyStore.FindTokenInternalAsync(user, loginProvider, name, cancellationToken);
-        }
+            => _userOnlyStore.FindTokenInternalAsync(user, loginProvider, name, cancellationToken);
 
         /// <summary>
         /// Add a new user token.
@@ -576,9 +526,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="token">The token to be added.</param>
         /// <returns></returns>
         protected override Task AddUserTokenAsync(TUserToken token)
-        {
-            return _userOnlyStore.AddUserTokenInternalAsync(token);
-        }
+            => _userOnlyStore.AddUserTokenInternalAsync(token);
 
 
         /// <summary>
@@ -587,8 +535,12 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="token">The token to be removed.</param>
         /// <returns></returns>
         protected override Task RemoveUserTokenAsync(TUserToken token)
+            => _userOnlyStore.RemoveUserTokenInternalAsync(token);        
+
+        protected override void Dispose(bool disposed)
         {
-            return _userOnlyStore.RemoveUserTokenInternalAsync(token);
+            base.Dispose(disposed);
+            _userOnlyStore.Dispose();
         }
     }
 

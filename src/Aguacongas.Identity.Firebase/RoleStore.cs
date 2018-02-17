@@ -26,11 +26,6 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
     }
     
     /// <summary>
@@ -38,7 +33,7 @@ namespace Aguacongas.Identity.Firebase
     /// </summary>
     /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public abstract class RoleStore<TRole, TKey> : RoleStore<TRole, TKey, IdentityUserRole<TKey>, IdentityRoleClaim<TKey>>,
+    public class RoleStore<TRole, TKey> : RoleStore<TRole, TKey, IdentityUserRole<TKey>, IdentityRoleClaim<TKey>>,
         IRoleClaimStore<TRole>
         where TRole : IdentityRole<TKey>
         where TKey : IEquatable<TKey>
@@ -103,7 +98,7 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(role));
             }
             var response = await _client.PostAsync($"roles", role, cancellationToken, true);
-            role.Id = ParseId(response.Data);
+            role.Id = ConvertIdFromString(response.Data);
             role.ConcurrencyStamp = response.Etag;
 
             await _client.PutAsync($"indexes/role-name/{role.NormalizedName}", role.Id, cancellationToken);
@@ -264,10 +259,11 @@ namespace Aguacongas.Identity.Firebase
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             var roleId = ConvertIdFromString(id);
-            var response = await _client.GetAsync<TRole>($"roles/{roleId}", cancellationToken, true);
+            var response = await _client.GetAsync<TRole>($"roles/{id}", cancellationToken, true);
             var role = response.Data;
             if (role != null)
             {
+                role.Id = roleId;
                 role.ConcurrencyStamp = response.Etag;
             }
 
@@ -329,7 +325,6 @@ namespace Aguacongas.Identity.Firebase
             return Task.CompletedTask;
         }
 
-        protected abstract TKey ParseId(string id);
         /// <summary>
         /// Throws if this class has been disposed.
         /// </summary>

@@ -78,16 +78,16 @@ namespace Aguacongas.Firebase
             using (var response =
                 await _httpClient.SendAsync(message, cancellationToken))
             {
-                response.EnsureIsSuccess();
+                await response.EnsureIsSuccess();
             }                
         }
 
         public async Task<FirebaseResponse<T>> GetAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
         {
-            var message = new HttpRequestMessage(new HttpMethod("DELETE"), await GetFirebaseUrl(url, cancellationToken));
+            var message = new HttpRequestMessage(new HttpMethod("GET"), await GetFirebaseUrl(url, cancellationToken));
             message.Headers.SetRequestEtag(requestEtag);
 
-            var response = await _httpClient.GetAsync(await GetFirebaseUrl(url, cancellationToken), cancellationToken);
+            var response = await _httpClient.SendAsync(message, cancellationToken);
             return await GetResponse<T>(response);
         }
 

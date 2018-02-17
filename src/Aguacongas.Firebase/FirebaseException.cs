@@ -11,11 +11,15 @@ namespace Aguacongas.Firebase
         public string ReasonPhrase { get; private set; }
 
         public string Etag { get; private set; }
-        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string eTag): base($"HTTP Error {statusCode}: {reasonPhrase}")
+
+        public string Error { get; private set; }
+
+        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string error, string eTag): base($"HTTP Error {statusCode}: {reasonPhrase}")
         {
             StatusCode = statusCode;
             ReasonPhrase = reasonPhrase;
             Etag = eTag;
+            Error = error;
         }
     }
 }

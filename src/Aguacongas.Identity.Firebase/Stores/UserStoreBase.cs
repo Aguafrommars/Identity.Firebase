@@ -358,7 +358,7 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         public void Dispose()
         {
-            _disposed = true;
+            Dispose(true);
         }
 
         /// <summary>
@@ -1059,6 +1059,11 @@ namespace Aguacongas.Identity.Firebase
                 return true;
             }
             return false;
+        }
+
+        protected virtual void Dispose(bool disposed)
+        {
+            _disposed = true;
         }
     }
 

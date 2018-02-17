@@ -24,10 +24,6 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
 
-        protected override string ParseId(string id)
-        {
-            return id;
-        }
     }
 
     /// <summary>
@@ -55,7 +51,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
-    public abstract class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
+    public class UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
         UserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
@@ -104,16 +100,20 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-
             var response = await _client.PostAsync("users", user, cancellationToken);
-            user.Id = ParseId(response.Data);
-            user.ConcurrencyStamp = response.Etag;
-            await _client.PutAsync($"indexes/users-names/{user.NormalizedUserName}", user.Id, cancellationToken);
+            user.Id = ConvertIdFromString(response.Data);
+            SetConcurrencyStamp(user, response.Etag);
+
+            // Create indexes
+            var list = new List<Task>(2);
+            list.Add(_client.PutAsync($"indexes/users-names/{user.NormalizedUserName}", user.Id, cancellationToken));
             if (!string.IsNullOrEmpty(user.NormalizedEmail))
             {
-                await _client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken);
+                list.Add(_client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken));
             }
 
+            await Task.WhenAll(list.ToArray());
+            
             return IdentityResult.Success;
         }
 
@@ -132,10 +132,11 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
+            string eTag = null;
             try
             {
-                var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, user.ConcurrencyStamp);
-                user.ConcurrencyStamp = response.Etag;
+                var response = await _client.PutAsync($"users/{user.Id}", user, cancellationToken, true, GetEtag(user));
+                eTag = response.Etag;
             }
             catch (FirebaseException e)
             {
@@ -145,6 +146,28 @@ namespace Aguacongas.Identity.Firebase
                 }
                 throw;
             }
+
+            // Update indexes
+            var list = new List<Task>();
+            var state = user.ConcurrencyStamp.Split(';');
+
+            var oldUserName = state[0];
+            if (oldUserName != user.NormalizedUserName)
+            {
+                list.Add(_client.DeleteAsync($"indexes/users-names/{oldUserName}", cancellationToken));
+                list.Add(_client.PutAsync($"indexes/users-names/{user.NormalizedUserName}", user.Id, cancellationToken));
+            }
+
+            var oldEmail = state[1];
+            if (!string.IsNullOrEmpty(user.NormalizedEmail) && oldEmail != user.NormalizedEmail)
+            {
+                list.Add(_client.DeleteAsync($"indexes/users-email/{oldEmail}", cancellationToken));
+                list.Add(_client.PutAsync($"indexes/users-email/{user.NormalizedEmail}", user.Id, cancellationToken));
+            }
+
+            await Task.WhenAll(list.ToArray());
+
+            SetConcurrencyStamp(user, eTag);
             return IdentityResult.Success;
         }
 
@@ -165,7 +188,7 @@ namespace Aguacongas.Identity.Firebase
 
             try
             {
-                await _client.DeleteAsync($"users/{user.Id}", cancellationToken, true, user.ConcurrencyStamp);
+                await _client.DeleteAsync($"users/{user.Id}", cancellationToken, true, GetEtag(user));
             }
             catch (FirebaseException e)
             {
@@ -194,7 +217,8 @@ namespace Aguacongas.Identity.Firebase
             var user = response.Data;
             if (user != null)
             {
-                user.ConcurrencyStamp = response.Etag;
+                user.Id = ConvertIdFromString(userId);
+                SetConcurrencyStamp(user, response.Etag);
             }
 
             return user;
@@ -365,11 +389,11 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(login));
             }
 
-            var response = await _client.GetAsync<List<TUserLogin>>($"users/{user.Id}/logins", cancellationToken);
+            var response = await _client.GetAsync<List<TUserLogin>>($"users-logins/{user.Id}", cancellationToken);
             var data = response.Data ?? new List<TUserLogin>(0);
             data.Add(CreateUserLogin(user, login));
 
-            await _client.PutAsync($"users/{user.Id}/logins", data, cancellationToken);
+            await _client.PutAsync($"users-logins/{user.Id}", data, cancellationToken);
             await _client.PutAsync($"indexes/provider-keys/{login.LoginProvider}/{login.ProviderKey}", user.Id, cancellationToken);
         }
 
@@ -390,11 +414,11 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var response = await _client.GetAsync<List<TUserLogin>>($"users/{user.Id}/logins", cancellationToken);
+            var response = await _client.GetAsync<List<TUserLogin>>($"users-logins/{user.Id}", cancellationToken);
             var data = response.Data ?? new List<TUserLogin>(0);
             data.RemoveAll(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey);
 
-            await _client.PutAsync($"users/{user.Id}/logins", data, cancellationToken);
+            await _client.PutAsync($"users-logins/{user.Id}", data, cancellationToken);
             await _client.DeleteAsync($"indexes/provider-keys/{loginProvider}/{providerKey}", cancellationToken);
         }
 
@@ -415,7 +439,7 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var response = await _client.GetAsync<List<TUserLogin>>($"users/{user.Id}/logins", cancellationToken);
+            var response = await _client.GetAsync<List<TUserLogin>>($"users-logins/{user.Id}", cancellationToken);
             var data = response.Data ?? new List<TUserLogin>(0);
 
             return data.Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName)).ToList();
@@ -559,10 +583,7 @@ namespace Aguacongas.Identity.Firebase
         {
             return RemoveUserTokenAsync(token);
         }
-
-
-        protected abstract TKey ParseId(string id);        
-
+        
         /// <summary>
         /// Return a user with the matching userId if it exists.
         /// </summary>
@@ -584,7 +605,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user login if it exists.</returns>
         protected override async Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<IEnumerable<TUserLogin>>($"users/{userId}/logins", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<TUserLogin>>($"users-logins/{userId}", cancellationToken);
             var data = response.Data;
             if (data != null)
             {
@@ -621,7 +642,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user token if it exists.</returns>
         protected override async Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<IEnumerable<KeyValue<KeyValue<string>>>>($"users/{user.Id}/tokens", cancellationToken);
+            var response = await _client.GetAsync<IEnumerable<KeyValue<KeyValue<string>>>>($"users-tokens/{user.Id}", cancellationToken);
             if (response.Data != null)
             {
                 return response.Data
@@ -645,7 +666,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task AddUserTokenAsync(TUserToken token)
         {
-            await _client.PutAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}", token);
+            await _client.PutAsync($"users-tokens/{token.UserId}/{token.LoginProvider}/{token.Name}", token);
         }
 
 
@@ -656,7 +677,22 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task RemoveUserTokenAsync(TUserToken token)
         {
-            await _client.DeleteAsync($"users/{token.UserId}/tokens/{token.LoginProvider}/{token.Name}");
+            await _client.DeleteAsync($"users-tokens/{token.UserId}/{token.LoginProvider}/{token.Name}");
+        }
+
+        private void SetConcurrencyStamp(TUser user, string eTag)
+        {
+            user.ConcurrencyStamp = $"{user.NormalizedUserName};{user.NormalizedEmail};{eTag}";
+        }
+
+        private string GetEtag(TUser user)
+        {
+            if (user.ConcurrencyStamp == null)
+            {
+                return null;
+            }
+            var state = user.ConcurrencyStamp.Split(';');
+            return state.Length == 3 ? state[2] : null;
         }
     }
 }

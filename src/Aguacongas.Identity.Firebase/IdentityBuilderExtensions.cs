@@ -63,7 +63,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<HttpClient>()
                 .AddScoped<IFirebaseClient, FirebaseClient>()
-                .AddScoped<IFirebaseTokenManager, EmailPasswordTokenManager>();
+                .AddScoped<IFirebaseTokenManager, EmailPasswordTokenManager>()
+                .AddScoped<ILookupNormalizer, FirebaseLookupNormalizer>();
         }
 
         private static TypeInfo FindGenericBaseType(Type currentType, Type genericBaseType)
