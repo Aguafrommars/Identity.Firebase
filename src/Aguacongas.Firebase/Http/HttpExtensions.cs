@@ -16,12 +16,7 @@ namespace Aguacongas.Firebase
     {
         public static StringContent CreateJsonContent<T>(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null, bool requestEtag = false, string etag = null)
         {
-            var content = new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, "application/json");
-            var headers = content.Headers;
-            headers.SetIfMath(etag);
-            headers.SetRequestEtag(requestEtag);
-
-            return content;
+            return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, "application/json");
         }
 
         public static void SetRequestEtag(this HttpHeaders headers, bool requestEtag)
@@ -40,76 +35,11 @@ namespace Aguacongas.Firebase
             }
         }
 
-        public static void SetIfMatch(this StringContent content, string etag = null)
-        {
-
-        }
         public static async Task<FirebaseResponse<T>> DeserializeResponseAsync<T>(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
         {
             await response.EnsureIsSuccess();
             
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var type = typeof(T);
-            if (jsonResponse.StartsWith("{")
-                && type.GetInterfaces().Any(i => i == (typeof(IEnumerable))))
-            {
-                var reader = new JsonTextReader(new StringReader(jsonResponse));
-                var listType = typeof(List<>);
-                var genericTypes = type.GetGenericArguments();
-                var makeme = listType.MakeGenericType(genericTypes);
-                var list = Activator.CreateInstance(makeme) as IList;
-                var itemType = genericTypes[0];
-
-                var builder = new StringBuilder('[');
-                while(reader.Read())
-                {
-                    if (reader.Depth == 1)
-                    {
-                        if (reader.TokenType == JsonToken.PropertyName)
-                        {
-                            builder.Append("{");
-                            builder.AppendFormat("\"{0}\": ", reader.Value);
-                            continue;
-                        }
-                        if (reader.TokenType == JsonToken.EndArray || reader.TokenType == JsonToken.EndArray)
-                        {
-                            builder.Append("}");
-                            continue;
-                        }
-                    }
-                    if (reader.Depth > 0)
-                    {
-                        switch(reader.TokenType)
-                        {
-                            case JsonToken.EndArray:
-                                builder.Append("[");
-                                break;
-                            case JsonToken.EndObject:
-                                builder.Append("}");
-                                break;
-                            case JsonToken.PropertyName:
-                                builder.AppendFormat("\"{0}\": ", reader.Value);
-                                break;
-                            case JsonToken.StartArray:
-                                builder.Append("[");
-                                break;
-                            case JsonToken.StartObject:
-                                builder.Append("{");
-                                break;
-                            case JsonToken.String:
-                                builder.AppendFormat("\"{0}\"", reader.Value);
-                                break;
-                            default:
-                                builder.Append(reader.Value);
-                                break;
-                        }
-                    }
-                }
-
-                builder.Append(']');
-                jsonResponse = builder.ToString();
-            }
-
             return new FirebaseResponse<T>
             {
                 Data = JsonConvert.DeserializeObject<T>(jsonResponse, jsonSerializerSettings),

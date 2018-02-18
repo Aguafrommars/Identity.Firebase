@@ -1,5 +1,4 @@
 ﻿using Aguacongas.Firebase;
-using Aguacongas.Identity.Firebase.Internal;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -99,7 +98,7 @@ namespace Aguacongas.Identity.Firebase
             }
             var response = await _client.PostAsync($"roles", role, cancellationToken, true);
             role.Id = ConvertIdFromString(response.Data);
-            role.ConcurrencyStamp = response.Etag;
+            SetConcurrencyStamp(role, response.Etag);
 
             await _client.PutAsync($"indexes/role-name/{role.NormalizedName}", role.Id, cancellationToken);
 
@@ -121,10 +120,11 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(role));
             }
 
+            string eTag = null;
             try
             {
-                var response = await _client.PutAsync($"roles/{role.Id}", role, cancellationToken, true, role.ConcurrencyStamp);
-                role.ConcurrencyStamp = response.Etag;
+                var response = await _client.PutAsync($"roles/{role.Id}", role, cancellationToken, true, GetEtag(role));
+                eTag = response.Etag;
             }
             catch (FirebaseException e)
             {
@@ -134,6 +134,19 @@ namespace Aguacongas.Identity.Firebase
                 }
                 throw;
             }
+
+            var list = new List<Task>();
+            var state = role.ConcurrencyStamp.Split(';');
+
+            var oldRoleName = state[0];
+            if (oldRoleName != role.NormalizedName)
+            {
+                list.Add(_client.DeleteAsync($"indexes/role-name/{oldRoleName}", cancellationToken));
+                list.Add(_client.PutAsync($"indexes/role-name/{role.NormalizedName}", role.Id, cancellationToken));
+            }
+
+            await Task.WhenAll(list.ToArray());
+            SetConcurrencyStamp(role, eTag);
 
             return IdentityResult.Success;
         }
@@ -154,7 +167,7 @@ namespace Aguacongas.Identity.Firebase
             }
             try
             {
-                await _client.DeleteAsync($"roles/{role.Id}", cancellationToken, true, role.ConcurrencyStamp);
+                await _client.DeleteAsync($"roles/{role.Id}", cancellationToken, true, GetEtag(role));
             }
             catch (FirebaseException e)
             {
@@ -264,7 +277,7 @@ namespace Aguacongas.Identity.Firebase
             if (role != null)
             {
                 role.Id = roleId;
-                role.ConcurrencyStamp = response.Etag;
+                SetConcurrencyStamp(role, response.Etag);
             }
 
             return role;
@@ -355,7 +368,7 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(role));
             }
 
-            var response = await _client.GetAsync<IList<TRoleClaim>>($"roles/{role.Id}/claims", cancellationToken);
+            var response = await _client.GetAsync<IList<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
 
             return response.Data?.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList() ?? new List<Claim>();
         }
@@ -379,12 +392,12 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            var response = await _client.GetAsync<List<TRoleClaim>>($"roles/{role.Id}/claims", cancellationToken);
+            var response = await _client.GetAsync<List<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
 
             var claims = response.Data ?? new List<TRoleClaim>();
             claims.Add(CreateRoleClaim(role, claim));
 
-            await _client.PutAsync($"roles/{role.Id}/claims", claims, cancellationToken);
+            await _client.PutAsync($"roles-claims/{role.Id}", claims, cancellationToken);
         }
 
         /// <summary>
@@ -405,14 +418,14 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(claim));
             }
-            var response = await _client.GetAsync<List<TRoleClaim>>($"roles/{role.Id}/claims", cancellationToken);
+            var response = await _client.GetAsync<List<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
 
             var claims = response.Data;
             if (claims != null)
             {
                 claims.RemoveAll(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value);
 
-                await _client.PutAsync($"roles/{role.Id}/claims", claims, cancellationToken);
+                await _client.PutAsync($"roles-claims/{role.Id}", claims, cancellationToken);
             }
         }
 
@@ -424,5 +437,20 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The role claim entity.</returns>
         protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
             => new TRoleClaim { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
+
+        private void SetConcurrencyStamp(TRole role, string eTag)
+        {
+            role.ConcurrencyStamp = role.NormalizedName + ";" + eTag;
+        }
+
+        private string GetEtag(TRole role)
+        {
+            if (role.ConcurrencyStamp == null)
+            {
+                return null;
+            }
+            var state = role.ConcurrencyStamp.Split(';');
+            return state.Length == 2 ? state[1] : null;
+        }
     }
 }

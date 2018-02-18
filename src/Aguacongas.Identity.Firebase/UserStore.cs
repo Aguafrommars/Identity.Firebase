@@ -1,21 +1,19 @@
-﻿using System;
+﻿using Aguacongas.Firebase;
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Aguacongas.Firebase;
-using Aguacongas.Identity.Firebase.Internal;
-using Microsoft.AspNetCore.Identity;
 
 namespace Aguacongas.Identity.Firebase
 {
     /// <summary>
     /// Represents a new instance of a persistence store for users, using the default implementation
-    /// of <see cref="IdentityUser{TKey}"/> with a string as a primary key.
+    /// of <see cref="IdentityUser{string}"/> with a string as a primary key.
     /// </summary>
     public class UserStore : UserStore<IdentityUser<string>>
     {
@@ -31,7 +29,7 @@ namespace Aguacongas.Identity.Firebase
     /// Creates a new instance of a persistence store for the specified user type.
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
-    public class UserStore<TUser> : UserStore<TUser, IdentityRole, string>
+    public class UserStore<TUser> : UserStore<TUser, IdentityRole>
         where TUser : IdentityUser<string>, new()
     {
         /// <summary>
@@ -39,7 +37,7 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, new UserOnlyStore<TUser>(client, describer), describer) { }
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
 
     /// <summary>
@@ -47,16 +45,16 @@ namespace Aguacongas.Identity.Firebase
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     /// <typeparam name="TRole">The type representing a role.</typeparam>
-    public class UserStore<TUser, TRole> : UserStore<TUser, TRole, string>
-        where TUser : IdentityUser<string>, new()
+    public class UserStore<TUser, TRole> : UserStore<TUser, TRole, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityUserToken<string>, IdentityRoleClaim<string>>
+        where TUser : IdentityUser<string>
         where TRole : IdentityRole<string>
     {
         /// <summary>
-        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext}"/>.
+        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, string}"/>.
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, new UserOnlyStore<TUser>(client, describer), describer) { }
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
 
     /// <summary>
@@ -64,62 +62,37 @@ namespace Aguacongas.Identity.Firebase
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     /// <typeparam name="TRole">The type representing a role.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public class UserStore<TUser, TRole, TKey> : UserStore<TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>, IdentityUserLogin<TKey>, IdentityUserToken<TKey>, IdentityRoleClaim<TKey>>
-        where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<TKey>
-        where TKey : IEquatable<TKey>
-    {
-        /// <summary>
-        /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, TKey}"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
-        /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, UserOnlyStore<TUser, TKey> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
-    }
-
-    /// <summary>
-    /// Represents a new instance of a persistence store for the specified user and role types.
-    /// </summary>
-    /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TRole">The type representing a role.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserRole">The type representing a user role.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public class UserStore<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
-        UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
-        where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<TKey>
-        where TKey : IEquatable<TKey>
-        where TUserClaim : IdentityUserClaim<TKey>, new()
-        where TUserRole : IdentityUserRole<TKey>, new()
-        where TUserLogin : IdentityUserLogin<TKey>, new()
-        where TUserToken : IdentityUserToken<TKey>, new()
-        where TRoleClaim : IdentityRoleClaim<TKey>, new()
+    public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
+        FirebaseUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
+        where TUser : IdentityUser<string>
+        where TRole : IdentityRole<string>
+        where TUserClaim : IdentityUserClaim<string>, new()
+        where TUserRole : IdentityUserRole<string>, new()
+        where TUserLogin : IdentityUserLogin<string>, new()
+        where TUserToken : IdentityUserToken<string>, new()
+        where TRoleClaim : IdentityRoleClaim<string>, new()
     {
         private readonly IFirebaseClient _client;
-        private readonly UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
+        private readonly UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
 
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
         /// <param name="client">The client used to access the store.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStore(IFirebaseClient client, UserOnlyStore<TUser, TKey, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             if (client == null)
             {
                 throw new ArgumentNullException(nameof(client));
             }
-            if (userOnlyStore == null)
-            {
-                throw new ArgumentNullException(nameof(userOnlyStore));
-            }
             _client = client;
-            _userOnlyStore = userOnlyStore;
+            _userOnlyStore = new UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken>(client, describer);
         }
 
         /// <summary>
@@ -197,8 +170,17 @@ namespace Aguacongas.Identity.Firebase
             }
 
             var userRole = CreateUserRole(user, roleEntity);
+            var response = await _client.GetAsync<List<TUserRole>>($"users-roles/{user.Id}", cancellationToken);
+            var roles = response.Data ?? new List<TUserRole>(1);
+            roles.Add(userRole);
 
-            await _client.PutAsync($"users-roles/{user.Id}/{roleEntity.Id}", userRole, cancellationToken);
+            await _client.PutAsync($"users-roles/{user.Id}", roles, cancellationToken);
+
+            var indexResponse = await _client.GetAsync<List<string>>($"indexes/roles/{roleEntity.Id}", cancellationToken);
+            var index = indexResponse.Data ?? new List<string>(1);
+            index.Add(user.Id);
+
+            await _client.PutAsync($"indexes/roles/{roleEntity.Id}", index, cancellationToken);
         }
 
         /// <summary>
@@ -223,10 +205,20 @@ namespace Aguacongas.Identity.Firebase
             var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (roleEntity != null)
             {
-                var userRole = await FindUserRoleAsync(user.Id, roleEntity.Id, cancellationToken);
-                if (userRole != null)
+                var response = await _client.GetAsync<List<TUserRole>>($"users-roles/{user.Id}", cancellationToken);
+                var roles = response.Data;
+                if (roles != null)
                 {
-                    await _client.DeleteAsync($"users-roles/{user.Id}/{roleEntity.Id}", cancellationToken);
+                    roles.RemoveAll(r => r.RoleId == roleEntity.Id);
+                    await _client.PutAsync($"users-roles/{user.Id}", roles, cancellationToken);
+
+                    var indexResponse = await _client.GetAsync<List<string>>($"indexes/roles/{roleEntity.Id}", cancellationToken);
+                    var index = indexResponse.Data;
+                    if (index == null)
+                    {
+                        index.Remove(user.Id);
+                        await _client.PutAsync($"indexes/roles/{roleEntity.Id}", index, cancellationToken);
+                    }
                 }
             }
         }
@@ -251,15 +243,17 @@ namespace Aguacongas.Identity.Firebase
             var userRoles = response.Data;
             if (userRoles != null)
             {
-                var rolesResponse = await _client.GetAsync<IEnumerable<TRole>>($"roles", cancellationToken);
-                var roles = rolesResponse.Data;
-                if (roles != null)
+                var concurrentBag = new ConcurrentBag<string>();
+                var taskList = new List<Task>(userRoles.Count());
+
+                foreach(var userRole in userRoles)
                 {
-                    return (from userRole in userRoles
-                           join role in roles on userRole.RoleId equals role.Id
-                           where userRole.UserId.Equals(userId)
-                           select role.Name).ToList();
+                    taskList.Add(GetUserRoleAsync(userRole, concurrentBag, cancellationToken));
                 }
+                
+                await Task.WhenAll(taskList.ToArray());
+
+                return concurrentBag.ToList();
             }
             return new List<string>(0);
         }
@@ -424,13 +418,13 @@ namespace Aguacongas.Identity.Firebase
 
             if (role != null)
             {
-                var response = await _client.GetAsync<IEnumerable<KeyValue<TKey>>>($"roles/{normalizedRoleName}", cancellationToken);
+                var response = await _client.GetAsync<IEnumerable<string>>($"indexes/roles/{role.Id}", cancellationToken);
                 var data = response.Data;
                 if (data != null)
                 {
-                    foreach(var keyValues in data)
+                    foreach(var userId in data)
                     {
-                        var user = await FindByIdAsync(keyValues.Key, cancellationToken);
+                        var user = await FindByIdAsync(userId, cancellationToken);
                         if (user != null)
                         {
                             users.Add(user);
@@ -459,6 +453,7 @@ namespace Aguacongas.Identity.Firebase
             var role = roleResponse.Data;
             if (role != null)
             {
+                role.Id = response.Data;
                 role.ConcurrencyStamp = response.Etag;
             }            
 
@@ -472,11 +467,14 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="roleId">The role's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user role if it exists.</returns>
-        protected override async Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken)
+        protected override async Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<TUserRole>($"users-roles/{userId}/{roleId}", cancellationToken);
-
-            return response.Data;
+            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users-roles/{userId}", cancellationToken);
+            if (response.Data != null)
+            {
+                return response.Data.SingleOrDefault(r => r.RoleId == roleId);
+            }
+            return default(TUserRole);
         }
 
         /// <summary>
@@ -485,7 +483,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="userId">The user's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user if it exists.</returns>
-        protected override Task<TUser> FindUserAsync(TKey userId, CancellationToken cancellationToken)
+        protected override Task<TUser> FindUserAsync(string userId, CancellationToken cancellationToken)
             => FindByIdAsync(userId.ToString(), cancellationToken);
         
         /// <summary>
@@ -496,7 +494,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user login if it exists.</returns>
-        protected override Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        protected override Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
             => _userOnlyStore.FindUserLoginInternalAsync(userId, loginProvider, providerKey, cancellationToken);
 
         /// <summary>
@@ -510,37 +508,38 @@ namespace Aguacongas.Identity.Firebase
             => _userOnlyStore.FindUserLoginInternalAsync(loginProvider, providerKey, cancellationToken);
 
         /// <summary>
-        /// Find a user token if it exists.
+        /// Get user tokens
         /// </summary>
         /// <param name="user">The token owner.</param>
-        /// <param name="loginProvider">The login provider for the token.</param>
-        /// <param name="name">The name of the token.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user token if it exists.</returns>
-        protected override Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
-            => _userOnlyStore.FindTokenInternalAsync(user, loginProvider, name, cancellationToken);
+        /// <returns>User tokens.</returns>
+        protected override Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken)
+            => _userOnlyStore.GetUserTokensInternalAsync(user, cancellationToken);
 
         /// <summary>
-        /// Add a new user token.
+        /// Save user tokens.
         /// </summary>
-        /// <param name="token">The token to be added.</param>
+        /// <param name="user">The tokens owner.</param>
+        /// <param name="tokens">Tokens to save</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns></returns>
-        protected override Task AddUserTokenAsync(TUserToken token)
-            => _userOnlyStore.AddUserTokenInternalAsync(token);
-
-
-        /// <summary>
-        /// Remove a new user token.
-        /// </summary>
-        /// <param name="token">The token to be removed.</param>
-        /// <returns></returns>
-        protected override Task RemoveUserTokenAsync(TUserToken token)
-            => _userOnlyStore.RemoveUserTokenInternalAsync(token);        
+        protected override Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken)
+            => _userOnlyStore.SaveUserTokensInternalAsync(user, tokens, cancellationToken);
 
         protected override void Dispose(bool disposed)
         {
             base.Dispose(disposed);
             _userOnlyStore.Dispose();
+        }
+
+        private async Task GetUserRoleAsync(TUserRole r, ConcurrentBag<string> concurrentBag, CancellationToken cancellationToken)
+        {
+            var roleResponse = await _client.GetAsync<TRole>($"roles/{r.RoleId}", cancellationToken);
+            var role = roleResponse.Data;
+            if (role != null)
+            {
+                concurrentBag.Add(role.Name);
+            }
         }
     }
 

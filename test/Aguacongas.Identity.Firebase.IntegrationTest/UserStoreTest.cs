@@ -13,26 +13,29 @@ using Xunit;
 
 namespace Aguacongas.Identity.Firebase.IntegrationTest
 {
-    public class UserStoreTest : IdentitySpecificationTestBase<IdentityUser, IdentityRole>
+    public class UserStoreTest : IdentitySpecificationTestBase<TestUser, TestRole>, IClassFixture<FirebaseTestFixture>
     {
+        private readonly FirebaseTestFixture _fixture;
+
+        public UserStoreTest(FirebaseTestFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         protected override void AddUserStore(IServiceCollection services, object context = null)
         {
-            var builder = new ConfigurationBuilder();
-            var configuration = builder.AddUserSecrets<UserStoreTest>()
-                .AddEnvironmentVariables()
-                .Build();
-
             services.Configure<EmailPasswordOptions>(options =>
             {
-                configuration.GetSection("EmailPasswordOptions").Bind(options);
-            });
-            services.Configure<FirebaseOptions>(options =>
-            {
-                configuration.GetSection("FirebaseOptions").Bind(options);
+                _fixture.Configuration.GetSection("EmailPasswordOptions").Bind(options);
             });
 
-            var userType = typeof(IdentityUser);
-            var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(IdentityRole));
+            services.Configure<FirebaseOptions>(options =>
+            {
+                options.DatabaseUrl = _fixture.FirebaseOptions.DatabaseUrl;
+            });
+
+            var userType = typeof(TestUser);
+            var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
             services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), userStoreType);
 
             services.AddSingleton<HttpClient>()
@@ -43,7 +46,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)
         {
-            var roleType = typeof(IdentityRole);
+            var roleType = typeof(TestRole);
             var roleStoreType = typeof(RoleStore<>).MakeGenericType(roleType);
             services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
         }
@@ -53,10 +56,10 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             return null;
         }
 
-        protected override IdentityUser CreateTestUser(string namePrefix = "", string email = "", string phoneNumber = "",
+        protected override TestUser CreateTestUser(string namePrefix = "", string email = "", string phoneNumber = "",
             bool lockoutEnabled = false, DateTimeOffset? lockoutEnd = default(DateTimeOffset?), bool useNamePrefixAsUserName = false)
         {
-            return new IdentityUser
+            return new TestUser
             {
                 UserName = useNamePrefixAsUserName ? namePrefix : string.Format("{0}{1}", namePrefix, Guid.NewGuid()),
                 Email = email,
@@ -66,23 +69,23 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             };
         }
 
-        protected override IdentityRole CreateTestRole(string roleNamePrefix = "", bool useRoleNamePrefixAsRoleName = false)
+        protected override TestRole CreateTestRole(string roleNamePrefix = "", bool useRoleNamePrefixAsRoleName = false)
         {
             var roleName = useRoleNamePrefixAsRoleName ? roleNamePrefix : string.Format("{0}{1}", roleNamePrefix, Guid.NewGuid());
-            return new IdentityRole(roleName);
+            return new TestRole(roleName);
         }
 
-        protected override void SetUserPasswordHash(IdentityUser user, string hashedPassword)
+        protected override void SetUserPasswordHash(TestUser user, string hashedPassword)
         {
             user.PasswordHash = hashedPassword;
         }
 
-        protected override Expression<Func<IdentityUser, bool>> UserNameEqualsPredicate(string userName) => u => u.UserName == userName;
+        protected override Expression<Func<TestUser, bool>> UserNameEqualsPredicate(string userName) => u => u.UserName == userName;
 
-        protected override Expression<Func<IdentityRole, bool>> RoleNameEqualsPredicate(string roleName) => r => r.Name == roleName;
+        protected override Expression<Func<TestRole, bool>> RoleNameEqualsPredicate(string roleName) => r => r.Name == roleName;
 
-        protected override Expression<Func<IdentityRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name.StartsWith(roleName);
+        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name.StartsWith(roleName);
 
-        protected override Expression<Func<IdentityUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName.StartsWith(userName);
+        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName.StartsWith(userName);
     }
 }

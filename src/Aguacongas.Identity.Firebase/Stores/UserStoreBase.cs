@@ -13,11 +13,10 @@ namespace Aguacongas.Identity.Firebase
     /// Represents a new instance of a persistence store for the specified user type.
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a user.</typeparam>
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
-    public abstract class UserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken> :
+    public abstract class FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken> :
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -29,17 +28,16 @@ namespace Aguacongas.Identity.Firebase
         IUserAuthenticationTokenStore<TUser>,
         IUserAuthenticatorKeyStore<TUser>,
         IUserTwoFactorRecoveryCodeStore<TUser>
-        where TUser : IdentityUser<TKey>
-        where TKey : IEquatable<TKey>
-        where TUserClaim : IdentityUserClaim<TKey>, new()
-        where TUserLogin : IdentityUserLogin<TKey>, new()
-        where TUserToken : IdentityUserToken<TKey>, new()
+        where TUser : IdentityUser<string>
+        where TUserClaim : IdentityUserClaim<string>, new()
+        where TUserLogin : IdentityUserLogin<string>, new()
+        where TUserToken : IdentityUserToken<string>, new()
     {
         /// <summary>
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStoreBase(IdentityErrorDescriber describer)
+        public FirebaseUserStoreBase(IdentityErrorDescriber describer)
         {
             if (describer == null)
             {
@@ -57,7 +55,7 @@ namespace Aguacongas.Identity.Firebase
         public IdentityErrorDescriber ErrorDescriber { get; set; }
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserClaim{TKey}"/>.
+        /// Called to create a new instance of a <see cref="IdentityUserClaim{string}"/>.
         /// </summary>
         /// <param name="user">The associated user.</param>
         /// <param name="claim">The associated claim.</param>
@@ -70,7 +68,7 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserLogin{TKey}"/>.
+        /// Called to create a new instance of a <see cref="IdentityUserLogin{string}"/>.
         /// </summary>
         /// <param name="user">The associated user.</param>
         /// <param name="login">The sasociated login.</param>
@@ -87,7 +85,7 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserToken{TKey}"/>.
+        /// Called to create a new instance of a <see cref="IdentityUserToken{string}"/>.
         /// </summary>
         /// <param name="user">The associated user.</param>
         /// <param name="loginProvider">The associated login provider.</param>
@@ -119,7 +117,7 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            return Task.FromResult(ConvertIdToString(user.Id));
+            return Task.FromResult(user.Id);
         }
 
         /// <summary>
@@ -229,34 +227,6 @@ namespace Aguacongas.Identity.Firebase
         public abstract Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Converts the provided <paramref name="id"/> to a strongly typed key object.
-        /// </summary>
-        /// <param name="id">The id to convert.</param>
-        /// <returns>An instance of <typeparamref name="TKey"/> representing the provided <paramref name="id"/>.</returns>
-        public virtual TKey ConvertIdFromString(string id)
-        {
-            if (id == null)
-            {
-                return default(TKey);
-            }
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-        }
-
-        /// <summary>
-        /// Converts the provided <paramref name="id"/> to its string representation.
-        /// </summary>
-        /// <param name="id">The id to convert.</param>
-        /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns>
-        public virtual string ConvertIdToString(TKey id)
-        {
-            if (object.Equals(id, default(TKey)))
-            {
-                return null;
-            }
-            return id.ToString();
-        }
-
-        /// <summary>
         /// Finds and returns a user, if any, who has the specified normalized user name.
         /// </summary>
         /// <param name="normalizedUserName">The normalized user name to search for.</param>
@@ -321,7 +291,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="userId">The user's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user if it exists.</returns>
-        protected abstract Task<TUser> FindUserAsync(TKey userId, CancellationToken cancellationToken);
+        protected abstract Task<TUser> FindUserAsync(string userId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Return a user login with the matching userId, provider, providerKey if it exists.
@@ -331,7 +301,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user login if it exists.</returns>
-        protected abstract Task<TUserLogin> FindUserLoginAsync(TKey userId, string loginProvider, string providerKey, CancellationToken cancellationToken);
+        protected abstract Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken);
 
         /// <summary>
         /// Return a user login with  provider, providerKey if it exists.
@@ -871,28 +841,21 @@ namespace Aguacongas.Identity.Firebase
         public abstract Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Find a user token if it exists.
+        /// Get user tokens
         /// </summary>
         /// <param name="user">The token owner.</param>
-        /// <param name="loginProvider">The login provider for the token.</param>
-        /// <param name="name">The name of the token.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user token if it exists.</returns>
-        protected abstract Task<TUserToken> FindTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken);
+        /// <returns>User tokens.</returns>
+        protected abstract Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Add a new user token.
+        /// Save user tokens.
         /// </summary>
-        /// <param name="token">The token to be added.</param>
+        /// <param name="user">The tokens owner.</param>
+        /// <param name="tokens">Tokens to save</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns></returns>
-        protected abstract Task AddUserTokenAsync(TUserToken token);
-
-        /// <summary>
-        /// Remove a new user token.
-        /// </summary>
-        /// <param name="token">The token to be removed.</param>
-        /// <returns></returns>
-        protected abstract Task RemoveUserTokenAsync(TUserToken token);
+        protected abstract Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sets the token value for a particular user.
@@ -913,15 +876,18 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var token = await FindTokenAsync(user, loginProvider, name, cancellationToken);
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);        
             if (token == null)
             {
-                await AddUserTokenAsync(CreateUserToken(user, loginProvider, name, value));
+                tokens.Add(CreateUserToken(user, loginProvider, name, value));
             }
             else
             {
                 token.Value = value;
             }
+
+            await SaveUserTokensAsync(user, tokens, cancellationToken);
         }
 
         /// <summary>
@@ -941,11 +907,10 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var entry = await FindTokenAsync(user, loginProvider, name, cancellationToken);
-            if (entry != null)
-            {
-                await RemoveUserTokenAsync(entry);
-            }
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            tokens.RemoveAll(t => t.LoginProvider == loginProvider && t.Name == name);
+
+            await SaveUserTokensAsync(user, tokens, cancellationToken);
         }
 
         /// <summary>
@@ -965,8 +930,11 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var entry = await FindTokenAsync(user, loginProvider, name, cancellationToken);
-            return entry?.Value;
+
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);
+
+            return token?.Value;
         }
 
         private const string InternalLoginProvider = "[AspNetUserStore]";
@@ -1072,32 +1040,30 @@ namespace Aguacongas.Identity.Firebase
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     /// <typeparam name="TRole">The type representing a role.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserRole">The type representing a user role.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public abstract class UserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
-        UserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
+    public abstract class FirebaseUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
+        FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
         IUserRoleStore<TUser>
-        where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<TKey> 
-        where TKey : IEquatable<TKey>
-        where TUserClaim : IdentityUserClaim<TKey>, new()
-        where TUserRole : IdentityUserRole<TKey>, new()
-        where TUserLogin : IdentityUserLogin<TKey>, new()
-        where TUserToken : IdentityUserToken<TKey>, new()
-        where TRoleClaim : IdentityRoleClaim<TKey>, new()
+        where TUser : IdentityUser<string>
+        where TRole : IdentityRole<string> 
+        where TUserClaim : IdentityUserClaim<string>, new()
+        where TUserRole : IdentityUserRole<string>, new()
+        where TUserLogin : IdentityUserLogin<string>, new()
+        where TUserToken : IdentityUserToken<string>, new()
+        where TRoleClaim : IdentityRoleClaim<string>, new()
     {
         /// <summary>
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
+        public FirebaseUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserRole{TKey}"/>.
+        /// Called to create a new instance of a <see cref="IdentityUserRole{string}"/>.
         /// </summary>
         /// <param name="user">The associated user.</param>
         /// <param name="role">The associated role.</param>
@@ -1173,6 +1139,6 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="roleId">The role's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user role if it exists.</returns>
-        protected abstract Task<TUserRole> FindUserRoleAsync(TKey userId, TKey roleId, CancellationToken cancellationToken);
+        protected abstract Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken);
     }
 }
