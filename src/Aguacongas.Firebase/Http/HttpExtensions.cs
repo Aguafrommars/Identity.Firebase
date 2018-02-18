@@ -23,7 +23,7 @@ namespace Aguacongas.Firebase
         {
             if (requestEtag)
             {
-                headers.Add("X-Firebase-ETag", new[] { "true" });
+                var result = headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
             }
         }
 
@@ -31,7 +31,7 @@ namespace Aguacongas.Firebase
         {
             if (!string.IsNullOrEmpty(etag))
             {
-                headers.Add("if-match", new[] { etag });
+                var result = headers.TryAddWithoutValidation("if-match", etag);
             }
         }
 
@@ -43,7 +43,8 @@ namespace Aguacongas.Firebase
             return new FirebaseResponse<T>
             {
                 Data = JsonConvert.DeserializeObject<T>(jsonResponse, jsonSerializerSettings),
-                Etag = response.Headers.ETag?.Tag
+                Etag = response.Headers.SingleOrDefault(h => h.Key.ToUpperInvariant() == "ETAG")
+                    .Value?.FirstOrDefault()
             };
         }
 
