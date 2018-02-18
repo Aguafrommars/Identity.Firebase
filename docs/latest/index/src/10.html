@@ -2,449 +2,101 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\RoleStore.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\IdentityBuilderExtensions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Aguacongas.Firebase;
-using Aguacongas.Identity.Firebase.Internal;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Aguacongas.Identity.Firebase
+using System;
+using System.Net.Http;
+using System.Reflection;
+using Aguacongas.Firebase;
+using Aguacongas.Firebase.TokenManager;
+using Aguacongas.Identity.Firebase;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// &lt;summary&gt;
-    /// Creates a new instance of a persistence store for roles.
+    /// Contains extension methods to &lt;see cref=&quot;IdentityBuilder&quot;/&gt; for adding entity framework stores.
     /// &lt;/summary&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type of the class representing a role&lt;/typeparam&gt;
-    public class RoleStore&lt;TRole&gt; : RoleStore&lt;TRole, string&gt;
-        where TRole : IdentityRole&lt;string&gt;
+    public static class IdentityBuilderExtensions
     {
         /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;RoleStore{TRole}&quot;/&gt;.
+        /// Adds an Firebase implementation of identity information stores.
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
-        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-
-        protected override string ParseId(string id)
+        /// &lt;param name=&quot;builder&quot;&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/returns&gt;
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder)
         {
-            return id;
-        }
-    }
-    
-    /// &lt;summary&gt;
-    /// Creates a new instance of a persistence store for roles.
-    /// &lt;/summary&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type of the class representing a role.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
-    public abstract class RoleStore&lt;TRole, TKey&gt; : RoleStore&lt;TRole, TKey, IdentityUserRole&lt;TKey&gt;, IdentityRoleClaim&lt;TKey&gt;&gt;,
-        IRoleClaimStore&lt;TRole&gt;
-        where TRole : IdentityRole&lt;TKey&gt;
-        where TKey : IEquatable&lt;TKey&gt;
-    {
-        /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;RoleStore{TRole, TKey}&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
-        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-    }
-
-    /// &lt;summary&gt;
-    /// Creates a new instance of a persistence store for roles.
-    /// &lt;/summary&gt;
-    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type of the class representing a role.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TKey&quot;&gt;The type of the primary key for a role.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TUserRole&quot;&gt;The type of the class representing a user role.&lt;/typeparam&gt;
-    /// &lt;typeparam name=&quot;TRoleClaim&quot;&gt;The type of the class representing a role claim.&lt;/typeparam&gt;
-    public abstract class RoleStore&lt;TRole, TKey, TUserRole, TRoleClaim&gt; :
-        IRoleClaimStore&lt;TRole&gt;
-        where TRole : IdentityRole&lt;TKey&gt;
-        where TKey : IEquatable&lt;TKey&gt;
-        where TUserRole : IdentityUserRole&lt;TKey&gt;, new()
-        where TRoleClaim : IdentityRoleClaim&lt;TKey&gt;, new()
-    {
-        private readonly IFirebaseClient _client;
-        /// &lt;summary&gt;
-        /// Constructs a new instance of &lt;see cref=&quot;RoleStore{TRole, TKey, TUserRole, TRoleClaim}&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;context&quot;&gt;The &lt;see cref=&quot;DbContext&quot;/&gt;.&lt;/param&gt;
-        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null)
-        {
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _client = client;
-            ErrorDescriber = describer ?? new IdentityErrorDescriber();
+            AddStores(builder.Services, builder.UserType, builder.RoleType);
+            return builder;
         }
 
-        private bool _disposed;
-
-        /// &lt;summary&gt;
-        /// Gets or sets the &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; for any error that occurred with the current operation.
-        /// &lt;/summary&gt;
-        public IdentityErrorDescriber ErrorDescriber { get; set; }
-
-        /// &lt;summary&gt;
-        /// Creates a new role in a store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role to create in the store.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
-        public async virtual Task&lt;IdentityResult&gt; CreateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        private static void AddStores(IServiceCollection services, Type userType, Type roleType)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
+            var identityUserType = FindGenericBaseType(userType, typeof(IdentityUser&lt;string&gt;));
+            if (identityUserType == null)
             {
-                throw new ArgumentNullException(nameof(role));
-            }
-            var response = await _client.PostAsync($&quot;roles&quot;, role, cancellationToken, true);
-            role.Id = ParseId(response.Data);
-            role.ConcurrencyStamp = response.Etag;
-
-            await _client.PutAsync($&quot;indexes/role-name/{role.NormalizedName}&quot;, role.Id, cancellationToken);
-
-            return IdentityResult.Success;
-        }
-
-        /// &lt;summary&gt;
-        /// Updates a role in a store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role to update in the store.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
-        public async virtual Task&lt;IdentityResult&gt; UpdateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
+                throw new InvalidOperationException(&quot;AddEntityFrameworkStores can only be called with a user that derives from IdentityUser&lt;string&gt;.&quot;);
             }
 
-            try
+            if (roleType != null)
             {
-                var response = await _client.PutAsync($&quot;roles/{role.Id}&quot;, role, cancellationToken, true, role.ConcurrencyStamp);
-                role.ConcurrencyStamp = response.Etag;
-            }
-            catch (FirebaseException e)
-            {
-                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                var identityRoleType = FindGenericBaseType(roleType, typeof(IdentityRole&lt;string&gt;));
+                if (identityRoleType == null)
                 {
-                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                    throw new InvalidOperationException(&quot;AddEntityFrameworkStores can only be called with a role that derives from IdentityRole&lt;string&gt;.&quot;);
                 }
-                throw;
+
+                Type userStoreType = null;
+                Type roleStoreType = null;
+                // If its a custom DbContext, we can only add the default POCOs
+                userStoreType = typeof(UserStore&lt;,&gt;).MakeGenericType(userType, roleType);
+                roleStoreType = typeof(RoleStore&lt;&gt;).MakeGenericType(roleType);
+
+                services.TryAddScoped(typeof(IUserStore&lt;&gt;).MakeGenericType(userType), userStoreType);
+                services.TryAddScoped(typeof(IRoleStore&lt;&gt;).MakeGenericType(roleType), roleStoreType);
+            }
+            else
+            {   // No Roles
+                Type userStoreType = null;
+                    // If its a custom DbContext, we can only add the default POCOs
+                userStoreType = typeof(UserOnlyStore&lt;&gt;).MakeGenericType(userType);
+                services.TryAddScoped(typeof(IUserStore&lt;&gt;).MakeGenericType(userType), userStoreType);
             }
 
-            return IdentityResult.Success;
+            services.AddScoped&lt;HttpClient&gt;()
+                .AddScoped&lt;IFirebaseClient, FirebaseClient&gt;()
+                .AddScoped&lt;IFirebaseTokenManager, EmailPasswordTokenManager&gt;()
+                .AddScoped&lt;ILookupNormalizer, FirebaseLookupNormalizer&gt;();
         }
 
-        /// &lt;summary&gt;
-        /// Deletes a role from the store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role to delete from the store.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
-        public async virtual Task&lt;IdentityResult&gt; DeleteAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        private static TypeInfo FindGenericBaseType(Type currentType, Type genericBaseType)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
+            var type = currentType;
+            while (type != null)
             {
-                throw new ArgumentNullException(nameof(role));
-            }
-            try
-            {
-                await _client.DeleteAsync($&quot;roles/{role.Id}&quot;, cancellationToken, true, role.ConcurrencyStamp);
-            }
-            catch (FirebaseException e)
-            {
-                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
+                var typeInfo = type.GetTypeInfo();
+                var genericType = type.IsGenericType ? type: null;
+                if (genericType != null &amp;&amp; genericType == genericBaseType)
                 {
-                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                    return typeInfo;
                 }
-                throw;
+                type = type.BaseType;
             }
-            return IdentityResult.Success;
+            return null;
         }
-
-        /// &lt;summary&gt;
-        /// Gets the ID for a role from the store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose ID should be returned.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the ID of the role.&lt;/returns&gt;
-        public virtual Task&lt;string&gt; GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(ConvertIdToString(role.Id));
-        }
-
-        /// &lt;summary&gt;
-        /// Gets the name of a role from the store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose name should be returned.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the name of the role.&lt;/returns&gt;
-        public virtual Task&lt;string&gt; GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(role.Name);
-        }
-
-        /// &lt;summary&gt;
-        /// Sets the name of a role in the store as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose name should be set.&lt;/param&gt;
-        /// &lt;param name=&quot;roleName&quot;&gt;The name of the role.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            role.Name = roleName;
-            return Task.CompletedTask;
-        }
-
-        /// &lt;summary&gt;
-        /// Converts the provided &lt;paramref name=&quot;id&quot;/&gt; to a strongly typed key object.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;id&quot;&gt;The id to convert.&lt;/param&gt;
-        /// &lt;returns&gt;An instance of &lt;typeparamref name=&quot;TKey&quot;/&gt; representing the provided &lt;paramref name=&quot;id&quot;/&gt;.&lt;/returns&gt;
-        public virtual TKey ConvertIdFromString(string id)
-        {
-            if (id == null)
-            {
-                return default(TKey);
-            }
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-        }
-
-        /// &lt;summary&gt;
-        /// Converts the provided &lt;paramref name=&quot;id&quot;/&gt; to its string representation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;id&quot;&gt;The id to convert.&lt;/param&gt;
-        /// &lt;returns&gt;An &lt;see cref=&quot;string&quot;/&gt; representation of the provided &lt;paramref name=&quot;id&quot;/&gt;.&lt;/returns&gt;
-        public virtual string ConvertIdToString(TKey id)
-        {
-            if (id.Equals(default(TKey)))
-            {
-                return null;
-            }
-            return id.ToString();
-        }
-
-        /// &lt;summary&gt;
-        /// Finds the role who has the specified ID as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;id&quot;&gt;The role ID to look for.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that result of the look up.&lt;/returns&gt;
-        public virtual async Task&lt;TRole&gt; FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            var roleId = ConvertIdFromString(id);
-            var response = await _client.GetAsync&lt;TRole&gt;($&quot;roles/{roleId}&quot;, cancellationToken, true);
-            var role = response.Data;
-            if (role != null)
-            {
-                role.ConcurrencyStamp = response.Etag;
-            }
-
-            return role;
-        }
-
-        /// &lt;summary&gt;
-        /// Finds the role who has the specified normalized name as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;normalizedName&quot;&gt;The normalized role name to look for.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that result of the look up.&lt;/returns&gt;
-        public virtual async Task&lt;TRole&gt; FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            var response = await _client.GetAsync&lt;string&gt;($&quot;indexes/role-name/{normalizedName}&quot;, cancellationToken);
-            if (response.Data == null)
-            {
-                return null;
-            }
-
-            return await FindByIdAsync(response.Data, cancellationToken);
-        }
-
-        /// &lt;summary&gt;
-        /// Get a role&#39;s normalized name as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose normalized name should be retrieved.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the name of the role.&lt;/returns&gt;
-        public virtual Task&lt;string&gt; GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(role.NormalizedName);
-        }
-
-        /// &lt;summary&gt;
-        /// Set a role&#39;s normalized name as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose normalized name should be set.&lt;/param&gt;
-        /// &lt;param name=&quot;normalizedName&quot;&gt;The normalized name to set&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            role.NormalizedName = normalizedName;
-            return Task.CompletedTask;
-        }
-
-        protected abstract TKey ParseId(string id);
-        /// &lt;summary&gt;
-        /// Throws if this class has been disposed.
-        /// &lt;/summary&gt;
-        protected void ThrowIfDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
-        }
-
-        /// &lt;summary&gt;
-        /// Dispose the stores
-        /// &lt;/summary&gt;
-        public void Dispose() =&gt; _disposed = true;
-
-        /// &lt;summary&gt;
-        /// Get the claims associated with the specified &lt;paramref name=&quot;role&quot;/&gt; as an asynchronous operation.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role whose claims should be retrieved.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the claims granted to a role.&lt;/returns&gt;
-        public async virtual Task&lt;IList&lt;Claim&gt;&gt; GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-
-            var response = await _client.GetAsync&lt;IList&lt;TRoleClaim&gt;&gt;($&quot;roles/{role.Id}/claims&quot;, cancellationToken);
-
-            return response.Data?.Select(c =&gt; new Claim(c.ClaimType, c.ClaimValue)).ToList() ?? new List&lt;Claim&gt;();
-        }
-
-        /// &lt;summary&gt;
-        /// Adds the &lt;paramref name=&quot;claim&quot;/&gt; given to the specified &lt;paramref name=&quot;role&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role to add the claim to.&lt;/param&gt;
-        /// &lt;param name=&quot;claim&quot;&gt;The claim to add to the role.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-
-            var response = await _client.GetAsync&lt;List&lt;TRoleClaim&gt;&gt;($&quot;roles/{role.Id}/claims&quot;, cancellationToken);
-
-            var claims = response.Data ?? new List&lt;TRoleClaim&gt;();
-            claims.Add(CreateRoleClaim(role, claim));
-
-            await _client.PutAsync($&quot;roles/{role.Id}/claims&quot;, claims, cancellationToken);
-        }
-
-        /// &lt;summary&gt;
-        /// Removes the &lt;paramref name=&quot;claim&quot;/&gt; given from the specified &lt;paramref name=&quot;role&quot;/&gt;.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The role to remove the claim from.&lt;/param&gt;
-        /// &lt;param name=&quot;claim&quot;&gt;The claim to remove from the role.&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
-        public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-            var response = await _client.GetAsync&lt;List&lt;TRoleClaim&gt;&gt;($&quot;roles/{role.Id}/claims&quot;, cancellationToken);
-
-            var claims = response.Data;
-            if (claims != null)
-            {
-                claims.RemoveAll(c =&gt; c.ClaimType == claim.Type &amp;&amp; c.ClaimValue == claim.Value);
-
-                await _client.PutAsync($&quot;roles/{role.Id}/claims&quot;, claims, cancellationToken);
-            }
-        }
-
-        /// &lt;summary&gt;
-        /// Creates an entity representing a role claim.
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;role&quot;&gt;The associated role.&lt;/param&gt;
-        /// &lt;param name=&quot;claim&quot;&gt;The associated claim.&lt;/param&gt;
-        /// &lt;returns&gt;The role claim entity.&lt;/returns&gt;
-        protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
-            =&gt; new TRoleClaim { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
     }
 }
-
     </pre>
     <script type="text/javascript">
-      highlightRanges([[28,93,28,116,1],[28,117,28,118,1],[28,119,28,120,1],[31,9,31,10,1],[32,13,32,23,1],[33,9,33,10,1],[51,93,51,116,1],[51,117,51,118,1],[51,119,51,120,1],[74,9,74,90,1],[75,9,75,10,1],[76,13,76,32,1],[77,13,77,14,0],[78,17,78,65,0],[80,13,80,30,1],[81,13,81,72,1],[82,9,82,10,1],[89,56,89,60,1],[89,61,89,65,1],[98,9,98,10,1],[99,13,99,62,1],[100,13,100,31,1],[101,13,101,30,1],[102,13,102,14,0],[103,17,103,63,0],[105,13,105,93,1],[106,13,106,46,1],[107,13,107,51,1],[109,13,109,108,1],[111,13,111,43,1],[112,9,112,10,1],[121,9,121,10,1],[122,13,122,62,1],[123,13,123,31,1],[124,13,124,30,1],[125,13,125,14,0],[126,17,126,63,0],[130,13,130,14,1],[131,17,131,129,1],[132,17,132,55,1],[133,13,133,14,1],[134,13,134,40,1],[135,13,135,14,1],[136,17,136,71,1],[137,17,137,18,1],[138,21,138,87,1],[140,17,140,23,0],[143,13,143,43,1],[144,9,144,10,1],[153,9,153,10,1],[154,13,154,62,1],[155,13,155,31,1],[156,13,156,30,1],[157,13,157,14,0],[158,17,158,63,0],[161,13,161,14,1],[162,17,162,111,1],[163,13,163,14,0],[164,13,164,40,1],[165,13,165,14,1],[166,17,166,71,1],[167,17,167,18,1],[168,21,168,87,1],[170,17,170,23,0],[172,13,172,43,0],[173,9,173,10,1],[182,9,182,10,0],[183,13,183,62,0],[184,13,184,31,0],[185,13,185,30,0],[186,13,186,14,0],[187,17,187,63,0],[189,13,189,64,0],[190,9,190,10,0],[199,9,199,10,1],[200,13,200,62,1],[201,13,201,31,1],[202,13,202,30,1],[203,13,203,14,0],[204,17,204,63,0],[206,13,206,47,1],[207,9,207,10,1],[217,9,217,10,0],[218,13,218,62,0],[219,13,219,31,0],[220,13,220,30,0],[221,13,221,14,0],[222,17,222,63,0],[224,13,224,34,0],[225,13,225,39,0],[226,9,226,10,0],[234,9,234,10,1],[235,13,235,28,1],[236,13,236,14,0],[237,17,237,38,0],[239,13,239,99,1],[240,9,240,10,1],[248,9,248,10,0],[249,13,249,42,0],[250,13,250,14,0],[251,17,251,29,0],[253,13,253,34,0],[254,9,254,10,0],[263,9,263,10,1],[264,13,264,62,1],[265,13,265,31,1],[266,13,266,50,1],[267,13,267,102,1],[268,13,268,38,1],[269,13,269,30,1],[270,13,270,14,1],[271,17,271,55,1],[272,13,272,14,1],[274,13,274,25,1],[275,9,275,10,1],[284,9,284,10,1],[285,13,285,62,1],[286,13,286,31,1],[287,13,287,117,1],[288,13,288,39,1],[289,13,289,14,1],[290,17,290,29,1],[293,13,293,74,0],[294,9,294,10,1],[303,9,303,10,0],[304,13,304,62,0],[305,13,305,31,0],[306,13,306,30,0],[307,13,307,14,0],[308,17,308,63,0],[310,13,310,57,0],[311,9,311,10,0],[321,9,321,10,1],[322,13,322,62,1],[323,13,323,31,1],[324,13,324,30,1],[325,13,325,14,0],[326,17,326,63,0],[328,13,328,50,1],[329,13,329,39,1],[330,9,330,10,1],[337,9,337,10,1],[338,13,338,27,1],[339,13,339,14,0],[340,17,340,67,0],[342,9,342,10,1],[347,34,347,50,0],[356,9,356,10,0],[357,13,357,31,0],[358,13,358,30,0],[359,13,359,14,0],[360,17,360,63,0],[363,13,363,116,0],[365,13,365,47,0],[365,47,365,83,0],[365,83,365,115,0],[365,13,365,115,0],[366,9,366,10,0],[376,9,376,10,0],[377,13,377,31,0],[378,13,378,30,0],[379,13,379,14,0],[380,17,380,63,0],[382,13,382,31,0],[383,13,383,14,0],[384,17,384,64,0],[387,13,387,115,0],[389,13,389,66,0],[390,13,390,54,0],[392,13,392,90,0],[393,9,393,10,0],[403,9,403,10,0],[404,13,404,31,0],[405,13,405,30,0],[406,13,406,14,0],[407,17,407,63,0],[409,13,409,31,0],[410,13,410,14,0],[411,17,411,64,0],[413,13,413,115,0],[415,13,415,40,0],[416,13,416,32,0],[417,13,417,14,0],[418,17,418,39,0],[418,39,418,95,0],[418,95,418,97,0],[418,17,418,97,0],[420,17,420,94,0],[421,13,421,14,0],[422,9,422,10,0],[431,16,431,101,0]]);
+      highlightRanges([[26,9,26,10,1],[27,13,27,77,1],[28,13,28,28,1],[29,9,29,10,1],[32,9,32,10,1],[33,13,33,96,1],[34,13,34,42,1],[35,13,35,14,0],[36,17,36,152,0],[39,13,39,34,1],[40,13,40,14,1],[41,17,41,100,1],[42,17,42,46,1],[43,17,43,18,0],[44,21,44,156,0],[47,17,47,43,1],[48,17,48,43,1],[50,17,50,90,1],[51,17,51,79,1],[53,17,53,102,1],[54,17,54,102,1],[55,13,55,14,1],[57,13,57,14,0],[58,17,58,43,0],[60,17,60,83,0],[61,17,61,102,0],[62,13,62,14,0],[64,13,67,75,1],[68,9,68,10,1],[71,9,71,10,1],[72,13,72,36,1],[73,13,73,33,1],[74,13,74,14,1],[75,17,75,51,1],[76,17,76,67,1],[77,17,77,75,1],[78,17,78,18,1],[79,21,79,37,1],[81,17,81,38,1],[82,13,82,14,1],[83,13,83,25,0],[84,9,84,10,1]]);
     </script>
   </body>
 </html>

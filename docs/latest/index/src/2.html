@@ -21,18 +21,22 @@ namespace Aguacongas.Firebase
         public string ReasonPhrase { get; private set; }
 
         public string Etag { get; private set; }
-        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string eTag): base($&quot;HTTP Error {statusCode}: {reasonPhrase}&quot;)
+
+        public string Error { get; private set; }
+
+        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string error, string eTag): base($&quot;HTTP Error {statusCode}: {reasonPhrase}&quot;)
         {
             StatusCode = statusCode;
             ReasonPhrase = reasonPhrase;
             Etag = eTag;
+            Error = error;
         }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[10,44,10,48,0],[10,49,10,61,0],[11,38,11,42,0],[11,43,11,55,0],[13,30,13,34,0],[13,35,13,47,0],[14,96,14,144,0],[15,9,15,10,0],[16,13,16,37,0],[17,13,17,41,0],[18,13,18,25,0],[19,9,19,10,0]]);
+      highlightRanges([[10,44,10,48,0],[10,49,10,61,0],[11,38,11,42,0],[11,43,11,55,0],[13,30,13,34,0],[13,35,13,47,0],[15,31,15,35,0],[15,36,15,48,0],[17,110,17,158,0],[18,9,18,10,0],[19,13,19,37,0],[20,13,20,41,0],[21,13,21,25,0],[22,13,22,27,0],[23,9,23,10,0]]);
     </script>
   </body>
 </html>

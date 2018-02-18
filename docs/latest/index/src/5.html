@@ -10,8 +10,10 @@
     <pre id="content" class="source-code">
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,12 +26,7 @@ namespace Aguacongas.Firebase
     {
         public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null, bool requestEtag = false, string etag = null)
         {
-            var content = new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
-            var headers = content.Headers;
-            headers.SetIfMath(etag);
-            headers.SetRequestEtag(requestEtag);
-
-            return content;
+            return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
         }
 
         public static void SetRequestEtag(this HttpHeaders headers, bool requestEtag)
@@ -48,13 +45,9 @@ namespace Aguacongas.Firebase
             }
         }
 
-        public static void SetIfMatch(this StringContent content, string etag = null)
-        {
-
-        }
         public static async Task&lt;FirebaseResponse&lt;T&gt;&gt; DeserializeResponseAsync&lt;T&gt;(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
         {
-            response.EnsureIsSuccess();
+            await response.EnsureIsSuccess();
             
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return new FirebaseResponse&lt;T&gt;
@@ -64,11 +57,11 @@ namespace Aguacongas.Firebase
             };
         }
 
-        public static void EnsureIsSuccess(this HttpResponseMessage response)
+        public static async Task EnsureIsSuccess(this HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
-                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, response.Headers.ETag?.Tag);
+                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, await response.Content.ReadAsStringAsync(), response.Headers.ETag?.Tag);
             }
         }
     }
@@ -76,7 +69,7 @@ namespace Aguacongas.Firebase
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[16,9,16,10,1],[17,13,17,139,1],[18,13,18,43,1],[19,13,19,37,1],[20,13,20,49,1],[22,13,22,28,1],[23,9,23,10,1],[26,9,26,10,1],[27,13,27,29,1],[28,13,28,14,0],[29,17,29,66,0],[30,13,30,14,0],[31,9,31,10,1],[34,9,34,10,1],[35,13,35,45,1],[36,13,36,14,0],[37,17,37,57,0],[38,13,38,14,0],[39,9,39,10,1],[42,9,42,10,0],[44,9,44,10,0],[46,9,46,10,1],[47,13,47,40,1],[49,13,49,75,1],[50,13,54,15,1],[55,9,55,10,1],[58,9,58,10,1],[59,13,59,47,1],[60,13,60,14,0],[61,17,61,117,0],[63,9,63,10,1]]);
+      highlightRanges([[18,9,18,10,1],[19,13,19,132,1],[20,9,20,10,1],[23,9,23,10,1],[24,13,24,29,1],[25,13,25,14,0],[26,17,26,66,0],[27,13,27,14,0],[28,9,28,10,1],[31,9,31,10,1],[32,13,32,45,1],[33,13,33,14,0],[34,17,34,57,0],[35,13,35,14,0],[36,9,36,10,1],[39,9,39,10,1],[40,13,40,46,1],[42,13,42,75,1],[43,13,47,15,1],[48,9,48,10,1],[51,9,51,10,1],[52,13,52,47,1],[53,13,53,14,0],[54,17,54,161,0],[56,9,56,10,1]]);
     </script>
   </body>
 </html>
