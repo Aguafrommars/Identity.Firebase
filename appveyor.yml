@@ -1,26 +1,26 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 environment:
-  access_token:
-    secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
-  FirebaseOptions:DatabaseUrl:
-    secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
-  EmailPasswordOptions:ApiKey:
-    secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
-  EmailPasswordOptions:Email:
-    secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
-  EmailPasswordOptions:Password:
-    secure: h7zhWIG5sQBVM6loU77ClQ==
+    access_token:
+        secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
+    FirebaseOptions:DatabaseUrl:
+        secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
+    EmailPasswordOptions:ApiKey:
+        secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
+    EmailPasswordOptions:Email:
+        secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
+    EmailPasswordOptions:Password:
+        secure: h7zhWIG5sQBVM6loU77ClQ==
 init:
-- cmd: git config --global core.autocrlf true
+    - cmd: git config --global core.autocrlf true
 install:
-- cmd: gitversion /l console /output buildserver
-- cmd: dotnet restore
+    - cmd: gitversion /l console /output buildserver
+    - cmd: dotnet restore
 build_script:
-- cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
-- cmd: msbuild src\Aguacongas.Identity.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
+    - cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
+    - cmd: msbuild src\Aguacongas.Identity.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
 test_script:
-- cmd: cover.cmd
+    - cmd: cover.cmd
 artifacts:
     - path: src/**/*.nupkg
       name: nuget    
@@ -35,4 +35,7 @@ on_success:
     - git add docs\latest
     - git commit docs\latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
-  
+deploy:
+    - provider: NuGet
+      api_key:
+        secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
