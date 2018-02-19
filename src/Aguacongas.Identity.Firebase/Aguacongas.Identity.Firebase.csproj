@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <Company>Olivier Lefebvre</Company>
+    <Description>[Identity](https://github.com/aspnet/identity) stores implementation for [Firebase](https://firebase.google.com/) </Description>
+    <Copyright>Olivier Lefebvre @2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>firebase</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
