@@ -33,6 +33,18 @@ namespace Aguacongas.Identity.Firebase
         where TUserLogin : IdentityUserLogin<string>, new()
         where TUserToken : IdentityUserToken<string>, new()
     {
+        private const string InternalLoginProvider = "[AspNetUserStore]";
+        private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
+        private const string RecoveryCodeTokenName = "RecoveryCodes";
+
+        private bool _disposed;
+
+
+        /// <summary>
+        /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
+        /// </summary>
+        public IdentityErrorDescriber ErrorDescriber { get; set; }
+
         /// <summary>
         /// Creates a new instance.
         /// </summary>
@@ -47,61 +59,134 @@ namespace Aguacongas.Identity.Firebase
             ErrorDescriber = describer;
         }
 
-        private bool _disposed;
+        /// <summary>
+        /// Creates the specified <paramref name="user"/> in the user store.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
+        public abstract Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
+        /// Updates the specified <paramref name="user"/> in the user store.
         /// </summary>
-        public IdentityErrorDescriber ErrorDescriber { get; set; }
+        /// <param name="user">The user to update.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
+        public abstract Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserClaim{string}"/>.
+        /// Deletes the specified <paramref name="user"/> from the user store.
         /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="claim">The associated claim.</param>
-        /// <returns></returns>
-        protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
-        {
-            var userClaim = new TUserClaim { UserId = user.Id };
-            userClaim.InitializeFromClaim(claim);
-            return userClaim;
-        }
+        /// <param name="user">The user to delete.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
+        public abstract Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserLogin{string}"/>.
+        /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
         /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="login">The sasociated login.</param>
-        /// <returns></returns>
-        protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
-        {
-            return new TUserLogin
-            {
-                UserId = user.Id,
-                ProviderKey = login.ProviderKey,
-                LoginProvider = login.LoginProvider,
-                ProviderDisplayName = login.ProviderDisplayName
-            };
-        }
+        /// <param name="userId">The user ID to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
+        /// </returns>
+        public abstract Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserToken{string}"/>.
+        /// Get the claims associated with the specified <paramref name="user"/> as an asynchronous operation.
         /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="loginProvider">The associated login provider.</param>
-        /// <param name="name">The name of the user token.</param>
-        /// <param name="value">The value of the user token.</param>
-        /// <returns></returns>
-        protected virtual TUserToken CreateUserToken(TUser user, string loginProvider, string name, string value)
-        {
-            return new TUserToken
-            {
-                UserId = user.Id,
-                LoginProvider = loginProvider,
-                Name = name,
-                Value = value
-            };
-        }
+        /// <param name="user">The user whose claims should be retrieved.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
+        public abstract Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Adds the <paramref name="claims"/> given to the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to add the claim to.</param>
+        /// <param name="claims">The claim to add to the user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public abstract Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces the <paramref name="claim"/> on the specified <paramref name="user"/>, with the <paramref name="newClaim"/>.
+        /// </summary>
+        /// <param name="user">The user to replace the claim on.</param>
+        /// <param name="claim">The claim replace.</param>
+        /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public abstract Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Removes the <paramref name="claims"/> given from the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to remove the claims from.</param>
+        /// <param name="claims">The claim to remove.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public abstract Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Adds the <paramref name="login"/> given to the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to add the login to.</param>
+        /// <param name="login">The login to add to the user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public abstract Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Removes the <paramref name="loginProvider"/> given from the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to remove the login from.</param>
+        /// <param name="loginProvider">The login to remove from the user.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public abstract Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Retrieves the associated logins for the specified <param ref="user"/>.
+        /// </summary>
+        /// <param name="user">The user whose associated logins to retrieve.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
+        /// </returns>
+        public abstract Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds and returns a user, if any, who has the specified normalized user name.
+        /// </summary>
+        /// <param name="normalizedUserName">The normalized user name to search for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
+        /// </returns>
+        public abstract Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Retrieves all users with the specified claim.
+        /// </summary>
+        /// <param name="claim">The claim whose users should be retrieved.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
+        /// </returns>
+        public abstract Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the user, if any, associated with the specified, normalized email address.
+        /// </summary>
+        /// <param name="normalizedEmail">The normalized email address to return the user for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>
+        /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
+        /// </returns>
+        public abstract Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the user identifier for the specified <paramref name="user"/>.
@@ -193,50 +278,6 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Creates the specified <paramref name="user"/> in the user store.
-        /// </summary>
-        /// <param name="user">The user to create.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        public abstract Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Updates the specified <paramref name="user"/> in the user store.
-        /// </summary>
-        /// <param name="user">The user to update.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public abstract Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Deletes the specified <paramref name="user"/> from the user store.
-        /// </summary>
-        /// <param name="user">The user to delete.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public abstract Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
-        /// </summary>
-        /// <param name="userId">The user ID to search for.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
-        /// </returns>
-        public abstract Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds and returns a user, if any, who has the specified normalized user name.
-        /// </summary>
-        /// <param name="normalizedUserName">The normalized user name to search for.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
-        /// </returns>
-        public abstract Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
         /// Sets the password hash for a user.
         /// </summary>
         /// <param name="user">The user to set the password hash for.</param>
@@ -284,117 +325,6 @@ namespace Aguacongas.Identity.Firebase
             cancellationToken.ThrowIfCancellationRequested();
             return Task.FromResult(user.PasswordHash != null);
         }
-
-        /// <summary>
-        /// Return a user with the matching userId if it exists.
-        /// </summary>
-        /// <param name="userId">The user's id.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user if it exists.</returns>
-        protected abstract Task<TUser> FindUserAsync(string userId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Return a user login with the matching userId, provider, providerKey if it exists.
-        /// </summary>
-        /// <param name="userId">The user's id.</param>
-        /// <param name="loginProvider">The login provider name.</param>
-        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user login if it exists.</returns>
-        protected abstract Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Return a user login with  provider, providerKey if it exists.
-        /// </summary>
-        /// <param name="loginProvider">The login provider name.</param>
-        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The user login if it exists.</returns>
-        protected abstract Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Throws if this class has been disposed.
-        /// </summary>
-        protected void ThrowIfDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
-        }
-
-        /// <summary>
-        /// Dispose the store
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Get the claims associated with the specified <paramref name="user"/> as an asynchronous operation.
-        /// </summary>
-        /// <param name="user">The user whose claims should be retrieved.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
-        public abstract Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Adds the <paramref name="claims"/> given to the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to add the claim to.</param>
-        /// <param name="claims">The claim to add to the user.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Replaces the <paramref name="claim"/> on the specified <paramref name="user"/>, with the <paramref name="newClaim"/>.
-        /// </summary>
-        /// <param name="user">The user to replace the claim on.</param>
-        /// <param name="claim">The claim replace.</param>
-        /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Removes the <paramref name="claims"/> given from the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to remove the claims from.</param>
-        /// <param name="claims">The claim to remove.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Adds the <paramref name="login"/> given to the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to add the login to.</param>
-        /// <param name="login">The login to add to the user.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Removes the <paramref name="loginProvider"/> given from the specified <paramref name="user"/>.
-        /// </summary>
-        /// <param name="user">The user to remove the login from.</param>
-        /// <param name="loginProvider">The login to remove from the user.</param>
-        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Retrieves the associated logins for the specified <param ref="user"/>.
-        /// </summary>
-        /// <param name="user">The user whose associated logins to retrieve.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
-        /// </returns>
-        public abstract Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Retrieves the user associated with the specified login provider and login provider key..
@@ -531,16 +461,6 @@ namespace Aguacongas.Identity.Firebase
             user.NormalizedEmail = normalizedEmail;
             return Task.CompletedTask;
         }
-
-        /// <summary>
-        /// Gets the user, if any, associated with the specified, normalized email address.
-        /// </summary>
-        /// <param name="normalizedEmail">The normalized email address to return the user for.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
-        /// </returns>
-        public abstract Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the last <see cref="DateTimeOffset"/> a user's last lockout expired, if any.
@@ -831,33 +751,6 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Retrieves all users with the specified claim.
-        /// </summary>
-        /// <param name="claim">The claim whose users should be retrieved.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>
-        /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
-        /// </returns>
-        public abstract Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Get user tokens
-        /// </summary>
-        /// <param name="user">The token owner.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>User tokens.</returns>
-        protected abstract Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Save user tokens.
-        /// </summary>
-        /// <param name="user">The tokens owner.</param>
-        /// <param name="tokens">Tokens to save</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns></returns>
-        protected abstract Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Sets the token value for a particular user.
         /// </summary>
         /// <param name="user">The user.</param>
@@ -936,10 +829,6 @@ namespace Aguacongas.Identity.Firebase
 
             return token?.Value;
         }
-
-        private const string InternalLoginProvider = "[AspNetUserStore]";
-        private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
-        private const string RecoveryCodeTokenName = "RecoveryCodes";
 
         /// <summary>
         /// Sets the authenticator key for the specified <paramref name="user"/>.
@@ -1029,6 +918,117 @@ namespace Aguacongas.Identity.Firebase
             return false;
         }
 
+        /// <summary>
+        /// Dispose the store
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Get user tokens
+        /// </summary>
+        /// <param name="user">The token owner.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>User tokens.</returns>
+        protected abstract Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Save user tokens.
+        /// </summary>
+        /// <param name="user">The tokens owner.</param>
+        /// <param name="tokens">Tokens to save</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns></returns>
+        protected abstract Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Return a user with the matching userId if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user if it exists.</returns>
+        protected abstract Task<TUser> FindUserAsync(string userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Return a user login with the matching userId, provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        protected abstract Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Return a user login with  provider, providerKey if it exists.
+        /// </summary>
+        /// <param name="loginProvider">The login provider name.</param>
+        /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The user login if it exists.</returns>
+        protected abstract Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Called to create a new instance of a <see cref="IdentityUserClaim{string}"/>.
+        /// </summary>
+        /// <param name="user">The associated user.</param>
+        /// <param name="claim">The associated claim.</param>
+        /// <returns></returns>
+        protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
+        {
+            var userClaim = new TUserClaim { UserId = user.Id };
+            userClaim.InitializeFromClaim(claim);
+            return userClaim;
+        }
+
+        /// <summary>
+        /// Called to create a new instance of a <see cref="IdentityUserLogin{string}"/>.
+        /// </summary>
+        /// <param name="user">The associated user.</param>
+        /// <param name="login">The sasociated login.</param>
+        /// <returns></returns>
+        protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
+        {
+            return new TUserLogin
+            {
+                UserId = user.Id,
+                ProviderKey = login.ProviderKey,
+                LoginProvider = login.LoginProvider,
+                ProviderDisplayName = login.ProviderDisplayName
+            };
+        }
+
+        /// <summary>
+        /// Called to create a new instance of a <see cref="IdentityUserToken{string}"/>.
+        /// </summary>
+        /// <param name="user">The associated user.</param>
+        /// <param name="loginProvider">The associated login provider.</param>
+        /// <param name="name">The name of the user token.</param>
+        /// <param name="value">The value of the user token.</param>
+        /// <returns></returns>
+        protected virtual TUserToken CreateUserToken(TUser user, string loginProvider, string name, string value)
+        {
+            return new TUserToken
+            {
+                UserId = user.Id,
+                LoginProvider = loginProvider,
+                Name = name,
+                Value = value
+            };
+        }
+
+        /// <summary>
+        /// Throws if this class has been disposed.
+        /// </summary>
+        protected void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
         protected virtual void Dispose(bool disposed)
         {
             _disposed = true;
@@ -1061,22 +1061,6 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
         public FirebaseUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserRole{string}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="role">The associated role.</param>
-        /// <returns></returns>
-        protected virtual TUserRole CreateUserRole(TUser user, TRole role)
-        {
-            return new TUserRole()
-            {
-                UserId = user.Id,
-                RoleId = role.Id
-            };
-        }
-
 
         /// <summary>
         /// Retrieves all users in the specified role.
@@ -1140,5 +1124,20 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user role if it exists.</returns>
         protected abstract Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Called to create a new instance of a <see cref="IdentityUserRole{string}"/>.
+        /// </summary>
+        /// <param name="user">The associated user.</param>
+        /// <param name="role">The associated role.</param>
+        /// <returns></returns>
+        protected virtual TUserRole CreateUserRole(TUser user, TRole role)
+        {
+            return new TUserRole()
+            {
+                UserId = user.Id,
+                RoleId = role.Id
+            };
+        }
     }
 }

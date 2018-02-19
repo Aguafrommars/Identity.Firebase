@@ -1,16 +1,26 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 environment:
-    access_token:
-        secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
-    FirebaseOptions:DatabaseUrl:
-        secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
-    EmailPasswordOptions:ApiKey:
-        secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
-    EmailPasswordOptions:Email:
-        secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
-    EmailPasswordOptions:Password:
-        secure: h7zhWIG5sQBVM6loU77ClQ==
+  access_token:
+    secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
+  FirebaseOptions:DatabaseUrl:
+    secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
+  EmailPasswordOptions:ApiKey:
+    secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
+  EmailPasswordOptions:Email:
+    secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
+  EmailPasswordOptions:Password:
+    secure: h7zhWIG5sQBVM6loU77ClQ==
+  AuthTokenOptions:project_id:
+    secure: gE6/37a4VG4TdhewmnfFTIZHTzue+4h4fe/3s4YfdLo=
+  AuthTokenOptions:private_key_id:
+    secure: heNPEQDaV8Zztg/9IdO8uftdRig8wf72Up33RgTzQFcZRw29Kh6WgaIwKP52DypD
+  AuthTokenOptions:private_key:
+    secure: lYWao9RdvrvPB2yOgaz9tHxZfW4+khOPzARP86kHFEJ5y5acH0v4SDD/XuKlJsTKGxNlDigYCDvHxcMcl65iJuu+k8+CwOw1pu1zNpwwPlHkDR8RmzcnEx+87wWvvNkT44TtJtaWodFCJa87bo0MiuO6mggq/v85Gm+Ipjn7pDT5vVa/CNqD1JXqPfPgBUvqJ+irw0SRfYkDh/yOki56vp+XYFP0oCKCuElI5h8I1dFl+rM7XhpVBFEH9FyGN2ChS0BY+Fm7ify9Md3xh+S/M6+A5e26kMbKUv0eBlS6cbYv7fw5kPBVnlaaJ76UeR6Hv20Sw+IQ/LrPZ2OCtCrvcO4ddrc0fDZWP2cQlkUU1NPhir3zrYwoDtXe1qOXKXrwDugjFPi1KUVCiSoYa2UkQGF9IzejdJqd84S8tlI1Ieo28PcuULfJgnk10OYXpw7VoYQYMM+yOPTNNQ24YDpkQlxjcauyg7C/JW3+49QWLPo7eahdtRr66wv8ldOYGNpnL21TEsqOWbqLIzzhZNsnqhfcBSAb0NDqWmNR6WmZ7jmLMwNW2Y2x1uwOtkNY5HpnLtzdob6BBGei7ILvzvd0c41grFgbe2eunRglxxcEm1ir2YtoY9sSiOIcllplWMMnQA8dgx5zu7cKYExw49tVXUF8v6R2lWNY376A7U9Zi77GQebf/RvjaT166eCq0fBwBXZdNP/mb19GGZZZgmSo3do/IaPpmeSCY9XNUB+bwvYRlsL5W3mBwWRnehBw1+s6CP6Hp0TdcOuXADPeZOBh4oMT+fEi1zzj/wkIc2usoEeNyqb+aywdFGcaS3ZCASInQiG4LNsIpUzsgHBRPtPLK5YJ/oAtRd0VEXpr8OA7+jXt2r9FYaxKvMhSEfGRBu+b7Y/BtbLs8c1k1CFagh0Ch6XZv/T9Ye/gVJInZNJ99s30K+tQTk2CI7Z15PxQYROfU936BmU7k0pgmUju0lZaMPrWMHuSxy8rM0MPbjg6ferxSJP44ROmSP3DlETdqE5I76vocZXUAhqbYBziYp3drwc6vgYBBswC9GfbBcveWwb5YzWqqzP58Zj78Ses0mAnX4NoN8xjYzKYdNnxbIsNXGhvryX3wSlcrhUBXAcRaqRujBVop+lf2RB25XPsAn0Uc/1Ked0stb0P1obixgapkOZTngalIssr/K/qqi+AwwhLHV+6b+LuCrWHB20fn1G6HjgfVcVzQ78uAvEGLk7r4eF+hwVEJbXqOWLqNFU71lvqzArJX4KM/9VcHqk7+HAIL/sfjRnUNjvTnXgUmIgfwDw06JtXWqZuCohC2NfQgcKPbWjY7NO3uRQqNk2xaRuE+khoHQ1q5Wlhm5GcxaWr4Oj33piH17cmSzYg2hREGGb3UZLuDyN2ZpFmJb98OB662ViZZqBl1GWD9MBWxhSegzMxZZPMtyzaVfeqsgy/74KWzbYrb+EV5dvb2GS190IkUFhzfOrkNPM9mFxF7Br5aA4hOsYgRL3RyiTg2H3UeeZL1dFtCsUA0rUiLf3nnN/5k0m8QgaHmnTH/Ocid/rd2hhjLn9hl0GWKskUA27423SxsIULeZGBYb6hs8ZJs0zu2YMiW6blIBcEHw3HnYP0QKHPBnZRg2To9qMtgJZjA+5d9VluOH49gl6OeFD2UM16zyMN8JBdB00XUL/7pox3PRP2zIntznmJRkNJjyPk80qncKpyleb4vicSzCqfpr8XsB6kXAmWpnZDU5kRRf+l0F6ceQ8xpmfz7M7n2PyPZcX0bCxQUKlc//DtVonn+gmm6Hlpyf326laeZJjgVQecgKEGfyzEIU6SxODP8U3BlVUhguYmQhYPdTcV7LS5f2p2dF+j13LDAIOGhZIH0NPg+fuuc9Gm/4YeqPuMGwCeFuHC3uuSFEr240afairusuHxjl6VaNQRJ6NTUbYRvsHM1Pw2lrPliV/fXCwVOdODU0uBHuiSwNsFHXDTHbKbW2LCF2K8zPN4KmxgvImnaMqk8uuILDNLfzHRkn011hvlFqydxL+NeV9Kxf4cUc0tI3JjPnP4pSoEv0MJui7VQUi66ilHyxiVeGunTGdp8+NrMAfINNEEJY/tTTOyU9BWQ1X9nDezEpOpkXkpX7AMWK3u+gnbffJGq2yY09TGT/mQxBB/5PwFqEgRFUbie3R3eqlr0gsjS73FR4kU4euZ5WVlf31xhoO9biofxJ9mbEbLaYbrAEyOVYu7eIk42wXQoCinjEKX1SC+VgQ/rFDPRbIGZ88ic5mzNsiF/Hvz6tEM0KsJW+2ZwyEog5gqW/zD8l+YrITDqGAuH8Q3Y5JZWJqx+A==
+  AuthTokenOptions:client_email:
+    secure: kTyppzJ2/ZxaGTdrdYTHXMMRJgOJ82mJvPS6YzV2xB2s4bPC3nSQ1YUA1mfkb5zmJTkBRWlTMniJDmx8pRTmwtNJOF64UIf+wnVH0CnpQC8=
+  AuthTokenOptions:client_id:
+    secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
 init:
     - cmd: git config --global core.autocrlf true
 install:

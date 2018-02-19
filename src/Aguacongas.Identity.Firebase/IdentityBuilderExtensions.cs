@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<HttpClient>()
                 .AddScoped<IFirebaseClient, FirebaseClient>()
-                .AddScoped<IFirebaseTokenManager, EmailPasswordTokenManager>()
+                .AddScoped<IFirebaseTokenManager, AuthTokenManager>()
                 .AddScoped<ILookupNormalizer, FirebaseLookupNormalizer>();
         }
 

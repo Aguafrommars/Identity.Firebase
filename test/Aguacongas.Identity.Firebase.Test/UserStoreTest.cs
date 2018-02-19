@@ -198,7 +198,7 @@ namespace Aguacongas.Identity.Firebase.Test
             clientMock = new Mock<IFirebaseClient>();
             var client = clientMock.Object;
 
-            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/users-names/")), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/users-names/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(new FirebaseResponse<string>());
 
             clientMock.Setup(m => m.PostAsync("users", It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
@@ -222,10 +222,10 @@ namespace Aguacongas.Identity.Firebase.Test
                 It.IsAny<string>()))
                 .ReturnsAsync(new FirebaseResponse<string>());
             
-            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/role-name/")), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/role-name/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(new FirebaseResponse<string>());
 
-            clientMock.Setup(m => m.GetAsync<IdentityRole>(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
+            clientMock.Setup(m => m.GetAsync<IdentityRole>(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ReturnsAsync(new FirebaseResponse<IdentityRole>
                 {
                     Data = new IdentityRole

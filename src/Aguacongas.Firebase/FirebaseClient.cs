@@ -76,14 +76,14 @@ namespace Aguacongas.Firebase
             }                
         }
 
-        public Task<FirebaseResponse<T>> GetAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
+        public Task<FirebaseResponse<T>> GetAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
         {
-            return SendFirebaseRequest<T>(url, "GET", null, cancellationToken, requestEtag, null);
+            return SendFirebaseRequest<T>(url, "GET", null, cancellationToken, requestEtag, null, queryString);
         }
 
-        private async Task<FirebaseResponse<T>> SendFirebaseRequest<T>(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag)
+        private async Task<FirebaseResponse<T>> SendFirebaseRequest<T>(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken))
+            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken, queryString))
             {
                 Content = content
             };
@@ -101,7 +101,7 @@ namespace Aguacongas.Firebase
             }
         }
 
-        private async Task<string> GetFirebaseUrl(string url, CancellationToken cancellationToken)
+        private async Task<string> GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -119,7 +119,12 @@ namespace Aguacongas.Firebase
                 sanetizedUrl = sanetizedUrl.Substring(1);
             }
 
-            return $"{_url}{sanetizedUrl}?auth={await _tokenManager.GetTokenAsync(cancellationToken)}";
+            var result = $"{_url}{sanetizedUrl}?{_tokenManager.AuthParamName}={await _tokenManager.GetTokenAsync(cancellationToken)}";
+            if(!string.IsNullOrEmpty(queryString))
+            {
+                result += "&" + queryString; 
+            }
+            return result;
         }
 
         class PostResponse

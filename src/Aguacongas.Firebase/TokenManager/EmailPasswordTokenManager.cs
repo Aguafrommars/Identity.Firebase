@@ -23,6 +23,7 @@ namespace Aguacongas.Firebase.TokenManager
         private DateTime _nextRenewTime = DateTime.MinValue;
         private string _authKey;
 
+        public string AuthParamName { get; } = "auth";
 
         public EmailPasswordTokenManager(HttpClient httpClient, IOptions<EmailPasswordOptions> options)
         {

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -24,9 +25,9 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override void AddUserStore(IServiceCollection services, object context = null)
         {
-            services.Configure<EmailPasswordOptions>(options =>
+            services.Configure<AuthTokenOptions>(options =>
             {
-                _fixture.Configuration.GetSection("EmailPasswordOptions").Bind(options);
+                _fixture.Configuration.GetSection("AuthTokenOptions").Bind(options);
             });
 
             services.Configure<FirebaseOptions>(options =>
@@ -40,7 +41,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
             services.AddSingleton<HttpClient>()
                 .AddSingleton<IFirebaseClient, FirebaseClient>()
-                .AddSingleton<IFirebaseTokenManager, EmailPasswordTokenManager>()
+                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>()
                 .AddSingleton<ILookupNormalizer, FirebaseLookupNormalizer>();
         }
 
@@ -87,5 +88,28 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
         protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name.StartsWith(roleName);
 
         protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName.StartsWith(userName);
+
+        [Fact]
+        [Trait("firebase", "firebase")]
+        public async Task DeserializeDictionary()
+        {
+            var services = new ServiceCollection();
+            SetupIdentityServices(services, null);
+
+            var client = services.BuildServiceProvider().GetRequiredService<IFirebaseClient>();
+            await client.PostAsync("users", new TestUser
+            {
+                Id = "1"
+            });
+
+            await client.PostAsync("users", new TestUser
+            {
+                Id = "2"
+            });
+
+            await client.PutAsync(".settings/rules.json", new UserIndex());
+
+            var users = await client.GetAsync<Dictionary<string, TestUser>>("users", queryString: "orderBy=\"Id\"&equalTo=\"1\"");
+        }
     }
 }
