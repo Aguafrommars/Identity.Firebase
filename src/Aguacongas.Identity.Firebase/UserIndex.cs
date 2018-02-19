@@ -6,12 +6,11 @@ using System.Text;
 
 namespace Aguacongas.Identity.Firebase
 {
-    public class UserIndex
+    public class UserIndex: FirebaseIndexes
     {
-        [JsonProperty(PropertyName = "users")]
-        public FirebaseIndexes Users { get; } = new FirebaseIndexes
+        public UserIndex()
         {
-            On = new string[] { "NormalizedEmail", "NormalizedUserName" }
-        };
+            On = new string[] { "NormalizedEmail", "NormalizedUserName" };
+        }
     }
 }

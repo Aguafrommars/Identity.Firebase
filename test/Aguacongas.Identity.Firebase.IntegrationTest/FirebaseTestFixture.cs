@@ -14,6 +14,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
         public IConfigurationRoot Configuration { get; private set; }
         public FirebaseOptions FirebaseOptions { get; private set; }
 
+        public string TestDb { get; } = DateTime.Now.ToString("s");
         public FirebaseTestFixture()
         {
             var builder = new ConfigurationBuilder();
@@ -23,7 +24,6 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
             FirebaseOptions = new FirebaseOptions();
             Configuration.GetSection("FirebaseOptions").Bind(FirebaseOptions);
-            FirebaseOptions.DatabaseUrl += "/" + DateTime.Now.ToString("s");
         }
     }
 }

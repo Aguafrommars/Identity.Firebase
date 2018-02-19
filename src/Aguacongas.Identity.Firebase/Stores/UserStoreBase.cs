@@ -1029,6 +1029,12 @@ namespace Aguacongas.Identity.Firebase
                 throw new ObjectDisposedException(GetType().Name);
             }
         }
+
+        protected virtual string GetFirebasePath(params string[] objectPath)
+        {
+            return string.Join("/", objectPath);
+        }
+
         protected virtual void Dispose(bool disposed)
         {
             _disposed = true;

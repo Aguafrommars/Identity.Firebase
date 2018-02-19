@@ -36,6 +36,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             });
 
             var userType = typeof(TestUser);
+            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), typeof(TestRole));
             var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
             services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), userStoreType);
 
@@ -99,17 +100,20 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             var client = services.BuildServiceProvider().GetRequiredService<IFirebaseClient>();
             await client.PostAsync("users", new TestUser
             {
-                Id = "1"
+                NormalizedEmail = "1"
             });
 
             await client.PostAsync("users", new TestUser
             {
-                Id = "2"
+                NormalizedEmail = "2"
             });
 
-            await client.PutAsync(".settings/rules.json", new UserIndex());
+            var rules = await client.GetAsync<FirebaseRules>(".settings/rules.json");
 
-            var users = await client.GetAsync<Dictionary<string, TestUser>>("users", queryString: "orderBy=\"Id\"&equalTo=\"1\"");
+            rules.Data.Rules["users"] = new UserIndex();
+            await client.PutAsync(".settings/rules.json", rules.Data);
+
+            var users = await client.GetAsync<Dictionary<string, TestUser>>("users", queryString: "orderBy=\"NormalizedEmail\"&equalTo=\"2\"");
         }
     }
 }

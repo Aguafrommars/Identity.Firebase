@@ -22,7 +22,7 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserStore(IFirebaseClient client, UserOnlyStore<IdentityUser<string>> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserStore(IFirebaseClient client, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public UserStore(IFirebaseClient client, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
 
     /// <summary>
@@ -85,14 +85,10 @@ namespace Aguacongas.Identity.Firebase
         /// </summary>
         /// <param name="client">The client used to access the store.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserStore(IFirebaseClient client, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _client = client;
-            _userOnlyStore = new UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken>(client, describer);
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _userOnlyStore = userOnlyStore ?? throw new ArgumentNullException(nameof(userOnlyStore));
         }
 
         /// <summary>
