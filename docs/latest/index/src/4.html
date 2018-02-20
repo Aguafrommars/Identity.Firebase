@@ -2,29 +2,35 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseResponse.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseIndex.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseResponse&lt;T&gt;
+    public class FirebaseIndexes
     {
-        public T Data { get; set; }
+        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
+        public string[] On { get; set; }
+    }
 
-        public string Etag { get; set; }
+    public class FirebaseIndex
+    {
+        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
+        public string On { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,25,9,29,1],[9,30,9,34,1],[11,30,11,34,1],[11,35,11,39,1]]);
+      highlightRanges([[11,30,11,34,0],[11,35,11,39,0],[17,28,17,32,0],[17,33,17,37,0]]);
     </script>
   </body>
 </html>

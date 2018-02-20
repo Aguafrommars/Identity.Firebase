@@ -2,31 +2,32 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthRequest.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\UserIndex.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
+using Aguacongas.Firebase;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Aguacongas.Firebase.TokenManager
+namespace Aguacongas.Identity.Firebase
 {
-    public class AuthRequest
+    public class UserIndex: FirebaseIndexes
     {
-        public string Email { get; set; }
-
-        public string Password { get; set; }
-
-        public bool ReturnSecureToken { get; set; } = true;
+        public UserIndex()
+        {
+            On = new string[] { &quot;NormalizedEmail&quot;, &quot;NormalizedUserName&quot; };
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,31,9,35,1],[9,36,9,40,1],[11,34,11,38,1],[11,39,11,43,1],[13,41,13,45,1],[13,46,13,50,0],[13,55,13,59,1]]);
+      highlightRanges([[11,9,11,27,0],[12,9,12,10,0],[13,13,13,75,0],[14,9,14,10,0]]);
     </script>
   </body>
 </html>

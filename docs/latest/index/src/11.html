@@ -2,36 +2,49 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\FirebaseLookupNormalizer.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthTokenManager.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.AspNetCore.Identity;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Aguacongas.Identity.Firebase
+namespace Aguacongas.Firebase.TokenManager
 {
-    public class FirebaseLookupNormalizer : ILookupNormalizer
+    public class AuthTokenManager : IFirebaseTokenManager
     {
-        private static readonly Regex regex = new Regex(@&quot;\.|\/|\$|#|\[|\]|\@&quot;);
-        public string Normalize(string key) =&gt; NormalizeKey(key);
+        private readonly ICredential _credentials;
 
-        public static string NormalizeKey(string key) 
-            =&gt; key != null ? regex.Replace(key, match =&gt; Uri.HexEscape(match.Value[0]))
-                .Replace(&quot;%&quot;, &quot;@&quot;)
-                .ToUpperInvariant() 
-            : null;
+        public string AuthParamName { get; } = &quot;access_token&quot;;
+
+        public AuthTokenManager(IOptions&lt;AuthTokenOptions&gt; options)
+        {
+            var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
+            _credentials = GoogleCredential.FromJson(json)
+                .CreateScoped(&quot;https://www.googleapis.com/auth/userinfo.email&quot;, &quot;https://www.googleapis.com/auth/firebase.database&quot;)
+                .UnderlyingCredential;
+        }
+
+        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await _credentials.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[11,9,11,81,1],[12,48,12,65,1],[15,16,15,58,1],[15,58,15,87,1],[15,87,18,19,1],[15,16,18,19,1]]);
+      highlightRanges([[14,39,14,43,0],[14,48,14,62,1],[16,9,16,68,1],[17,9,17,10,1],[18,13,18,120,1],[19,13,21,39,1],[22,9,22,10,0],[25,9,25,10,0],[26,13,26,107,0],[27,9,27,10,0],[30,9,30,10,0],[31,9,31,10,0]]);
     </script>
   </body>
 </html>

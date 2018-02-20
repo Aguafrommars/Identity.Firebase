@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\IdentityBuilderExtensions.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Net.Http;
+using System.Reflection;
+using Aguacongas.Firebase;
+using Aguacongas.Firebase.TokenManager;
+using Aguacongas.Identity.Firebase;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    /// &lt;summary&gt;
+    /// Contains extension methods to &lt;see cref=&quot;IdentityBuilder&quot;/&gt; for adding entity framework stores.
+    /// &lt;/summary&gt;
+    public static class IdentityBuilderExtensions
+    {
+        /// &lt;summary&gt;
+        /// Adds an Firebase implementation of identity information stores.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;builder&quot;&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/returns&gt;
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder)
+        {
+            AddStores(builder.Services, builder.UserType, builder.RoleType);
+            return builder;
+        }
+
+        private static void AddStores(IServiceCollection services, Type userType, Type roleType)
+        {
+            var identityUserType = FindGenericBaseType(userType, typeof(IdentityUser&lt;string&gt;));
+            if (identityUserType == null)
+            {
+                throw new InvalidOperationException(&quot;AddEntityFrameworkStores can only be called with a user that derives from IdentityUser&lt;string&gt;.&quot;);
+            }
+
+            if (roleType != null)
+            {
+                var identityRoleType = FindGenericBaseType(roleType, typeof(IdentityRole&lt;string&gt;));
+                if (identityRoleType == null)
+                {
+                    throw new InvalidOperationException(&quot;AddEntityFrameworkStores can only be called with a role that derives from IdentityRole&lt;string&gt;.&quot;);
+                }
+
+                Type userStoreType = null;
+                Type roleStoreType = null;
+                // If its a custom DbContext, we can only add the default POCOs
+                userStoreType = typeof(UserStore&lt;,&gt;).MakeGenericType(userType, roleType);
+                roleStoreType = typeof(RoleStore&lt;&gt;).MakeGenericType(roleType);
+
+                services.TryAddScoped(typeof(UserOnlyStore&lt;&gt;).MakeGenericType(userType), userStoreType);
+                services.TryAddScoped(typeof(IUserStore&lt;&gt;).MakeGenericType(userType), userStoreType);
+                services.TryAddScoped(typeof(IRoleStore&lt;&gt;).MakeGenericType(roleType), roleStoreType);
+            }
+            else
+            {   // No Roles
+                Type userStoreType = null;
+                    // If its a custom DbContext, we can only add the default POCOs
+                userStoreType = typeof(UserOnlyStore&lt;&gt;).MakeGenericType(userType);
+                services.TryAddScoped(typeof(IUserStore&lt;&gt;).MakeGenericType(userType), userStoreType);
+            }
+
+            services.AddScoped&lt;HttpClient&gt;()
+                .AddScoped&lt;IFirebaseClient, FirebaseClient&gt;()
+                .AddScoped&lt;IFirebaseTokenManager, AuthTokenManager&gt;();
+        }
+
+        private static TypeInfo FindGenericBaseType(Type currentType, Type genericBaseType)
+        {
+            var type = currentType;
+            while (type != null)
+            {
+                var typeInfo = type.GetTypeInfo();
+                var genericType = type.IsGenericType ? type: null;
+                if (genericType != null &amp;&amp; genericType == genericBaseType)
+                {
+                    return typeInfo;
+                }
+                type = type.BaseType;
+            }
+            return null;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[26,9,26,10,0],[27,13,27,77,0],[28,13,28,28,0],[29,9,29,10,0],[32,9,32,10,0],[33,13,33,96,0],[34,13,34,42,0],[35,13,35,14,0],[36,17,36,152,0],[39,13,39,34,0],[40,13,40,14,0],[41,17,41,100,0],[42,17,42,46,0],[43,17,43,18,0],[44,21,44,156,0],[47,17,47,43,0],[48,17,48,43,0],[50,17,50,90,0],[51,17,51,79,0],[53,17,53,105,0],[54,17,54,102,0],[55,17,55,102,0],[56,13,56,14,0],[58,13,58,14,0],[59,17,59,43,0],[61,17,61,83,0],[62,17,62,102,0],[63,13,63,14,0],[65,13,67,71,0],[68,9,68,10,0],[71,9,71,10,0],[72,13,72,36,0],[73,13,73,33,0],[74,13,74,14,0],[75,17,75,51,0],[76,17,76,67,0],[77,17,77,75,0],[78,17,78,18,0],[79,21,79,37,0],[81,17,81,38,0],[82,13,82,14,0],[83,13,83,25,0],[84,9,84,10,0]]);
+    </script>
+  </body>
+</html>

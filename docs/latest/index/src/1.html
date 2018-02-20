@@ -86,14 +86,14 @@ namespace Aguacongas.Firebase
             }                
         }
 
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
         {
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null);
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null, queryString);
         }
 
-        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag)
+        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken))
+            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken, queryString))
             {
                 Content = content
             };
@@ -111,7 +111,7 @@ namespace Aguacongas.Firebase
             }
         }
 
-        private async Task&lt;string&gt; GetFirebaseUrl(string url, CancellationToken cancellationToken)
+        private async Task&lt;string&gt; GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -129,7 +129,12 @@ namespace Aguacongas.Firebase
                 sanetizedUrl = sanetizedUrl.Substring(1);
             }
 
-            return $&quot;{_url}{sanetizedUrl}?auth={await _tokenManager.GetTokenAsync(cancellationToken)}&quot;;
+            var result = $&quot;{_url}{sanetizedUrl}?{_tokenManager.AuthParamName}={await _tokenManager.GetTokenAsync(cancellationToken)}&quot;;
+            if(!string.IsNullOrEmpty(queryString))
+            {
+                result += &quot;&amp;&quot; + queryString; 
+            }
+            return result;
         }
 
         class PostResponse
@@ -165,7 +170,7 @@ namespace Aguacongas.Firebase
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[17,9,17,124,1],[18,9,18,10,1],[19,13,19,38,1],[20,13,20,39,1],[21,13,21,42,1],[22,13,22,38,1],[23,13,23,68,1],[25,13,25,37,1],[26,13,26,14,1],[27,17,27,35,1],[28,13,28,14,1],[29,9,29,10,1],[32,9,32,10,1],[33,13,33,29,1],[34,13,34,14,1],[35,17,35,63,1],[38,13,38,181,1],[39,13,43,15,1],[44,9,44,10,1],[47,9,47,10,1],[48,13,48,30,1],[49,13,49,14,1],[50,17,50,63,1],[53,13,53,155,1],[54,9,54,10,1],[57,9,57,10,1],[58,13,58,30,1],[59,13,59,14,1],[60,17,60,63,1],[63,13,63,151,1],[64,9,64,10,1],[67,9,67,10,1],[68,13,68,122,1],[69,13,69,45,1],[70,13,70,57,1],[72,20,73,72,1],[74,13,74,14,1],[75,17,75,50,1],[76,13,76,14,1],[77,9,77,10,1],[80,9,80,10,1],[81,13,81,99,1],[82,9,82,10,1],[85,9,85,10,1],[86,13,89,15,1],[90,13,90,45,1],[91,13,91,57,1],[93,13,93,84,1],[94,13,94,59,1],[95,9,95,10,1],[97,9,97,10,1],[98,13,98,29,1],[99,13,99,14,1],[100,17,100,92,1],[102,9,102,10,1],[105,9,105,10,1],[106,13,106,43,1],[107,13,107,14,1],[108,17,108,62,1],[111,13,111,36,1],[112,13,112,40,1],[113,13,113,14,1],[114,17,114,46,1],[115,13,115,14,1],[117,13,117,49,1],[118,13,118,14,1],[119,17,119,58,1],[120,13,120,14,1],[122,13,122,104,1],[123,9,123,10,1],[127,34,127,38,1],[127,39,127,43,1],[131,9,131,44,1],[134,9,134,10,1],[135,13,135,32,1],[136,13,136,14,1],[137,17,137,31,1],[138,17,138,18,1],[139,21,139,43,1],[140,21,140,45,1],[141,17,141,18,1],[143,17,143,38,1],[144,13,144,14,1],[145,9,145,10,1],[149,9,149,10,1],[150,13,150,27,1],[151,9,151,10,1]]);
+      highlightRanges([[17,9,17,124,1],[18,9,18,10,1],[19,13,19,38,1],[20,13,20,39,1],[21,13,21,42,1],[22,13,22,38,1],[23,13,23,68,1],[25,13,25,37,1],[26,13,26,14,1],[27,17,27,35,1],[28,13,28,14,1],[29,9,29,10,1],[32,9,32,10,1],[33,13,33,29,1],[34,13,34,14,1],[35,17,35,63,1],[38,13,38,181,1],[39,13,43,15,1],[44,9,44,10,1],[47,9,47,10,1],[48,13,48,30,1],[49,13,49,14,1],[50,17,50,63,1],[53,13,53,155,1],[54,9,54,10,1],[57,9,57,10,1],[58,13,58,30,1],[59,13,59,14,1],[60,17,60,63,1],[63,13,63,151,1],[64,9,64,10,1],[67,9,67,10,1],[68,13,68,122,1],[69,13,69,45,1],[70,13,70,57,1],[72,20,73,72,1],[74,13,74,14,1],[75,17,75,50,1],[76,13,76,14,1],[77,9,77,10,1],[80,9,80,10,1],[81,13,81,112,1],[82,9,82,10,1],[85,9,85,10,1],[86,13,89,15,1],[90,13,90,45,1],[91,13,91,57,1],[93,13,93,84,1],[94,13,94,59,1],[95,9,95,10,1],[97,9,97,10,1],[98,13,98,29,1],[99,13,99,14,1],[100,17,100,92,1],[102,9,102,10,1],[105,9,105,10,1],[106,13,106,43,1],[107,13,107,14,1],[108,17,108,62,1],[111,13,111,36,1],[112,13,112,40,1],[113,13,113,14,1],[114,17,114,46,1],[115,13,115,14,1],[117,13,117,49,1],[118,13,118,14,1],[119,17,119,58,1],[120,13,120,14,1],[122,13,122,135,1],[123,13,123,51,1],[124,13,124,14,0],[125,17,125,45,0],[126,13,126,14,0],[127,13,127,27,1],[128,9,128,10,1],[132,34,132,38,1],[132,39,132,43,1],[136,9,136,44,1],[139,9,139,10,1],[140,13,140,32,1],[141,13,141,14,1],[142,17,142,31,1],[143,17,143,18,1],[144,21,144,43,1],[145,21,145,45,1],[146,17,146,18,1],[148,17,148,38,1],[149,13,149,14,1],[150,9,150,10,1],[154,9,154,10,1],[155,13,155,27,1],[156,9,156,10,1]]);
     </script>
   </body>
 </html>
