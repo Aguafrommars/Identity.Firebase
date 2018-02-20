@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,6 +16,7 @@ namespace Aguacongas.Firebase.Test
         {
             var configuration = new ConfigurationBuilder()
                 .AddUserSecrets<AuthTokenManagerIntegrationTest>()
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\testsettings.json"))
                 .AddEnvironmentVariables()
                 .Build();
 

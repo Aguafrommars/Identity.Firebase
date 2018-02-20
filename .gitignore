@@ -291,3 +291,4 @@ __pycache__/
 .vscode
 
 /coverage
+/test/testsettings.json
