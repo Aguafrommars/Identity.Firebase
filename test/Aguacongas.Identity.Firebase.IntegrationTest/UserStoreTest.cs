@@ -36,21 +36,19 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             });
 
             var userType = typeof(TestUser);
-            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), typeof(TestRole));
             var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
-            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), userStoreType);
+            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetService<IdentityErrorDescriber>()));
+            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
 
             services.AddSingleton<HttpClient>()
                 .AddSingleton<IFirebaseClient, FirebaseClient>()
-                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>()
-                .AddSingleton<ILookupNormalizer, FirebaseLookupNormalizer>();
+                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>();
         }
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)
         {
             var roleType = typeof(TestRole);
-            var roleStoreType = typeof(RoleStore<>).MakeGenericType(roleType);
-            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType), roleStoreType);
+            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType), provider => new RoleStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>()));
         }
 
         protected override object CreateTestContext()
@@ -98,22 +96,22 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             SetupIdentityServices(services, null);
 
             var client = services.BuildServiceProvider().GetRequiredService<IFirebaseClient>();
-            await client.PostAsync("users", new TestUser
+            await client.PostAsync(_fixture.TestDb + "/users", new TestUser
             {
                 NormalizedEmail = "1"
             });
 
-            await client.PostAsync("users", new TestUser
+            await client.PostAsync(_fixture.TestDb + "/users", new TestUser
             {
                 NormalizedEmail = "2"
             });
 
             var rules = await client.GetAsync<FirebaseRules>(".settings/rules.json");
 
-            rules.Data.Rules["users"] = new UserIndex();
+            rules.Data.Rules[_fixture.TestDb] = new Dictionary<string, object>(){ { "users", new UserIndex() } };
             await client.PutAsync(".settings/rules.json", rules.Data);
 
-            var users = await client.GetAsync<Dictionary<string, TestUser>>("users", queryString: "orderBy=\"NormalizedEmail\"&equalTo=\"2\"");
+            var users = await client.GetAsync<Dictionary<string, TestUser>>(_fixture.TestDb + "/users", queryString: "orderBy=\"NormalizedEmail\"&equalTo=\"2\"");
         }
     }
 }

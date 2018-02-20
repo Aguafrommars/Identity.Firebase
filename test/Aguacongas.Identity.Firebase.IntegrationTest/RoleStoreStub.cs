@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace Aguacongas.Identity.Firebase.IntegrationTest
 {
-    internal class UserOnlyStoreStub : UserOnlyStore<TestUser>
+    internal class RoleStoreStub : RoleStore<TestRole>
     {
         private readonly string _testDb;
 
-        public UserOnlyStoreStub(string testDb, IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer)
+        public RoleStoreStub(string testDb, IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer)
         {
             _testDb = testDb;
         }

@@ -15,8 +15,9 @@ namespace Aguacongas.Identity.Firebase
     /// <summary>
     /// Creates a new instance of a persistence store for roles.
     /// </summary>
-    /// <typeparam name="TRole">The type of the class representing a role</typeparam>
-    public class RoleStore<TRole> : RoleStore<TRole, string>
+    /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
+    public class RoleStore<TRole> : RoleStore<TRole, IdentityUserRole<string>, IdentityRoleClaim<string>>,
+        IRoleClaimStore<TRole>
         where TRole : IdentityRole<string>
     {
         /// <summary>
@@ -26,56 +27,37 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
-    
-    /// <summary>
-    /// Creates a new instance of a persistence store for roles.
-    /// </summary>
-    /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
-    public class RoleStore<TRole, TKey> : RoleStore<TRole, TKey, IdentityUserRole<TKey>, IdentityRoleClaim<TKey>>,
-        IRoleClaimStore<TRole>
-        where TRole : IdentityRole<TKey>
-        where TKey : IEquatable<TKey>
-    {
-        /// <summary>
-        /// Constructs a new instance of <see cref="RoleStore{TRole, TKey}"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
-        /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
-    }
 
     /// <summary>
     /// Creates a new instance of a persistence store for roles.
     /// </summary>
     /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
-    /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
     /// <typeparam name="TUserRole">The type of the class representing a user role.</typeparam>
     /// <typeparam name="TRoleClaim">The type of the class representing a role claim.</typeparam>
-    public abstract class RoleStore<TRole, TKey, TUserRole, TRoleClaim> :
+    public class RoleStore<TRole, TUserRole, TRoleClaim> :
         IRoleClaimStore<TRole>
-        where TRole : IdentityRole<TKey>
-        where TKey : IEquatable<TKey>
-        where TUserRole : IdentityUserRole<TKey>, new()
-        where TRoleClaim : IdentityRoleClaim<TKey>, new()
+        where TRole : IdentityRole<string>
+        where TUserRole : IdentityUserRole<string>, new()
+        where TRoleClaim : IdentityRoleClaim<string>, new()
     {
+        private const string RolesTableName = "roles";
+        private const string RoleClaimsTableName = "role-claims";
+
+        protected const string RulePath = ".settings/rules.json";
+
         private readonly IFirebaseClient _client;
+        private bool _disposed;
+
         /// <summary>
-        /// Constructs a new instance of <see cref="RoleStore{TRole, TKey, TUserRole, TRoleClaim}"/>.
+        /// Constructs a new instance of <see cref="RoleStore{TRole, TUserRole, TRoleClaim}"/>.
         /// </summary>
         /// <param name="context">The <see cref="DbContext"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null)
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _client = client;
+            _client = client ?? throw new ArgumentNullException(nameof(client));
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
-
-        private bool _disposed;
 
         /// <summary>
         /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
@@ -96,11 +78,9 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            var response = await _client.PostAsync($"roles", role, cancellationToken, true);
-            role.Id = ConvertIdFromString(response.Data);
-            SetConcurrencyStamp(role, response.Etag);
-
-            await _client.PutAsync($"indexes/role-name/{role.NormalizedName}", role.Id, cancellationToken);
+            var response = await _client.PostAsync(GetFirebasePath(RolesTableName), role, cancellationToken, true);
+            role.Id = response.Data;
+            role.ConcurrencyStamp = response.Etag;
 
             return IdentityResult.Success;
         }
@@ -120,33 +100,17 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(role));
             }
 
-            string eTag = null;
             try
             {
-                var response = await _client.PutAsync($"roles/{role.Id}", role, cancellationToken, true, GetEtag(role));
-                eTag = response.Etag;
+                var response = await _client.PutAsync(GetFirebasePath(RolesTableName, role.Id), role, cancellationToken, true, role.ConcurrencyStamp);
+                role.ConcurrencyStamp = response.Etag;
             }
             catch (FirebaseException e)
+                when(e.StatusCode == HttpStatusCode.PreconditionFailed)
             {
-                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
-                {
-                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
-                }
-                throw;
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
 
-            var list = new List<Task>();
-            var state = role.ConcurrencyStamp.Split(';');
-
-            var oldRoleName = state[0];
-            if (oldRoleName != role.NormalizedName)
-            {
-                list.Add(_client.DeleteAsync($"indexes/role-name/{oldRoleName}", cancellationToken));
-                list.Add(_client.PutAsync($"indexes/role-name/{role.NormalizedName}", role.Id, cancellationToken));
-            }
-
-            await Task.WhenAll(list.ToArray());
-            SetConcurrencyStamp(role, eTag);
 
             return IdentityResult.Success;
         }
@@ -165,9 +129,10 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(role));
             }
+
             try
             {
-                await _client.DeleteAsync($"roles/{role.Id}", cancellationToken, true, GetEtag(role));
+                await _client.DeleteAsync(GetFirebasePath(RolesTableName, role.Id), cancellationToken, true, role.ConcurrencyStamp);
             }
             catch (FirebaseException e)
             {
@@ -194,7 +159,7 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            return Task.FromResult(ConvertIdToString(role.Id));
+            return Task.FromResult(role.Id);
         }
 
         /// <summary>
@@ -234,34 +199,6 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Converts the provided <paramref name="id"/> to a strongly typed key object.
-        /// </summary>
-        /// <param name="id">The id to convert.</param>
-        /// <returns>An instance of <typeparamref name="TKey"/> representing the provided <paramref name="id"/>.</returns>
-        public virtual TKey ConvertIdFromString(string id)
-        {
-            if (id == null)
-            {
-                return default(TKey);
-            }
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-        }
-
-        /// <summary>
-        /// Converts the provided <paramref name="id"/> to its string representation.
-        /// </summary>
-        /// <param name="id">The id to convert.</param>
-        /// <returns>An <see cref="string"/> representation of the provided <paramref name="id"/>.</returns>
-        public virtual string ConvertIdToString(TKey id)
-        {
-            if (id.Equals(default(TKey)))
-            {
-                return null;
-            }
-            return id.ToString();
-        }
-
-        /// <summary>
         /// Finds the role who has the specified ID as an asynchronous operation.
         /// </summary>
         /// <param name="id">The role ID to look for.</param>
@@ -271,13 +208,12 @@ namespace Aguacongas.Identity.Firebase
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var roleId = ConvertIdFromString(id);
-            var response = await _client.GetAsync<TRole>($"roles/{id}", cancellationToken, true);
+            var response = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, id), cancellationToken, true);
             var role = response.Data;
             if (role != null)
             {
-                role.Id = roleId;
-                SetConcurrencyStamp(role, response.Etag);
+                role.Id = id;
+                role.ConcurrencyStamp = response.Etag;
             }
 
             return role;
@@ -293,13 +229,31 @@ namespace Aguacongas.Identity.Firebase
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var response = await _client.GetAsync<string>($"indexes/role-name/{normalizedName}", cancellationToken);
-            if (response.Data == null)
+
+            Dictionary<string, TRole> data;
+            try
             {
-                return null;
+                var response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedName}\"");
+                data = response.Data;
+            }
+            catch (FirebaseException e)
+               when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await SetIndex(RolesTableName, new RoleIndex(), cancellationToken);
+
+                var response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedName}\"");
+                data = response.Data;
             }
 
-            return await FindByIdAsync(response.Data, cancellationToken);
+            if (data != null)
+            {
+                foreach (var kv in data)
+                {
+                    return await FindByIdAsync(kv.Key, cancellationToken);
+                }
+            }
+            return null;
+
         }
 
         /// <summary>
@@ -368,9 +322,19 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(role));
             }
 
-            var response = await _client.GetAsync<IList<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
+            try
+            {
+                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                return response.Data.Values.Select(rc => new Claim(rc.ClaimType, rc.ClaimValue)).ToList();
+            }
+            catch (FirebaseException e)
+               when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await SetIndex(RoleClaimsTableName, new RoleClaimIndex(), cancellationToken);
 
-            return response.Data?.Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToList() ?? new List<Claim>();
+                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                return response.Data.Values.Select(rc => new Claim(rc.ClaimType, rc.ClaimValue)).ToList();
+            }
         }
 
         /// <summary>
@@ -392,12 +356,7 @@ namespace Aguacongas.Identity.Firebase
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            var response = await _client.GetAsync<List<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
-
-            var claims = response.Data ?? new List<TRoleClaim>();
-            claims.Add(CreateRoleClaim(role, claim));
-
-            await _client.PutAsync($"roles-claims/{role.Id}", claims, cancellationToken);
+            await _client.PostAsync(GetFirebasePath(RoleClaimsTableName), CreateRoleClaim(role, claim), cancellationToken);
         }
 
         /// <summary>
@@ -418,14 +377,32 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(claim));
             }
-            var response = await _client.GetAsync<List<TRoleClaim>>($"roles-claims/{role.Id}", cancellationToken);
 
-            var claims = response.Data;
+            Dictionary<string, TRoleClaim> claims;
+            try
+            {
+                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                claims = response.Data;
+            }
+            catch (FirebaseException e)
+                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await SetIndex(RoleClaimsTableName, new RoleClaimIndex(), cancellationToken);
+
+                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                claims = response.Data;
+            }
+
             if (claims != null)
             {
-                claims.RemoveAll(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value);
-
-                await _client.PutAsync($"roles-claims/{role.Id}", claims, cancellationToken);
+                foreach(var kv in claims)
+                {
+                    var roleClaim = kv.Value;
+                    if (roleClaim.ClaimType == claim.Type && roleClaim.ClaimValue == claim.Value)
+                    {
+                        await _client.DeleteAsync(GetFirebasePath(RoleClaimsTableName, kv.Key), cancellationToken);
+                    }
+                }
             }
         }
 
@@ -438,19 +415,22 @@ namespace Aguacongas.Identity.Firebase
         protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
             => new TRoleClaim { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
 
-        private void SetConcurrencyStamp(TRole role, string eTag)
+        protected virtual string GetFirebasePath(params string[] objectPath)
         {
-            role.ConcurrencyStamp = role.NormalizedName + ";" + eTag;
+            return string.Join("/", objectPath);
         }
 
-        private string GetEtag(TRole role)
+        protected virtual void SetIndex(Dictionary<string, object> rules, string key, object index)
         {
-            if (role.ConcurrencyStamp == null)
-            {
-                return null;
-            }
-            var state = role.ConcurrencyStamp.Split(';');
-            return state.Length == 2 ? state[1] : null;
+            rules[key] = index;
+        }
+
+        private async Task SetIndex(string onTable, object index, CancellationToken cancellationToken)
+        {
+            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken);
+            var rules = response.Data ?? new FirebaseRules();
+            SetIndex(rules.Rules, onTable, index);
+            await _client.PutAsync(RulePath, rules, cancellationToken);
         }
     }
 }

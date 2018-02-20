@@ -37,6 +37,8 @@ namespace Aguacongas.Identity.Firebase
         private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
         private const string RecoveryCodeTokenName = "RecoveryCodes";
 
+        protected const string RulePath = ".settings/rules.json";
+
         private bool _disposed;
 
 

@@ -21,7 +21,8 @@ namespace Aguacongas.Identity.Firebase.Test
         public async Task UserStoreMethodsThrowWhenDisposedTest()
         {
             var clientMock = new Mock<IFirebaseClient>();
-            var store = new UserStore(clientMock.Object);
+            var userOnlyStore = new UserOnlyStore(clientMock.Object);
+            var store = new UserStore(clientMock.Object, userOnlyStore);
             store.Dispose();
             await Assert.ThrowsAsync<ObjectDisposedException>(async () => await store.AddClaimsAsync(null, null));
             await Assert.ThrowsAsync<ObjectDisposedException>(async () => await store.AddLoginAsync(null, null));
@@ -54,9 +55,12 @@ namespace Aguacongas.Identity.Firebase.Test
         [Fact]
         public async Task UserStorePublicNullCheckTest()
         {
-            Assert.Throws<ArgumentNullException>("client", () => new UserStore(null));
+            Assert.Throws<ArgumentNullException>("client", () => new UserStore(null, null));
             var clientMock = new Mock<IFirebaseClient>();
-            var store = new UserStore(clientMock.Object);
+            Assert.Throws<ArgumentNullException>("userOnlyStore", () => new UserStore(clientMock.Object, null));
+
+            var userOnlyStore = new UserOnlyStore(clientMock.Object);
+            var store = new UserStore(clientMock.Object, userOnlyStore);
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.GetUserIdAsync(null));
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.GetUserNameAsync(null));
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.SetUserNameAsync(null, null));
@@ -116,151 +120,6 @@ namespace Aguacongas.Identity.Firebase.Test
             await Assert.ThrowsAsync<ArgumentNullException>("normalizedRoleName", async () => await store.AddToRoleAsync(new IdentityUser("fake"), ""));
             await Assert.ThrowsAsync<ArgumentNullException>("normalizedRoleName", async () => await store.RemoveFromRoleAsync(new IdentityUser("fake"), ""));
             await Assert.ThrowsAsync<ArgumentNullException>("normalizedRoleName", async () => await store.IsInRoleAsync(new IdentityUser("fake"), ""));
-        }
-
-
-        [Fact]
-        public async Task ConcurrentRoleUpdatesWillFail()
-        {
-            var role = new IdentityRole(Guid.NewGuid().ToString());
-            var manager = CreateRoleManager(out Mock<IFirebaseClient> clientMock);
-
-            IdentityResultAssert.IsSuccess(await manager.CreateAsync(role));
-
-            var manager1 = CreateRoleManager(out Mock<IFirebaseClient> clientMock1);
-            clientMock1.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<IdentityRole>
-                {
-                    Data = new IdentityRole
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                    },
-                    Etag = Guid.NewGuid().ToString()
-                });
-
-            var manager2 = CreateRoleManager(out Mock<IFirebaseClient> clientMock2);
-            clientMock2.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
-
-            var role1 = await manager1.FindByIdAsync(role.Id);
-            var role2 = await manager2.FindByIdAsync(role.Id);
-            Assert.NotNull(role1);
-            Assert.NotNull(role2);
-            Assert.NotSame(role1, role2);
-            role1.Name = Guid.NewGuid().ToString();
-            role2.Name = Guid.NewGuid().ToString();
-            IdentityResultAssert.IsSuccess(await manager1.UpdateAsync(role1));
-            IdentityResultAssert.IsFailure(await manager2.UpdateAsync(role2), new IdentityErrorDescriber().ConcurrencyFailure());            
-        }
-
-        [Fact]
-        public async Task DeleteAModifiedRoleWillFail()
-        {
-            var role = new IdentityRole(Guid.NewGuid().ToString());
-            var manager = CreateRoleManager(out Mock<IFirebaseClient> clientMock);
-
-            IdentityResultAssert.IsSuccess(await manager.CreateAsync(role));
-
-            var manager1 = CreateRoleManager(out Mock<IFirebaseClient> clientMock1);
-            clientMock1.Setup(m => m.PutAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<IdentityRole>
-                {
-                    Data = new IdentityRole
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                    },
-                    Etag = Guid.NewGuid().ToString()
-                });
-
-            var manager2 = CreateRoleManager(out Mock<IFirebaseClient> clientMock2);
-            clientMock2.Setup(m => m.DeleteAsync(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-               .ThrowsAsync(new FirebaseException(HttpStatusCode.PreconditionFailed, "test", "test", "test"));
-
-            var role1 = await manager1.FindByIdAsync(role.Id);
-            var role2 = await manager2.FindByIdAsync(role.Id);
-            Assert.NotNull(role1);
-            Assert.NotNull(role2);
-            Assert.NotSame(role1, role2);
-            role1.Name = Guid.NewGuid().ToString();
-            role2.Name = Guid.NewGuid().ToString();
-            IdentityResultAssert.IsSuccess(await manager1.UpdateAsync(role1));
-            IdentityResultAssert.IsFailure(await manager2.DeleteAsync(role2), new IdentityErrorDescriber().ConcurrencyFailure());
-        }
-
-        private RoleManager<IdentityRole> CreateRoleManager(out Mock<IFirebaseClient> clientMock)
-        {
-            var provider = SetupIdentity(out clientMock);
-            return provider.GetRequiredService<RoleManager<IdentityRole>>();
-        }
-
-        private static ServiceProvider SetupIdentity(out Mock<IFirebaseClient> clientMock)
-        {
-            clientMock = new Mock<IFirebaseClient>();
-            var client = clientMock.Object;
-
-            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/users-names/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<string>());
-
-            clientMock.Setup(m => m.PostAsync("users", It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
-                .ReturnsAsync(new FirebaseResponse<string>
-                {
-                    Data = "test",
-                    Etag = "test"
-                });
-
-            clientMock.Setup(m => m.PutAsync<string>(It.Is<string>(value => value.StartsWith("indexes/users-names/")),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<bool>(),
-                It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<string>());
-
-            clientMock.Setup(m => m.PutAsync<string>(It.Is<string>(value => value.StartsWith("indexes/users-email/")),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<bool>(),
-                It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<string>());
-            
-            clientMock.Setup(m => m.GetAsync<string>(It.Is<string>(value => value.StartsWith("indexes/role-name/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<string>());
-
-            clientMock.Setup(m => m.GetAsync<IdentityRole>(It.Is<string>(value => value.StartsWith("roles/")), It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .ReturnsAsync(new FirebaseResponse<IdentityRole>
-                {
-                    Data = new IdentityRole
-                    {
-                        Id = Guid.NewGuid().ToString()
-                    }
-                });
-
-            clientMock.Setup(m => m.PostAsync("roles", It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>(), It.IsAny<bool>()))
-                .ReturnsAsync(() => new FirebaseResponse<string>
-                {
-                    Data = Guid.NewGuid().ToString(),
-                    Etag = "test"
-                });
-
-            var services = new ServiceCollection();
-
-            services.AddLogging()
-                .AddIdentity<IdentityUser, IdentityRole>(options =>
-                {
-                    options.Password = new PasswordOptions
-                    {
-                        RequireDigit = false,
-                        RequiredLength = 0,
-                        RequiredUniqueChars = 0,
-                        RequireLowercase = false,
-                        RequireNonAlphanumeric = false,
-                        RequireUppercase = false
-                    };
-                })
-                .AddDefaultTokenProviders()
-                .AddFirebaseStores();
-
-            services.AddScoped(b => client);
-            return services.BuildServiceProvider();
         }
     }
 }

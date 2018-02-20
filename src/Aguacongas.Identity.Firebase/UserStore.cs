@@ -20,7 +20,7 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="UserStore"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(IFirebaseClient client, UserOnlyStore<IdentityUser<string>> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
@@ -35,7 +35,7 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="UserStore{TUser}"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(IFirebaseClient client, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
@@ -52,7 +52,7 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, string}"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public UserStore(IFirebaseClient client, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
@@ -77,13 +77,16 @@ namespace Aguacongas.Identity.Firebase
         where TUserToken : IdentityUserToken<string>, new()
         where TRoleClaim : IdentityRoleClaim<string>, new()
     {
+        private const string UserRolesTableName = "users-roles";
+        private const string RolesTableName = "roles";
+
         private readonly IFirebaseClient _client;
         private readonly UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
 
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
-        /// <param name="client">The client used to access the store.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
         public UserStore(IFirebaseClient client, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
@@ -166,17 +169,8 @@ namespace Aguacongas.Identity.Firebase
             }
 
             var userRole = CreateUserRole(user, roleEntity);
-            var response = await _client.GetAsync<List<TUserRole>>($"users-roles/{user.Id}", cancellationToken);
-            var roles = response.Data ?? new List<TUserRole>(1);
-            roles.Add(userRole);
 
-            await _client.PutAsync($"users-roles/{user.Id}", roles, cancellationToken);
-
-            var indexResponse = await _client.GetAsync<List<string>>($"indexes/roles/{roleEntity.Id}", cancellationToken);
-            var index = indexResponse.Data ?? new List<string>(1);
-            index.Add(user.Id);
-
-            await _client.PutAsync($"indexes/roles/{roleEntity.Id}", index, cancellationToken);
+            await _client.PostAsync(GetFirebasePath(UserRolesTableName), userRole, cancellationToken);
         }
 
         /// <summary>
@@ -201,19 +195,30 @@ namespace Aguacongas.Identity.Firebase
             var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (roleEntity != null)
             {
-                var response = await _client.GetAsync<List<TUserRole>>($"users-roles/{user.Id}", cancellationToken);
-                var roles = response.Data;
+                Dictionary<string, TUserRole> roles;
+                try
+                {
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                    roles = response.Data;
+                }
+                catch (FirebaseException e)
+                    when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+                {
+                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                    roles = response.Data;
+                }
+
                 if (roles != null)
                 {
-                    roles.RemoveAll(r => r.RoleId == roleEntity.Id);
-                    await _client.PutAsync($"users-roles/{user.Id}", roles, cancellationToken);
-
-                    var indexResponse = await _client.GetAsync<List<string>>($"indexes/roles/{roleEntity.Id}", cancellationToken);
-                    var index = indexResponse.Data;
-                    if (index == null)
+                    foreach(var kv in roles)
                     {
-                        index.Remove(user.Id);
-                        await _client.PutAsync($"indexes/roles/{roleEntity.Id}", index, cancellationToken);
+                        if (kv.Value.RoleId == roleEntity.Id)
+                        {
+                            await _client.DeleteAsync(GetFirebasePath(UserRolesTableName, kv.Key), cancellationToken);
+                            return;
+                        }
                     }
                 }
             }
@@ -233,21 +238,34 @@ namespace Aguacongas.Identity.Firebase
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var userId = user.Id;
 
-            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users-roles/{userId}", cancellationToken);
-            var userRoles = response.Data;
+            Dictionary<string, TUserRole> userRoles;
+            try
+            {
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                userRoles = response.Data;
+            }
+            catch (FirebaseException e)
+                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                userRoles = response.Data;
+            }
+
+
             if (userRoles != null)
             {
                 var concurrentBag = new ConcurrentBag<string>();
                 var taskList = new List<Task>(userRoles.Count());
 
-                foreach(var userRole in userRoles)
+                foreach(var userRole in userRoles.Values)
                 {
                     taskList.Add(GetUserRoleAsync(userRole, concurrentBag, cancellationToken));
                 }
-                
-                await Task.WhenAll(taskList.ToArray());
+
+                Task.WaitAll(taskList.ToArray());
 
                 return concurrentBag.ToList();
             }
@@ -276,7 +294,7 @@ namespace Aguacongas.Identity.Firebase
             }
             var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
             if (role != null)
-            {
+            {                
                 var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
                 return userRole != null;
             }
@@ -410,25 +428,46 @@ namespace Aguacongas.Identity.Firebase
             }
 
             var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
-            var users = new List<TUser>();
-
             if (role != null)
             {
-                var response = await _client.GetAsync<IEnumerable<string>>($"indexes/roles/{role.Id}", cancellationToken);
-                var data = response.Data;
-                if (data != null)
+                Dictionary<string, TUserRole> userRoles;
+                try
                 {
-                    foreach(var userId in data)
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                    userRoles = response.Data;
+                }
+                catch (FirebaseException e)
+                    when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+                {
+                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                    userRoles = response.Data;
+                }
+
+                if (userRoles != null)
+                {
+                    var concurrencyBag = new ConcurrentBag<TUser>();
+                    var taskList = new List<Task>(userRoles.Count);
+
+                    foreach(var ur in userRoles.Values)
                     {
-                        var user = await FindByIdAsync(userId, cancellationToken);
-                        if (user != null)
+                        taskList.Add(Task.Run(async () =>
                         {
-                            users.Add(user);
-                        }
+                            var user = await FindByIdAsync(ur.UserId, cancellationToken);
+                            if (user != null)
+                            {
+                                concurrencyBag.Add(user);
+                            }
+                        }));
                     }
+
+                    Task.WaitAll(taskList.ToArray());
+                    return concurrencyBag.ToList();
                 }
             }
-            return users;
+
+            return new List<TUser>(0);
         }
 
         /// <summary>
@@ -439,21 +478,25 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The role if it exists.</returns>
         protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<string>($"indexes/role-name/{normalizedRoleName}", cancellationToken);
-            if (response.Data == null)
+            FirebaseResponse<Dictionary<string, TRole>> response;            
+
+            try
             {
-                return null;
+                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"");
+            }
+            catch (FirebaseException e)
+               when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await _userOnlyStore.SetIndex(RolesTableName, new RoleIndex(), cancellationToken);
+
+                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"");
             }
 
-            var roleResponse = await _client.GetAsync<TRole>($"roles/{response.Data}", cancellationToken, true);
-            var role = roleResponse.Data;
-            if (role != null)
+            foreach (var kv in response.Data)
             {
-                role.Id = response.Data;
-                role.ConcurrencyStamp = response.Etag;
-            }            
-
-            return role;
+                return await FindRoleByIdAsync(kv.Key, cancellationToken);
+            }
+            return null;
         }
 
         /// <summary>
@@ -465,12 +508,22 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user role if it exists.</returns>
         protected override async Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<IEnumerable<TUserRole>>($"users-roles/{userId}", cancellationToken);
-            if (response.Data != null)
+            Dictionary<string, TUserRole> userRoles;
+            try
             {
-                return response.Data.SingleOrDefault(r => r.RoleId == roleId);
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                userRoles = response.Data;
             }
-            return default(TUserRole);
+            catch (FirebaseException e)
+                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
+            {
+                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                userRoles = response.Data;
+            }
+
+            return userRoles.Values.FirstOrDefault(r => r.RoleId == roleId);
         }
 
         /// <summary>
@@ -528,9 +581,24 @@ namespace Aguacongas.Identity.Firebase
             _userOnlyStore.Dispose();
         }
 
+        protected virtual async Task<TRole> FindRoleByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var response = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, id), cancellationToken, true);
+            var role = response.Data;
+            if (role != null)
+            {
+                role.Id = id;
+                role.ConcurrencyStamp = response.Etag;
+            }
+
+            return role;
+        }
+
         private async Task GetUserRoleAsync(TUserRole r, ConcurrentBag<string> concurrentBag, CancellationToken cancellationToken)
         {
-            var roleResponse = await _client.GetAsync<TRole>($"roles/{r.RoleId}", cancellationToken);
+            var roleResponse = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, r.RoleId), cancellationToken);
             var role = roleResponse.Data;
             if (role != null)
             {
