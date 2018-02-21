@@ -9,8 +9,6 @@
   <body>
     <pre id="content" class="source-code">
 using Google.Apis.Auth.OAuth2;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,21 +17,18 @@ namespace Aguacongas.Firebase.TokenManager
 {
     public class AuthTokenManager : IFirebaseTokenManager
     {
-        private readonly ICredential _credentials;
+        private readonly ITokenAccess _credential;
 
         public string AuthParamName { get; } = &quot;access_token&quot;;
 
-        public AuthTokenManager(IOptions&lt;AuthTokenOptions&gt; options)
+        public AuthTokenManager(ITokenAccess credential)
         {
-            var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
-            _credentials = GoogleCredential.FromJson(json)
-                .CreateScoped(&quot;https://www.googleapis.com/auth/userinfo.email&quot;, &quot;https://www.googleapis.com/auth/firebase.database&quot;)
-                .UnderlyingCredential;
+            _credential = credential ?? throw new ArgumentNullException(nameof(credential));
         }
 
         public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await _credentials.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+            return await _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
         }
 
         public void Dispose()
@@ -44,7 +39,7 @@ namespace Aguacongas.Firebase.TokenManager
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[14,39,14,43,0],[14,48,14,62,1],[16,9,16,68,1],[17,9,17,10,1],[18,13,18,120,1],[19,13,21,39,1],[22,9,22,10,0],[25,9,25,10,0],[26,13,26,107,0],[27,9,27,10,0],[30,9,30,10,0],[31,9,31,10,0]]);
+      highlightRanges([[12,39,12,43,0],[12,48,12,62,0],[14,9,14,57,0],[15,9,15,10,0],[16,13,16,93,0],[17,9,17,10,0],[20,9,20,10,0],[21,13,21,106,0],[22,9,22,10,0],[25,9,25,10,0],[26,9,26,10,0]]);
     </script>
   </body>
 </html>
