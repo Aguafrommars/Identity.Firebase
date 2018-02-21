@@ -2,9 +2,18 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <Company>Olivier Lefebvre</Company>
+    <Description>Firebase client for .NetStandard2.0 and .NetFramework 4.6.2</Description>
+    <Copyright>Olivier Lefebvre @2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>identity firebase</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.Auth" Version="1.32.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
   </ItemGroup>
@@ -14,7 +23,4 @@
     <Reference Include="netstandard" Version="2.0.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Http\" />
-  </ItemGroup>
 </Project>

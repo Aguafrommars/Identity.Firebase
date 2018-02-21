@@ -75,11 +75,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PostAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PostAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
         [Fact]
@@ -114,11 +114,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PutAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PutAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
 
@@ -154,11 +154,11 @@ namespace Aguacongase.Identity.Firebase.Test
             }, options);
 
             var response = await sut.PatchAsync("test", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
 
             options.DatabaseUrl = "http://test/";
             response = await sut.PatchAsync("/test.json", "test");
-            Assert.Equal("test", response);
+            Assert.Equal("test", response.Data);
         }
 
         [Fact]
@@ -192,17 +192,18 @@ namespace Aguacongase.Identity.Firebase.Test
                 DatabaseUrl = "http://test",
             };
 
-            var sut = CreateSut((request, cancellationToken) =>
+            using (var sut = CreateSut((request, cancellationToken) =>
+             {
+                 Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.OriginalString);
+                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                 {
+                     Content = new StringContent(JsonConvert.SerializeObject(null))
+                 });
+             }, options))
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.OriginalString);
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(null))
-                });
-            }, options);
-
-            var result = await sut.GetAsync<string>("test");
-            Assert.Null(result);
+                var result = await sut.GetAsync<string>("test");
+                Assert.Null(result.Data);
+            }
         }
 
         private FirebaseClient CreateSut(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc, FirebaseOptions options)
@@ -222,7 +223,7 @@ namespace Aguacongase.Identity.Firebase.Test
             var tokenOptionsMock = new Mock<IOptions<EmailPasswordOptions>>();
             tokenOptionsMock.SetupGet(m => m.Value).Returns(tokenOptions);
 
-            options.FirebaseTokenManager = new EmailPasswordTokenManager(new HttpClient(new DelegatingHandlerStub((request, cancellationToken) =>
+            var tokenManager = new EmailPasswordTokenManager(new HttpClient(new DelegatingHandlerStub((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -240,7 +241,7 @@ namespace Aguacongase.Identity.Firebase.Test
                 });
             })), tokenOptionsMock.Object);
 
-            return new FirebaseClient(client, optionsMock.Object);
+            return new FirebaseClient(client, tokenManager, optionsMock.Object);
         }
     }
 }
