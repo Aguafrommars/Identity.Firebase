@@ -1,7 +1,7 @@
 # Identity.Firebase
 [Identity](https://github.com/aspnet/identity) stores implementation for Firebase
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/aguacongas/chatle?svg=true)](https://ci.appveyor.com/project/aguacongas/chatle)
+[![Build status](https://ci.appveyor.com/api/projects/status/9mibfcl7eg62enha/branch/develop?svg=true)](https://ci.appveyor.com/project/aguacongas/identity-firebase)
 [![Latest Code coveragre](https://aguacongas.github.io/Identity.Firebase/latest/badge_linecoverage.svg)](https://aguacongas.github.io/Identity.Firebase/latest)
 
 ## Setup
