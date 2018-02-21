@@ -53,6 +53,13 @@ deploy:
         secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
       on:
         branch: 
-            - develop
             - master
             - /release*/
+for:
+-
+  branches:
+    only:
+      - master
+
+  on_success:
+    - cmd: echo "skip coverage report deploy"
