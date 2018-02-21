@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Company>Olivier Lefebvre</Company>
-    <Description>[Firebase](https://firebase.google.com/) client for .NetStandard2.0 and .NetFramework 4.6.2</Description>
+    <Description>Firebase client for .NetStandard2.0 and .NetFramework 4.6.2</Description>
     <Copyright>Olivier Lefebvre @2018</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>

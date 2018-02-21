@@ -19,6 +19,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
         {
             var indexOverride = new Dictionary<string, object>();
             var jObject = rules.Where(kv => kv.Key == _testDb).Select(kv => kv.Value).FirstOrDefault() as JObject;
+            rules.Clear();
             if (jObject != null)
             {
                 foreach(var o in jObject)

@@ -31,22 +31,30 @@ namespace IdentitySample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             // Add framework services.
-            services.Configure<EmailPasswordOptions>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddFirebaseStores(Configuration.GetValue<string>("FirebaseOptions:DatabaseUrl"), options =>
                 {
-                    Configuration.GetSection("EmailPasswordOptions").Bind(options);
-                }).Configure<FirebaseOptions>(options =>
-                {
-                    Configuration.GetSection("FirebaseOptions").Bind(options);
-                }).AddIdentity<ApplicationUser, IdentityRole>()
-                .AddFirebaseStores()
+                    Configuration.GetSection("AuthTokenOptions").Bind(options);
+                })
                 .AddDefaultTokenProviders();
+
+            var twitterConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+            if (!string.IsNullOrEmpty(twitterConsumerKey))
+            {
+                services.AddAuthentication().AddTwitter(twitterOptions =>
+                {
+                    twitterOptions.ConsumerKey = twitterConsumerKey;
+                    twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+                });
+            }
 
             services.AddMvc();
 
             // Add application services.
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddTransient<IEmailSender, AuthMessageSender>()
+                .AddTransient<ISmsSender, AuthMessageSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

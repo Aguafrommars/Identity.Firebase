@@ -25,16 +25,22 @@ namespace Aguacongas.Firebase.TokenManager
 
         public string AuthParamName { get; } = "auth";
 
-        public EmailPasswordTokenManager(HttpClient httpClient, IOptions<EmailPasswordOptions> options)
+        public EmailPasswordTokenManager(HttpClient httpClient, IOptions<EmailPasswordOptions> options):
+            this(httpClient, options?.Value)
+        { }
+
+        public EmailPasswordTokenManager(HttpClient httpClient, EmailPasswordOptions options)
         {
-            _httpClient = httpClient;
-            _options = options.Value;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+
             _authRequest = new AuthRequest
             {
                 Email = _options.Email,
                 Password = _options.Password
-            };            
+            };
         }
+
         public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_nextRenewTime > DateTime.UtcNow.AddSeconds(-1))

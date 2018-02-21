@@ -1,10 +1,13 @@
 using Aguacongas.Firebase;
 using Aguacongas.Firebase.TokenManager;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Test;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -42,7 +45,15 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
             services.AddSingleton<HttpClient>()
                 .AddSingleton<IFirebaseClient, FirebaseClient>()
-                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>();
+                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>()
+                .AddSingleton<ITokenAccess>(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptions<AuthTokenOptions>>();
+                    var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
+                    return GoogleCredential.FromJson(json)
+                        .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
+                        .UnderlyingCredential;
+                });
         }
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)

@@ -14,13 +14,15 @@ namespace Aguacongas.Firebase
         private readonly IFirebaseTokenManager _tokenManager;
         private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, IOptions<FirebaseOptions> options)
-        {            
-            _httpClient = httpClient;
-            var value = options.Value;            
-            _tokenManager = tokenManager;
-            _url = value.DatabaseUrl;
-            _jsonSerializerSettings = value.JsonSerializerSettings;
+        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, IOptions<FirebaseOptions> options):
+            this(httpClient, tokenManager, options?.Value?.DatabaseUrl, options?.Value?.JsonSerializerSettings)
+        { }
+
+        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, string url, JsonSerializerSettings jsonSerializerSettings)
+        {
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
+            _url = url ?? throw new ArgumentNullException(nameof(url));
 
             if (!_url.EndsWith("/"))
             {
