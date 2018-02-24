@@ -72,9 +72,8 @@ deploy:
         branch: 
             - master
 for:
--
-  branches:
+- branches:
     only:
       - master
-  on_success:
-    - cmd: echo "skip coverage report deploy"
+    on_success:
+        - cmd: echo "skip coverage report deploy"
