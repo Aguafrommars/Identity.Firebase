@@ -47,7 +47,7 @@ on_success:
     - git add docs\latest
     - git commit docs\latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
-  deploy:
+deploy:
     - provider: NuGet
       api_key:
         secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
