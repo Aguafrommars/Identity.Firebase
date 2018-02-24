@@ -47,6 +47,30 @@ on_success:
     - git add docs\latest
     - git commit docs\latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
+  deploy:
+    - provider: NuGet
+      api_key:
+        secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
+      on:
+        branch: 
+            - master
+            - /release*/
+    - provider: GitHub
+      auth_token:
+        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+      draft: false
+      prerelease: true
+      on:
+        branch: 
+            - /release*/
+    - provider: GitHub
+      auth_token:
+        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+      draft: false
+      prerelease: true
+      on:
+        branch: 
+            - master
 for:
 -
   branches:
@@ -54,24 +78,3 @@ for:
       - master
   on_success:
     - cmd: echo "skip coverage report deploy"
-  deploy:
-    - provider: NuGet
-      api_key:
-        secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
-    - provider: GitHub
-      auth_token:
-        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
-      draft: false
--
-  branches:
-    only:
-      - /release*/
-  deploy:
-    - provider: NuGet
-      api_key:
-        secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
-    - provider: GitHub
-      auth_token:
-        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
-      draft: false
-      prerelease: true
