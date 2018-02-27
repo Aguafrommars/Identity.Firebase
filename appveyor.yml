@@ -78,3 +78,7 @@ for:
       - master
   on_success:
     - cmd: echo "skip coverage report deploy"
+-
+  branches:
+    except:
+      - master
