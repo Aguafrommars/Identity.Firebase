@@ -86,7 +86,7 @@ for:
       - move coverage\docs %GITVERSION_NuGetVersion%
       - git add %GITVERSION_NuGetVersion%
       - git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
-      - git push-
+      - git push
   branches:
     except:
       - master
