@@ -87,6 +87,7 @@ for:
       - git add %GITVERSION_NuGetVersion%
       - git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
       - git push
+-
   branches:
     except:
       - master
