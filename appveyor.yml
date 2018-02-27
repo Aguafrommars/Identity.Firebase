@@ -41,11 +41,11 @@ on_success:
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
     - git config --global user.email "aguacongas@gmail.com"
     - git config --global user.name "Aguacongas"
-    - git checkout master
-    - rmdir /S /Q docs\latest
-    - move coverage\docs docs\latest
-    - git add docs\latest
-    - git commit docs\latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+    - git checkout gh-pages
+    - rmdir /S /Q latest
+    - move coverage\docs latest
+    - git add latest
+    - git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
 deploy:
     - provider: NuGet
