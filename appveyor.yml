@@ -76,9 +76,17 @@ for:
   branches:
     only:
       - master
-  on_success:
-    - cmd: echo "skip coverage report deploy"
--
+    on_success:
+      - git config --global credential.helper store
+      - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+      - git config --global user.email "aguacongas@gmail.com"
+      - git config --global user.name "Aguacongas"
+      - git checkout gh-pages
+      - mkdir %GITVERSION_NuGetVersion%
+      - move coverage\docs %GITVERSION_NuGetVersion%
+      - git add %GITVERSION_NuGetVersion%
+      - git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+      - git push-
   branches:
     except:
       - master
