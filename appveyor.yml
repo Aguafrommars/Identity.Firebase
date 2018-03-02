@@ -21,13 +21,13 @@ environment:
   AuthTokenOptions:client_id:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
-    secure: yIV+Y+PWP6caS6+V/GbhmXfBzvLp+2A1EtZwgvkaH2U=
+    secure: j6GnIUsseDPYEsj2/j7YPGPlNMHWMk4E+eoMtVACNQU=
 init:
     - cmd: git config --global core.autocrlf true
 install:
     - cmd: gitversion /l console /output buildserver
     - cmd: nuget install secure-file -ExcludeVersion
-    - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret "%decrypt_secret%"
+    - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
     - cmd: dotnet restore
 build_script:
     - cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
