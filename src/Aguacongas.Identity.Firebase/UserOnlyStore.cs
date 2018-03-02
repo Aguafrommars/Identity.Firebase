@@ -48,6 +48,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     public class UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> :
         FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
+        IQueryableUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -71,6 +72,26 @@ namespace Aguacongas.Identity.Firebase
 
         private readonly IFirebaseClient _client;
 
+        public IQueryable<TUser> Users
+        {
+            get
+            {
+                var response = _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName)).GetAwaiter().GetResult();
+                var userDictionary = response.Data;
+                if (userDictionary == null)
+                {
+                    return new List<TUser>().AsQueryable();
+                }
+
+                return userDictionary.Select(kv =>
+                {
+                    var user = kv.Value;
+                    user.Id = kv.Key;
+                    return user;
+                }).AsQueryable();
+            }
+        }
+
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
@@ -78,11 +99,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
         public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _client = client;
+            _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
         /// <summary>
