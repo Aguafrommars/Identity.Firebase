@@ -17,6 +17,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     public abstract class FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken> :
+        IQueryableUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -46,6 +47,11 @@ namespace Aguacongas.Identity.Firebase
         /// Gets or sets the <see cref="IdentityErrorDescriber"/> for any error that occurred with the current operation.
         /// </summary>
         public IdentityErrorDescriber ErrorDescriber { get; set; }
+
+        /// <summary>
+        /// A navigation property for the users the store contains.
+        /// </summary>
+        public abstract IQueryable<TUser> Users { get; }
 
         /// <summary>
         /// Creates a new instance.

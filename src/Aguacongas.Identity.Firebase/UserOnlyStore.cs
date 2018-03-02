@@ -48,7 +48,6 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     public class UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> :
         FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
-        IQueryableUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -72,7 +71,10 @@ namespace Aguacongas.Identity.Firebase
 
         private readonly IFirebaseClient _client;
 
-        public IQueryable<TUser> Users
+        /// <summary>
+        /// A navigation property for the users the store contains.
+        /// </summary>
+        public override IQueryable<TUser> Users
         {
             get
             {
@@ -301,7 +303,7 @@ namespace Aguacongas.Identity.Firebase
                 taskList.Add(_client.PostAsync(GetFirebasePath(UserClaimsTableName), userClaim, cancellationToken));
             }
 
-            Task.WaitAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray());
         }
 
         /// <summary>

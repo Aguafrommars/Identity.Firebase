@@ -49,6 +49,9 @@ namespace Aguacongas.Identity.Firebase
         private readonly IFirebaseClient _client;
         private bool _disposed;
 
+        /// <summary>
+        /// A navigation property for the roles the store contains.
+        /// </summary>
         public IQueryable<TRole> Roles
         {
             get
@@ -62,9 +65,9 @@ namespace Aguacongas.Identity.Firebase
 
                 return roleDictionary.Select(kv =>
                 {
-                    var user = kv.Value;
-                    user.Id = kv.Key;
-                    return user;
+                    var role = kv.Value;
+                    role.Id = kv.Key;
+                    return role;
                 }).AsQueryable();
             }
         }
