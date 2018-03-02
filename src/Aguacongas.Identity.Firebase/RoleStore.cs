@@ -35,6 +35,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserRole">The type of the class representing a user role.</typeparam>
     /// <typeparam name="TRoleClaim">The type of the class representing a role claim.</typeparam>
     public class RoleStore<TRole, TUserRole, TRoleClaim> :
+        IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
         where TRole : IdentityRole<string>
         where TUserRole : IdentityUserRole<string>, new()
@@ -47,6 +48,30 @@ namespace Aguacongas.Identity.Firebase
 
         private readonly IFirebaseClient _client;
         private bool _disposed;
+
+        /// <summary>
+        /// A navigation property for the roles the store contains.
+        /// </summary>
+        public IQueryable<TRole> Roles
+        {
+            get
+            {
+                var response = _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName)).GetAwaiter().GetResult();
+                var roleDictionary = response.Data;
+                if (roleDictionary == null)
+                {
+                    return new List<TRole>().AsQueryable();
+                }
+
+                return roleDictionary.Select(kv =>
+                {
+                    var role = kv.Value;
+                    role.Id = kv.Key;
+                    return role;
+                }).AsQueryable();
+            }
+        }
+
 
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole, TUserRole, TRoleClaim}"/>.

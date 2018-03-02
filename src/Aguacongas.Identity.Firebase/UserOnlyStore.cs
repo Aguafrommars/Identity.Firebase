@@ -72,17 +72,36 @@ namespace Aguacongas.Identity.Firebase
         private readonly IFirebaseClient _client;
 
         /// <summary>
+        /// A navigation property for the users the store contains.
+        /// </summary>
+        public override IQueryable<TUser> Users
+        {
+            get
+            {
+                var response = _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName)).GetAwaiter().GetResult();
+                var userDictionary = response.Data;
+                if (userDictionary == null)
+                {
+                    return new List<TUser>().AsQueryable();
+                }
+
+                return userDictionary.Select(kv =>
+                {
+                    var user = kv.Value;
+                    user.Id = kv.Key;
+                    return user;
+                }).AsQueryable();
+            }
+        }
+
+        /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
         /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
         public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException(nameof(client));
-            }
-            _client = client;
+            _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
         /// <summary>
@@ -284,7 +303,7 @@ namespace Aguacongas.Identity.Firebase
                 taskList.Add(_client.PostAsync(GetFirebasePath(UserClaimsTableName), userClaim, cancellationToken));
             }
 
-            Task.WaitAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray());
         }
 
         /// <summary>

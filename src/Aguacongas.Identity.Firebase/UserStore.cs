@@ -84,6 +84,11 @@ namespace Aguacongas.Identity.Firebase
         private readonly UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
 
         /// <summary>
+        /// A navigation property for the users the store contains.
+        /// </summary>
+        public override IQueryable<TUser> Users => _userOnlyStore.Users;
+
+        /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
         /// <param name="client">The <see cref="IFirebaseClient"/>.</param>

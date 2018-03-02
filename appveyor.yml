@@ -41,11 +41,11 @@ on_success:
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
     - git config --global user.email "aguacongas@gmail.com"
     - git config --global user.name "Aguacongas"
-    - git checkout master
-    - rmdir /S /Q docs\latest
-    - move coverage\docs docs\latest
-    - git add docs\latest
-    - git commit docs\latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+    - git checkout gh-pages
+    - rmdir /S /Q latest
+    - move coverage\docs latest
+    - git add latest
+    - git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
     - git push
 deploy:
     - provider: NuGet
@@ -55,11 +55,41 @@ deploy:
         branch: 
             - master
             - /release*/
+    - provider: GitHub
+      auth_token:
+        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+      draft: false
+      prerelease: true
+      release: $(GitVersion_SemVer)
+      on:
+        branch: 
+            - /release*/
+    - provider: GitHub
+      auth_token:
+        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+      draft: false
+      prerelease: true
+      release: $(GitVersion_SemVer)
+      on:
+        branch: 
+            - master
 for:
 -
   branches:
     only:
       - master
-
   on_success:
-    - cmd: echo "skip coverage report deploy"
+      - git config --global credential.helper store
+      - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+      - git config --global user.email "aguacongas@gmail.com"
+      - git config --global user.name "Aguacongas"
+      - git checkout gh-pages
+      - mkdir %GITVERSION_NuGetVersion%
+      - move coverage\docs %GITVERSION_NuGetVersion%
+      - git add %GITVERSION_NuGetVersion%
+      - git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+      - git push
+-
+  branches:
+    except:
+      - master
