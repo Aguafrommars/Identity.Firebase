@@ -78,19 +78,22 @@ namespace Aguacongas.Identity.Firebase
         {
             get
             {
-                var response = _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName)).GetAwaiter().GetResult();
+                var response = _client.GetAsync<Dictionary<string, object>>(GetFirebasePath(UsersTableName), queryString: "shallow=true").GetAwaiter().GetResult();
                 var userDictionary = response.Data;
                 if (userDictionary == null)
                 {
                     return new List<TUser>().AsQueryable();
                 }
 
-                return userDictionary.Select(kv =>
+                var taskList = new List<Task<TUser>>();
+                foreach(var key in userDictionary.Keys)
                 {
-                    var user = kv.Value;
-                    user.Id = kv.Key;
-                    return user;
-                }).AsQueryable();
+                    taskList.Add(FindByIdAsync(key));
+                }
+
+                var results = Task.WhenAll(taskList).GetAwaiter().GetResult();
+
+                return results.Where(u => u != null).AsQueryable();
             }
         }
 
