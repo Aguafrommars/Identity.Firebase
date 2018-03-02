@@ -56,19 +56,22 @@ namespace Aguacongas.Identity.Firebase
         {
             get
             {
-                var response = _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName)).GetAwaiter().GetResult();
+                var response = _client.GetAsync<Dictionary<string, object>>(GetFirebasePath(RolesTableName), queryString: "shallow=true").GetAwaiter().GetResult();
                 var roleDictionary = response.Data;
                 if (roleDictionary == null)
                 {
                     return new List<TRole>().AsQueryable();
                 }
 
-                return roleDictionary.Select(kv =>
+                var taskList = new List<Task<TRole>>();
+                foreach (var key in roleDictionary.Keys)
                 {
-                    var role = kv.Value;
-                    role.Id = kv.Key;
-                    return role;
-                }).AsQueryable();
+                    taskList.Add(FindByIdAsync(key));
+                }
+
+                var results = Task.WhenAll(taskList).GetAwaiter().GetResult();
+
+                return results.Where(r => r != null).AsQueryable();
             }
         }
 

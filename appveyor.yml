@@ -1,4 +1,5 @@
 version: 1.0.{build}
+skip_tags: true
 image: Visual Studio 2017
 environment:
   access_token:
@@ -20,7 +21,7 @@ environment:
   AuthTokenOptions:client_id:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
-    secure: WmQGkRXx/KBqXzl928plapnOEcBSdSxW3jEoR3Esoic=
+    secure: BDKOW5teXcJUwLqekbf6VQ==
 init:
     - cmd: git config --global core.autocrlf true
 install:
