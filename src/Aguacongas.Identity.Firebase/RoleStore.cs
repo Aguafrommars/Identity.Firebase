@@ -49,6 +49,9 @@ namespace Aguacongas.Identity.Firebase
         private readonly IFirebaseClient _client;
         private bool _disposed;
 
+        /// <summary>
+        /// A navigation property for the roles the store contains.
+        /// </summary>
         public IQueryable<TRole> Roles
         {
             get
