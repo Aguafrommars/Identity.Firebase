@@ -301,7 +301,7 @@ namespace Aguacongas.Identity.Firebase
                 taskList.Add(_client.PostAsync(GetFirebasePath(UserClaimsTableName), userClaim, cancellationToken));
             }
 
-            Task.WaitAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray());
         }
 
         /// <summary>
