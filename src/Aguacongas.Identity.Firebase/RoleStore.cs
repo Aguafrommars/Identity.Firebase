@@ -62,9 +62,9 @@ namespace Aguacongas.Identity.Firebase
 
                 return roleDictionary.Select(kv =>
                 {
-                    var user = kv.Value;
-                    user.Id = kv.Key;
-                    return user;
+                    var role = kv.Value;
+                    role.Id = kv.Key;
+                    return role;
                 }).AsQueryable();
             }
         }
