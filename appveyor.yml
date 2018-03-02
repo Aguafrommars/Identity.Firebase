@@ -27,7 +27,7 @@ init:
 install:
     - cmd: gitversion /l console /output buildserver
     - cmd: nuget install secure-file -ExcludeVersion
-    - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
+    - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret "%decrypt_secret%"
     - cmd: dotnet restore
 build_script:
     - cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
