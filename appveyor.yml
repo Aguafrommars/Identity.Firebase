@@ -21,7 +21,7 @@ environment:
   AuthTokenOptions:client_id:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
-    secure: VNI2wXULn3KwrduxP/P5+icJBRBju6nUMsGfh1CrNhE=
+    secure: wVeoBrwy66i+nUMu70cjFqMP783PKRhG2Xgnzfyojd8=
 init:
     - cmd: git config --global core.autocrlf true
 install:
