@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseException.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+
+namespace Aguacongas.Firebase
+{
+    public class FirebaseException: Exception
+    {
+        public HttpStatusCode StatusCode { get; private set; }
+        public string ReasonPhrase { get; private set; }
+
+        public string Etag { get; private set; }
+
+        public string Error { get; private set; }
+
+        public FirebaseError FirebaseError {
+            get
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject&lt;FirebaseError&gt;(Error);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string error, string eTag): base($&quot;HTTP Error {statusCode}: {reasonPhrase}&quot;)
+        {
+            StatusCode = statusCode;
+            ReasonPhrase = reasonPhrase;
+            Etag = eTag;
+            Error = error;
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,44,11,48,0],[11,49,11,61,0],[12,38,12,42,0],[12,43,12,55,0],[14,30,14,34,0],[14,35,14,47,0],[16,31,16,35,0],[16,36,16,48,0],[20,13,20,14,0],[22,17,22,18,0],[23,21,23,80,0],[25,17,25,22,0],[26,17,26,18,0],[27,21,27,33,0],[29,13,29,14,0],[32,110,32,158,0],[33,9,33,10,0],[34,13,34,37,0],[35,13,35,41,0],[36,13,36,25,0],[37,13,37,27,0],[38,9,38,10,0]]);
+    </script>
+  </body>
+</html>

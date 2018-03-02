@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\Stores\UserStoreBase.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Aguacongas.Identity.Firebase
+{
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for the specified user type.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserClaim&quot;&gt;The type representing a claim.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserLogin&quot;&gt;The type representing a user external login.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserToken&quot;&gt;The type representing a user token.&lt;/typeparam&gt;
+    public abstract class FirebaseUserStoreBase&lt;TUser, TUserClaim, TUserLogin, TUserToken&gt; :
+        IUserLoginStore&lt;TUser&gt;,
+        IUserClaimStore&lt;TUser&gt;,
+        IUserPasswordStore&lt;TUser&gt;,
+        IUserSecurityStampStore&lt;TUser&gt;,
+        IUserEmailStore&lt;TUser&gt;,
+        IUserLockoutStore&lt;TUser&gt;,
+        IUserPhoneNumberStore&lt;TUser&gt;,
+        IUserTwoFactorStore&lt;TUser&gt;,
+        IUserAuthenticationTokenStore&lt;TUser&gt;,
+        IUserAuthenticatorKeyStore&lt;TUser&gt;,
+        IUserTwoFactorRecoveryCodeStore&lt;TUser&gt;
+        where TUser : IdentityUser&lt;string&gt;
+        where TUserClaim : IdentityUserClaim&lt;string&gt;, new()
+        where TUserLogin : IdentityUserLogin&lt;string&gt;, new()
+        where TUserToken : IdentityUserToken&lt;string&gt;, new()
+    {
+        private const string InternalLoginProvider = &quot;[AspNetUserStore]&quot;;
+        private const string AuthenticatorKeyTokenName = &quot;AuthenticatorKey&quot;;
+        private const string RecoveryCodeTokenName = &quot;RecoveryCodes&quot;;
+
+        protected const string RulePath = &quot;.settings/rules.json&quot;;
+
+        private bool _disposed;
+
+
+        /// &lt;summary&gt;
+        /// Gets or sets the &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; for any error that occurred with the current operation.
+        /// &lt;/summary&gt;
+        public IdentityErrorDescriber ErrorDescriber { get; set; }
+
+        /// &lt;summary&gt;
+        /// Creates a new instance.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; used to describe store errors.&lt;/param&gt;
+        public FirebaseUserStoreBase(IdentityErrorDescriber describer)
+        {
+            if (describer == null)
+            {
+                throw new ArgumentNullException(nameof(describer));
+            }
+
+            ErrorDescriber = describer;
+        }
+
+        /// &lt;summary&gt;
+        /// Creates the specified &lt;paramref name=&quot;user&quot;/&gt; in the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to create.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the creation operation.&lt;/returns&gt;
+        public abstract Task&lt;IdentityResult&gt; CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Updates the specified &lt;paramref name=&quot;user&quot;/&gt; in the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to update.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the update operation.&lt;/returns&gt;
+        public abstract Task&lt;IdentityResult&gt; UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Deletes the specified &lt;paramref name=&quot;user&quot;/&gt; from the user store.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to delete.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the update operation.&lt;/returns&gt;
+        public abstract Task&lt;IdentityResult&gt; DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Finds and returns a user, if any, who has the specified &lt;paramref name=&quot;userId&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user ID to search for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the user matching the specified &lt;paramref name=&quot;userId&quot;/&gt; if it exists.
+        /// &lt;/returns&gt;
+        public abstract Task&lt;TUser&gt; FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Get the claims associated with the specified &lt;paramref name=&quot;user&quot;/&gt; as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose claims should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the claims granted to a user.&lt;/returns&gt;
+        public abstract Task&lt;IList&lt;Claim&gt;&gt; GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Adds the &lt;paramref name=&quot;claims&quot;/&gt; given to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the claim to.&lt;/param&gt;
+        /// &lt;param name=&quot;claims&quot;&gt;The claim to add to the user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task AddClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Replaces the &lt;paramref name=&quot;claim&quot;/&gt; on the specified &lt;paramref name=&quot;user&quot;/&gt;, with the &lt;paramref name=&quot;newClaim&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to replace the claim on.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim replace.&lt;/param&gt;
+        /// &lt;param name=&quot;newClaim&quot;&gt;The new claim replacing the &lt;paramref name=&quot;claim&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Removes the &lt;paramref name=&quot;claims&quot;/&gt; given from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the claims from.&lt;/param&gt;
+        /// &lt;param name=&quot;claims&quot;&gt;The claim to remove.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task RemoveClaimsAsync(TUser user, IEnumerable&lt;Claim&gt; claims, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Adds the &lt;paramref name=&quot;login&quot;/&gt; given to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the login to.&lt;/param&gt;
+        /// &lt;param name=&quot;login&quot;&gt;The login to add to the user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Removes the &lt;paramref name=&quot;loginProvider&quot;/&gt; given from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the login from.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login to remove from the user.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Retrieves the associated logins for the specified &lt;param ref=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose associated logins to retrieve.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; for the asynchronous operation, containing a list of &lt;see cref=&quot;UserLoginInfo&quot;/&gt; for the specified &lt;paramref name=&quot;user&quot;/&gt;, if any.
+        /// &lt;/returns&gt;
+        public abstract Task&lt;IList&lt;UserLoginInfo&gt;&gt; GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Finds and returns a user, if any, who has the specified normalized user name.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedUserName&quot;&gt;The normalized user name to search for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the user matching the specified &lt;paramref name=&quot;normalizedUserName&quot;/&gt; if it exists.
+        /// &lt;/returns&gt;
+        public abstract Task&lt;TUser&gt; FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Retrieves all users with the specified claim.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim whose users should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; contains a list of users, if any, that contain the specified claim. 
+        /// &lt;/returns&gt;
+        public abstract Task&lt;IList&lt;TUser&gt;&gt; GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Gets the user, if any, associated with the specified, normalized email address.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedEmail&quot;&gt;The normalized email address to return the user for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
+        /// &lt;/returns&gt;
+        public abstract Task&lt;TUser&gt; FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Gets the user identifier for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose identifier should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the identifier for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetUserIdAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.Id);
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the user name for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose name should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the name for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetUserNameAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.UserName);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the given &lt;paramref name=&quot;userName&quot; /&gt; for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose name should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;userName&quot;&gt;The user name to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.UserName = userName;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the normalized user name for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose normalized name should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the normalized user name for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.NormalizedUserName);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the given normalized name for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose name should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedName&quot;&gt;The normalized name to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.NormalizedUserName = normalizedName;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the password hash for a user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to set the password hash for.&lt;/param&gt;
+        /// &lt;param name=&quot;passwordHash&quot;&gt;The password hash to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.PasswordHash = passwordHash;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the password hash for a user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to retrieve the password hash for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the password hash for the user.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetPasswordHashAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.PasswordHash);
+        }
+
+        /// &lt;summary&gt;
+        /// Returns a flag indicating if the specified user has a password.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to retrieve the password hash for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; containing a flag indicating if the specified user has a password. If the 
+        /// user has a password the returned value with be true, otherwise it will be false.&lt;/returns&gt;
+        public virtual Task&lt;bool&gt; HasPasswordAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult(user.PasswordHash != null);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the user associated with the specified login provider and login provider key..
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider who provided the &lt;paramref name=&quot;providerKey&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
+        /// &lt;/returns&gt;
+        public async virtual Task&lt;TUser&gt; FindByLoginAsync(string loginProvider, string providerKey,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+            if (userLogin != null)
+            {
+                return await FindUserAsync(userLogin.UserId, cancellationToken);
+            }
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets a flag indicating whether the email address for the specified &lt;paramref name=&quot;user&quot;/&gt; has been verified, true if the email address is verified otherwise
+        /// false.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email confirmation status should be returned.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The task object containing the results of the asynchronous operation, a flag indicating whether the email address for the specified &lt;paramref name=&quot;user&quot;/&gt;
+        /// has been confirmed or not.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;bool&gt; GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.EmailConfirmed);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the flag indicating whether the specified &lt;paramref name=&quot;user&quot;/&gt;&#39;s email address has been confirmed or not.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email confirmation status should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;confirmed&quot;&gt;A flag indicating if the email address has been confirmed, true if the address is confirmed otherwise false.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The task object representing the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.EmailConfirmed = confirmed;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the &lt;paramref name=&quot;email&quot;/&gt; address for a &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;email&quot;&gt;The email to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The task object representing the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.Email = email;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the email address for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email should be returned.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The task object containing the results of the asynchronous operation, the email address for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.Email);
+        }
+
+        /// &lt;summary&gt;
+        /// Returns the normalized email for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email address to retrieve.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The task object containing the results of the asynchronous lookup operation, the normalized email address if any associated with the specified user.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.NormalizedEmail);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the normalized email for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose email address to set.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedEmail&quot;&gt;The normalized email to set for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The task object representing the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.NormalizedEmail = normalizedEmail;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the last &lt;see cref=&quot;DateTimeOffset&quot;/&gt; a user&#39;s last lockout expired, if any.
+        /// Any time in the past should be indicates a user is not locked out.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose lockout date should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the result of the asynchronous query, a &lt;see cref=&quot;DateTimeOffset&quot;/&gt; containing the last time
+        /// a user&#39;s lockout expired, if any.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;DateTimeOffset?&gt; GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.LockoutEnd);
+        }
+
+        /// &lt;summary&gt;
+        /// Locks out a user until the specified end date has passed. Setting a end date in the past immediately unlocks a user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose lockout date should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;lockoutEnd&quot;&gt;The &lt;see cref=&quot;DateTimeOffset&quot;/&gt; after which the &lt;paramref name=&quot;user&quot;/&gt;&#39;s lockout should end.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.LockoutEnd = lockoutEnd;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Records that a failed access has occurred, incrementing the failed access count.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose cancellation count should be incremented.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the incremented failed access count.&lt;/returns&gt;
+        public virtual Task&lt;int&gt; IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.AccessFailedCount++;
+            return Task.FromResult(user.AccessFailedCount);
+        }
+
+        /// &lt;summary&gt;
+        /// Resets a user&#39;s failed access count.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose failed access count should be reset.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        /// &lt;remarks&gt;This is typically called after the account is successfully accessed.&lt;/remarks&gt;
+        public virtual Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.AccessFailedCount = 0;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the current failed access count for the specified &lt;paramref name=&quot;user&quot;/&gt;..
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose failed access count should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the failed access count.&lt;/returns&gt;
+        public virtual Task&lt;int&gt; GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.AccessFailedCount);
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves a flag indicating whether user lockout can enabled for the specified user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose ability to be locked out should be returned.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, true if a user can be locked out, otherwise false.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;bool&gt; GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.LockoutEnabled);
+        }
+
+        /// &lt;summary&gt;
+        /// Set the flag indicating if the specified &lt;paramref name=&quot;user&quot;/&gt; can be locked out..
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose ability to be locked out should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;enabled&quot;&gt;A flag indicating if lock out can be enabled for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.LockoutEnabled = enabled;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the telephone number for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose telephone number should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;phoneNumber&quot;&gt;The telephone number to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.PhoneNumber = phoneNumber;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the telephone number, if any, for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose telephone number should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the user&#39;s telephone number, if any.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.PhoneNumber);
+        }
+
+        /// &lt;summary&gt;
+        /// Gets a flag indicating whether the specified &lt;paramref name=&quot;user&quot;/&gt;&#39;s telephone number has been confirmed.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to return a flag for, indicating whether their telephone number is confirmed.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, returning true if the specified &lt;paramref name=&quot;user&quot;/&gt; has a confirmed
+        /// telephone number otherwise false.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;bool&gt; GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.PhoneNumberConfirmed);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets a flag indicating if the specified &lt;paramref name=&quot;user&quot;/&gt;&#39;s phone number has been confirmed..
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose telephone number confirmation status should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;confirmed&quot;&gt;A flag indicating whether the user&#39;s telephone number has been confirmed.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.PhoneNumberConfirmed = confirmed;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the provided security &lt;paramref name=&quot;stamp&quot;/&gt; for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose security stamp should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;stamp&quot;&gt;The security stamp to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (stamp == null)
+            {
+                throw new ArgumentNullException(nameof(stamp));
+            }
+            user.SecurityStamp = stamp;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Get the security stamp for the specified &lt;paramref name=&quot;user&quot; /&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose security stamp should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the security stamp for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetSecurityStampAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.SecurityStamp);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets a flag indicating whether the specified &lt;paramref name=&quot;user&quot;/&gt; has two factor authentication enabled or not,
+        /// as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose two factor authentication enabled status should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;enabled&quot;&gt;A flag indicating whether the specified &lt;paramref name=&quot;user&quot;/&gt; has two factor authentication enabled.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.TwoFactorEnabled = enabled;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Returns a flag indicating whether the specified &lt;paramref name=&quot;user&quot;/&gt; has two factor authentication enabled or not,
+        /// as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose two factor authentication enabled status should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing a flag indicating whether the specified 
+        /// &lt;paramref name=&quot;user&quot;/&gt; has two factor authentication enabled or not.
+        /// &lt;/returns&gt;
+        public virtual Task&lt;bool&gt; GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return Task.FromResult(user.TwoFactorEnabled);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the token value for a particular user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The authentication provider for the token.&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;The name of the token.&lt;/param&gt;
+        /// &lt;param name=&quot;value&quot;&gt;The value of the token.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual async Task SetTokenAsync(TUser user, string loginProvider, string name, string value, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var token = tokens.SingleOrDefault(t =&gt; t.LoginProvider == loginProvider &amp;&amp; t.Name == name);        
+            if (token == null)
+            {
+                tokens.Add(CreateUserToken(user, loginProvider, name, value));
+            }
+            else
+            {
+                token.Value = value;
+            }
+
+            await SaveUserTokensAsync(user, tokens, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Deletes a token for a user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The authentication provider for the token.&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;The name of the token.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual async Task RemoveTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            tokens.RemoveAll(t =&gt; t.LoginProvider == loginProvider &amp;&amp; t.Name == name);
+
+            await SaveUserTokensAsync(user, tokens, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Returns the token value.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The authentication provider for the token.&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;The name of the token.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual async Task&lt;string&gt; GetTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var token = tokens.SingleOrDefault(t =&gt; t.LoginProvider == loginProvider &amp;&amp; t.Name == name);
+
+            return token?.Value;
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the authenticator key for the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose authenticator key should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;key&quot;&gt;The authenticator key to set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetAuthenticatorKeyAsync(TUser user, string key, CancellationToken cancellationToken)
+            =&gt; SetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, key, cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Get the authenticator key for the specified &lt;paramref name=&quot;user&quot; /&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose security stamp should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation, containing the security stamp for the specified &lt;paramref name=&quot;user&quot;/&gt;.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken)
+            =&gt; GetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Returns how many recovery code are still valid for a user.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user who owns the recovery code.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The number of valid recovery codes for the user..&lt;/returns&gt;
+        public virtual async Task&lt;int&gt; CountCodesAsync(TUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? &quot;&quot;;
+            if (mergedCodes.Length &gt; 0)
+            {
+                return mergedCodes.Split(&#39;;&#39;).Length;
+            }
+            return 0;
+        }
+
+        /// &lt;summary&gt;
+        /// Updates the recovery codes for the user while invalidating any previous recovery codes.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to store new recovery codes for.&lt;/param&gt;
+        /// &lt;param name=&quot;recoveryCodes&quot;&gt;The new recovery codes for the user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The new recovery codes for the user.&lt;/returns&gt;
+        public virtual Task ReplaceCodesAsync(TUser user, IEnumerable&lt;string&gt; recoveryCodes, CancellationToken cancellationToken)
+        {
+            var mergedCodes = string.Join(&quot;;&quot;, recoveryCodes);
+            return SetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, mergedCodes, cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Returns whether a recovery code is valid for a user. Note: recovery codes are only valid
+        /// once, and will be invalid after use.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user who owns the recovery code.&lt;/param&gt;
+        /// &lt;param name=&quot;code&quot;&gt;The recovery code to use.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;True if the recovery code was found for the user.&lt;/returns&gt;
+        public virtual async Task&lt;bool&gt; RedeemCodeAsync(TUser user, string code, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (code == null)
+            {
+                throw new ArgumentNullException(nameof(code));
+            }
+
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? &quot;&quot;;
+            var splitCodes = mergedCodes.Split(&#39;;&#39;);
+            if (splitCodes.Contains(code))
+            {
+                var updatedCodes = new List&lt;string&gt;(splitCodes.Where(s =&gt; s != code));
+                await ReplaceCodesAsync(user, updatedCodes, cancellationToken);
+                return true;
+            }
+            return false;
+        }
+
+        /// &lt;summary&gt;
+        /// Dispose the store
+        /// &lt;/summary&gt;
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// &lt;summary&gt;
+        /// Get user tokens
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The token owner.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;User tokens.&lt;/returns&gt;
+        protected abstract Task&lt;List&lt;TUserToken&gt;&gt; GetUserTokensAsync(TUser user, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Save user tokens.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The tokens owner.&lt;/param&gt;
+        /// &lt;param name=&quot;tokens&quot;&gt;Tokens to save&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected abstract Task SaveUserTokensAsync(TUser user, IEnumerable&lt;TUserToken&gt; tokens, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Return a user with the matching userId if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user if it exists.&lt;/returns&gt;
+        protected abstract Task&lt;TUser&gt; FindUserAsync(string userId, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Return a user login with the matching userId, provider, providerKey if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider name.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user login if it exists.&lt;/returns&gt;
+        protected abstract Task&lt;TUserLogin&gt; FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Return a user login with  provider, providerKey if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The login provider name.&lt;/param&gt;
+        /// &lt;param name=&quot;providerKey&quot;&gt;The key provided by the &lt;paramref name=&quot;loginProvider&quot;/&gt; to identify a user.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user login if it exists.&lt;/returns&gt;
+        protected abstract Task&lt;TUserLogin&gt; FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Called to create a new instance of a &lt;see cref=&quot;IdentityUserClaim{string}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The associated user.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The associated claim.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
+        {
+            var userClaim = new TUserClaim { UserId = user.Id };
+            userClaim.InitializeFromClaim(claim);
+            return userClaim;
+        }
+
+        /// &lt;summary&gt;
+        /// Called to create a new instance of a &lt;see cref=&quot;IdentityUserLogin{string}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The associated user.&lt;/param&gt;
+        /// &lt;param name=&quot;login&quot;&gt;The sasociated login.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
+        {
+            return new TUserLogin
+            {
+                UserId = user.Id,
+                ProviderKey = login.ProviderKey,
+                LoginProvider = login.LoginProvider,
+                ProviderDisplayName = login.ProviderDisplayName
+            };
+        }
+
+        /// &lt;summary&gt;
+        /// Called to create a new instance of a &lt;see cref=&quot;IdentityUserToken{string}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The associated user.&lt;/param&gt;
+        /// &lt;param name=&quot;loginProvider&quot;&gt;The associated login provider.&lt;/param&gt;
+        /// &lt;param name=&quot;name&quot;&gt;The name of the user token.&lt;/param&gt;
+        /// &lt;param name=&quot;value&quot;&gt;The value of the user token.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected virtual TUserToken CreateUserToken(TUser user, string loginProvider, string name, string value)
+        {
+            return new TUserToken
+            {
+                UserId = user.Id,
+                LoginProvider = loginProvider,
+                Name = name,
+                Value = value
+            };
+        }
+
+        /// &lt;summary&gt;
+        /// Throws if this class has been disposed.
+        /// &lt;/summary&gt;
+        protected void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
+        protected virtual string GetFirebasePath(params string[] objectPath)
+        {
+            return string.Join(&quot;/&quot;, objectPath);
+        }
+
+        protected virtual void Dispose(bool disposed)
+        {
+            _disposed = true;
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Represents a new instance of a persistence store for the specified user and role types.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TUser&quot;&gt;The type representing a user.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type representing a role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserClaim&quot;&gt;The type representing a claim.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserRole&quot;&gt;The type representing a user role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserLogin&quot;&gt;The type representing a user external login.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserToken&quot;&gt;The type representing a user token.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRoleClaim&quot;&gt;The type representing a role claim.&lt;/typeparam&gt;
+    public abstract class FirebaseUserStoreBase&lt;TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim&gt; :
+        FirebaseUserStoreBase&lt;TUser, TUserClaim, TUserLogin, TUserToken&gt;,
+        IUserRoleStore&lt;TUser&gt;
+        where TUser : IdentityUser&lt;string&gt;
+        where TRole : IdentityRole&lt;string&gt; 
+        where TUserClaim : IdentityUserClaim&lt;string&gt;, new()
+        where TUserRole : IdentityUserRole&lt;string&gt;, new()
+        where TUserLogin : IdentityUserLogin&lt;string&gt;, new()
+        where TUserToken : IdentityUserToken&lt;string&gt;, new()
+        where TRoleClaim : IdentityRoleClaim&lt;string&gt;, new()
+    {
+        /// &lt;summary&gt;
+        /// Creates a new instance.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; used to describe store errors.&lt;/param&gt;
+        public FirebaseUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
+
+        /// &lt;summary&gt;
+        /// Retrieves all users in the specified role.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role whose users should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;
+        /// The &lt;see cref=&quot;Task&quot;/&gt; contains a list of users, if any, that are in the specified role. 
+        /// &lt;/returns&gt;
+        public abstract Task&lt;IList&lt;TUser&gt;&gt; GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Adds the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; to the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to add the role to.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to add.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Removes the given &lt;paramref name=&quot;normalizedRoleName&quot;/&gt; from the specified &lt;paramref name=&quot;user&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user to remove the role from.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to remove.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public abstract Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Retrieves the roles the specified &lt;paramref name=&quot;user&quot;/&gt; is a member of.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose roles should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the roles the user is a member of.&lt;/returns&gt;
+        public abstract Task&lt;IList&lt;string&gt;&gt; GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Returns a flag indicating if the specified user is a member of the give &lt;paramref name=&quot;normalizedRoleName&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The user whose role membership should be checked.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The role to check membership of&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; containing a flag indicating if the specified user is a member of the given group. If the 
+        /// user is a member of the group the returned value with be true, otherwise it will be false.&lt;/returns&gt;
+        public abstract Task&lt;bool&gt; IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// &lt;summary&gt;
+        /// Return a role with the normalized name if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedRoleName&quot;&gt;The normalized role name.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The role if it exists.&lt;/returns&gt;
+        protected abstract Task&lt;TRole&gt; FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Return a user role for the userId and roleId if it exists.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;userId&quot;&gt;The user&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;roleId&quot;&gt;The role&#39;s id.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The user role if it exists.&lt;/returns&gt;
+        protected abstract Task&lt;TUserRole&gt; FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken);
+
+        /// &lt;summary&gt;
+        /// Called to create a new instance of a &lt;see cref=&quot;IdentityUserRole{string}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;user&quot;&gt;The associated user.&lt;/param&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The associated role.&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        protected virtual TUserRole CreateUserRole(TUser user, TRole role)
+        {
+            return new TUserRole()
+            {
+                UserId = user.Id,
+                RoleId = role.Id
+            };
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[48,56,48,60,0],[48,61,48,65,1],[54,9,54,71,1],[55,9,55,10,1],[56,13,56,35,1],[57,13,57,14,0],[58,17,58,68,0],[61,13,61,40,1],[62,9,62,10,1],[200,9,200,10,1],[201,13,201,62,1],[202,13,202,31,1],[203,13,203,30,1],[204,13,204,14,1],[205,17,205,63,1],[207,13,207,45,1],[208,9,208,10,1],[217,9,217,10,1],[218,13,218,62,1],[219,13,219,31,1],[220,13,220,30,1],[221,13,221,14,1],[222,17,222,63,1],[224,13,224,51,1],[225,9,225,10,1],[235,9,235,10,1],[236,13,236,62,1],[237,13,237,31,1],[238,13,238,30,1],[239,13,239,14,1],[240,17,240,63,1],[242,13,242,38,1],[243,13,243,39,1],[244,9,244,10,1],[253,9,253,10,0],[254,13,254,62,0],[255,13,255,31,0],[256,13,256,30,0],[257,13,257,14,0],[258,17,258,63,0],[260,13,260,61,0],[261,9,261,10,0],[271,9,271,10,1],[272,13,272,62,1],[273,13,273,31,1],[274,13,274,30,1],[275,13,275,14,0],[276,17,276,63,0],[278,13,278,54,1],[279,13,279,39,1],[280,9,280,10,1],[290,9,290,10,1],[291,13,291,62,1],[292,13,292,31,1],[293,13,293,30,1],[294,13,294,14,1],[295,17,295,63,1],[297,13,297,46,1],[298,13,298,39,1],[299,9,299,10,1],[308,9,308,10,1],[309,13,309,62,1],[310,13,310,31,1],[311,13,311,30,1],[312,13,312,14,1],[313,17,313,63,1],[315,13,315,55,1],[316,9,316,10,1],[326,9,326,10,1],[327,13,327,62,1],[328,13,328,63,1],[329,9,329,10,1],[342,9,342,10,0],[343,13,343,62,0],[344,13,344,31,0],[345,13,345,101,0],[346,13,346,35,0],[347,13,347,14,0],[348,17,348,81,0],[350,13,350,25,0],[351,9,351,10,0],[364,9,364,10,1],[365,13,365,62,1],[366,13,366,31,1],[367,13,367,30,1],[368,13,368,14,1],[369,17,369,63,1],[371,13,371,57,1],[372,9,372,10,1],[382,9,382,10,1],[383,13,383,62,1],[384,13,384,31,1],[385,13,385,30,1],[386,13,386,14,1],[387,17,387,63,1],[389,13,389,45,1],[390,13,390,39,1],[391,9,391,10,1],[401,9,401,10,1],[402,13,402,62,1],[403,13,403,31,1],[404,13,404,30,1],[405,13,405,14,1],[406,17,406,63,1],[408,13,408,32,1],[409,13,409,39,1],[410,9,410,10,1],[419,9,419,10,1],[420,13,420,62,1],[421,13,421,31,1],[422,13,422,30,1],[423,13,423,14,1],[424,17,424,63,1],[426,13,426,48,1],[427,9,427,10,1],[438,9,438,10,0],[439,13,439,62,0],[440,13,440,31,0],[441,13,441,30,0],[442,13,442,14,0],[443,17,443,63,0],[445,13,445,58,0],[446,9,446,10,0],[456,9,456,10,1],[457,13,457,62,1],[458,13,458,31,1],[459,13,459,30,1],[460,13,460,14,0],[461,17,461,63,0],[463,13,463,52,1],[464,13,464,39,1],[465,9,465,10,1],[478,9,478,10,1],[479,13,479,62,1],[480,13,480,31,1],[481,13,481,30,1],[482,13,482,14,1],[483,17,483,63,1],[485,13,485,53,1],[486,9,486,10,1],[496,9,496,10,1],[497,13,497,62,1],[498,13,498,31,1],[499,13,499,30,1],[500,13,500,14,1],[501,17,501,63,1],[503,13,503,42,1],[504,13,504,39,1],[505,9,505,10,1],[514,9,514,10,1],[515,13,515,62,1],[516,13,516,31,1],[517,13,517,30,1],[518,13,518,14,1],[519,17,519,63,1],[521,13,521,38,1],[522,13,522,60,1],[523,9,523,10,1],[533,9,533,10,1],[534,13,534,62,1],[535,13,535,31,1],[536,13,536,30,1],[537,13,537,14,1],[538,17,538,63,1],[540,13,540,40,1],[541,13,541,39,1],[542,9,542,10,1],[551,9,551,10,1],[552,13,552,62,1],[553,13,553,31,1],[554,13,554,30,1],[555,13,555,14,1],[556,17,556,63,1],[558,13,558,60,1],[559,9,559,10,1],[570,9,570,10,1],[571,13,571,62,1],[572,13,572,31,1],[573,13,573,30,1],[574,13,574,14,1],[575,17,575,63,1],[577,13,577,57,1],[578,9,578,10,1],[588,9,588,10,1],[589,13,589,62,1],[590,13,590,31,1],[591,13,591,30,1],[592,13,592,14,1],[593,17,593,63,1],[595,13,595,43,1],[596,13,596,39,1],[597,9,597,10,1],[607,9,607,10,1],[608,13,608,62,1],[609,13,609,31,1],[610,13,610,30,1],[611,13,611,14,1],[612,17,612,63,1],[614,13,614,44,1],[615,13,615,39,1],[616,9,616,10,1],[625,9,625,10,1],[626,13,626,62,1],[627,13,627,31,1],[628,13,628,30,1],[629,13,629,14,1],[630,17,630,63,1],[632,13,632,54,1],[633,9,633,10,1],[645,9,645,10,1],[646,13,646,62,1],[647,13,647,31,1],[648,13,648,30,1],[649,13,649,14,1],[650,17,650,63,1],[652,13,652,63,1],[653,9,653,10,1],[663,9,663,10,1],[664,13,664,62,1],[665,13,665,31,1],[666,13,666,30,1],[667,13,667,14,1],[668,17,668,63,1],[670,13,670,51,1],[671,13,671,39,1],[672,9,672,10,1],[682,9,682,10,1],[683,13,683,62,1],[684,13,684,31,1],[685,13,685,30,1],[686,13,686,14,1],[687,17,687,63,1],[689,13,689,31,1],[690,13,690,14,0],[691,17,691,64,0],[693,13,693,40,1],[694,13,694,39,1],[695,9,695,10,1],[704,9,704,10,1],[705,13,705,62,1],[706,13,706,31,1],[707,13,707,30,1],[708,13,708,14,1],[709,17,709,63,1],[711,13,711,56,1],[712,9,712,10,1],[723,9,723,10,1],[724,13,724,62,1],[725,13,725,31,1],[726,13,726,30,1],[727,13,727,14,1],[728,17,728,63,1],[730,13,730,45,1],[731,13,731,39,1],[732,9,732,10,1],[745,9,745,10,1],[746,13,746,62,1],[747,13,747,31,1],[748,13,748,30,1],[749,13,749,14,1],[750,17,750,63,1],[752,13,752,59,1],[753,9,753,10,1],[765,9,765,10,1],[766,13,766,62,1],[767,13,767,31,1],[769,13,769,30,1],[770,13,770,14,0],[771,17,771,63,0],[774,13,774,76,1],[775,13,775,53,1],[775,53,775,103,1],[775,103,775,105,1],[775,13,775,105,1],[776,13,776,31,1],[777,13,777,14,1],[778,17,778,79,1],[779,13,779,14,1],[781,13,781,14,1],[782,17,782,37,1],[783,13,783,14,1],[785,13,785,72,1],[786,9,786,10,1],[797,9,797,10,1],[798,13,798,62,1],[799,13,799,31,1],[801,13,801,30,1],[802,13,802,14,0],[803,17,803,63,0],[805,13,805,76,1],[806,13,806,35,1],[806,35,806,85,1],[806,85,806,87,1],[806,13,806,87,1],[808,13,808,72,1],[809,9,809,10,1],[820,9,820,10,1],[821,13,821,62,1],[822,13,822,31,1],[824,13,824,30,1],[825,13,825,14,0],[826,17,826,63,0],[829,13,829,76,1],[830,13,830,53,1],[830,53,830,103,1],[830,103,830,105,1],[830,13,830,105,1],[832,13,832,33,1],[833,9,833,10,1],[843,16,843,109,1],[852,16,852,104,1],[861,9,861,10,1],[862,13,862,62,1],[863,13,863,31,1],[865,13,865,30,1],[866,13,866,14,0],[867,17,867,63,0],[869,13,869,128,1],[870,13,870,40,1],[871,13,871,14,1],[872,17,872,54,1],[874,13,874,22,1],[875,9,875,10,1],[885,9,885,10,1],[886,13,886,63,1],[887,13,887,118,1],[888,9,888,10,1],[899,9,899,10,1],[900,13,900,62,1],[901,13,901,31,1],[903,13,903,30,1],[904,13,904,14,0],[905,17,905,63,0],[907,13,907,30,1],[908,13,908,14,0],[909,17,909,63,0],[912,13,912,128,1],[913,13,913,53,1],[914,13,914,43,1],[915,13,915,14,1],[916,17,916,75,1],[916,75,916,84,1],[916,84,916,87,1],[916,17,916,87,1],[917,17,917,80,1],[918,17,918,29,1],[920,13,920,26,1],[921,9,921,10,1],[927,9,927,10,1],[928,13,928,27,1],[929,9,929,10,1],[982,9,982,10,1],[983,13,983,65,1],[984,13,984,50,1],[985,13,985,30,1],[986,9,986,10,1],[995,9,995,10,1],[996,13,1002,15,1],[1003,9,1003,10,1],[1014,9,1014,10,1],[1015,13,1021,15,1],[1022,9,1022,10,1],[1028,9,1028,10,1],[1029,13,1029,27,1],[1030,13,1030,14,1],[1031,17,1031,67,1],[1033,9,1033,10,1],[1036,9,1036,10,1],[1037,13,1037,49,1],[1038,9,1038,10,1],[1041,9,1041,10,1],[1042,13,1042,30,1],[1043,9,1043,10,1],[1071,74,1071,89,1],[1071,90,1071,91,1],[1071,92,1071,93,1],[1143,9,1143,10,1],[1144,13,1148,15,1],[1149,9,1149,10,1]]);
+    </script>
+  </body>
+</html>
