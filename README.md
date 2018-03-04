@@ -14,7 +14,7 @@ Nuget packages
 
 [Aguacongas.Firebase-badge]: https://img.shields.io/nuget/v/Aguacongas.Firebase.svg
 [Aguacongas.Firebase-downloadbadge]: https://img.shields.io/nuget/dt/Aguacongas.Firebase.svg
-[Aguacongas.Firebase-nuget]: https://www.nuget.org/packages/ChatLe.Repository/
+[Aguacongas.Firebase-nuget]: https://www.nuget.org/packages/Aguacongas.Firebase/
 
 [Aguacongas.Identity.Firebase-badge]: https://img.shields.io/nuget/v/Aguacongas.Identity.Firebase.svg
 [Aguacongas.Identity.Firebase-downloadbadge]: https://img.shields.io/nuget/dt/Aguacongas.Identity.Firebase.svg
