@@ -31,13 +31,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
         /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
         /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
-        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
         /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string databaseName = &quot;firebase&quot;)
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
         {
-            return services.AddHttpMiddleware(configure, databaseName)
-                .AddTransient&lt;IFirebaseTokenManager, AuthTokenManager&gt;()
+            return services.AddHttpMiddleware(configure, httpClientName)
+                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
                 .AddSingleton(getTokenAccess);
         }
 
@@ -48,16 +48,16 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
         /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
-        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
         /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string databaseName = &quot;firebase&quot;)
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
         {
             return services.AddHttpMiddleware(options =&gt;
                 {
                     options.DatabaseUrl = url;
-                }, databaseName)
-                .AddTransient&lt;IFirebaseTokenManager, AuthTokenManager&gt;()
+                }, httpClientName)
+                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
                 .AddSingleton(getTokenAccess);
         }
 
@@ -68,15 +68,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
         /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
-        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
         /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string databaseName = &quot;firebase&quot;)
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
         {
             return services.AddHttpMiddleware(options =&gt;
                 {
                     options.DatabaseUrl = url;
-                }, databaseName)
+                }, httpClientName)
                 .AddSingleton(provider =&gt; getTokenManager(provider));
         }
 
@@ -87,12 +87,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
         /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
         /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
-        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
         /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string databaseName = &quot;firebase&quot;)
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
         {
-            return services.AddHttpMiddleware(configure, databaseName)
+            return services.AddHttpMiddleware(configure, httpClientName)
                 .AddSingleton(provider =&gt; getTokenManager(provider));
         }
 
@@ -103,21 +103,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
         /// &lt;param name=&quot;configure&quot;&gt;An action to configure FirebaseOptions&lt;/param&gt;
-        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
         /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.&lt;/returns&gt;
-        private static IServiceCollection AddHttpMiddleware(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, string databaseName = &quot;firebase&quot;)
+        private static IServiceCollection AddHttpMiddleware(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, string httpClientName = &quot;firebase&quot;)
         {
-            services.Configure&lt;FirebaseOptions&gt;(databaseName, options =&gt;
+            services.Configure&lt;FirebaseOptions&gt;(httpClientName, options =&gt;
                 {
-                    options.DatabaseName = databaseName;
+                    options.HttpClientName = httpClientName;
                     configure?.Invoke(options);
                 })
                 .AddTransient&lt;FirebaseAuthenticationHandler&gt;()
                 .AddScoped&lt;IFirebaseClient&gt;(provider =&gt;
                     new FirebaseClient(provider.GetRequiredService&lt;IHttpClientFactory&gt;(),
-                        provider.GetRequiredService&lt;IOptionsSnapshot&lt;FirebaseOptions&gt;&gt;().Get(databaseName)))
-                .AddHttpClient&lt;FirebaseClient&gt;(databaseName)
+                        provider.GetRequiredService&lt;IOptionsSnapshot&lt;FirebaseOptions&gt;&gt;().Get(httpClientName)))
+                .AddHttpClient&lt;FirebaseClient&gt;(httpClientName)
                 .AddHttpMessageHandler&lt;FirebaseAuthenticationHandler&gt;();
 
             return services;
@@ -127,7 +127,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[28,9,28,10,0],[29,13,31,47,0],[32,9,32,10,0],[45,9,45,10,1],[46,13,47,17,1],[47,17,47,18,1],[47,18,48,21,1],[48,21,48,47,1],[48,47,49,17,1],[49,17,49,18,1],[49,18,51,47,1],[46,13,51,47,1],[52,9,52,10,1],[65,9,65,10,1],[66,13,67,17,1],[67,17,67,18,1],[67,18,68,21,1],[68,21,68,47,1],[68,47,69,17,1],[69,17,69,18,1],[69,18,70,43,1],[70,43,70,68,1],[70,68,70,70,1],[66,13,70,70,1],[71,9,71,10,1],[84,9,84,10,0],[85,13,86,43,0],[86,43,86,68,0],[86,68,86,70,0],[85,13,86,70,0],[87,9,87,10,0],[100,9,100,10,1],[101,13,102,17,1],[102,17,102,18,1],[102,18,103,21,1],[103,21,103,57,1],[103,57,104,21,1],[104,21,104,48,1],[104,48,105,17,1],[105,17,105,18,1],[105,18,108,21,1],[108,21,109,108,1],[109,108,111,73,1],[101,13,111,73,1],[113,13,113,29,1],[114,9,114,10,1]]);
+      highlightRanges([[28,9,28,10,1],[29,13,31,47,1],[32,9,32,10,1],[45,9,45,10,1],[46,13,47,17,1],[47,17,47,18,1],[47,18,48,21,1],[48,21,48,47,1],[48,47,49,17,1],[49,17,49,18,1],[49,18,51,47,1],[46,13,51,47,1],[52,9,52,10,1],[65,9,65,10,1],[66,13,67,17,1],[67,17,67,18,1],[67,18,68,21,1],[68,21,68,47,1],[68,47,69,17,1],[69,17,69,18,1],[69,18,70,43,1],[70,43,70,68,1],[70,68,70,70,1],[66,13,70,70,1],[71,9,71,10,1],[84,9,84,10,1],[85,13,86,43,1],[86,43,86,68,1],[86,68,86,70,1],[85,13,86,70,1],[87,9,87,10,1],[100,9,100,10,1],[101,13,102,17,1],[102,17,102,18,1],[102,18,103,21,1],[103,21,103,61,1],[103,61,104,21,1],[104,21,104,48,1],[104,48,105,17,1],[105,17,105,18,1],[105,18,108,21,1],[108,21,109,110,1],[109,110,111,73,1],[101,13,111,73,1],[113,13,113,29,1],[114,9,114,10,1]]);
     </script>
   </body>
 </html>

@@ -8,14 +8,7 @@
   </head>
   <body>
     <pre id="content" class="source-code">
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
-using System;
-using System.Net.Http;
-using System.Reflection;
 using Aguacongas.Firebase;
-using Aguacongas.Firebase.Http;
 using Aguacongas.Firebase.TokenManager;
 using Aguacongas.Identity.Firebase;
 using Google.Apis.Auth.OAuth2;
@@ -23,6 +16,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -37,11 +32,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;builder&quot;&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;Firebase url&lt;/param&gt;
         /// &lt;param name=&quot;getTokenAccess&quot;&gt;&lt;see cref=&quot;ITokenAccess&quot;/&gt; factory function&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The name of HttpClient&lt;/param&gt;
         /// &lt;returns&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/returns&gt;
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;Aguacongas.Identity.Firebase&quot;)
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddFirebaseClient(url, getTokenAccess);
+            builder.Services.AddFirebaseClient(url, getTokenAccess, httpClientName);
 
             return builder;
         }
@@ -52,11 +48,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;builder&quot;&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;Firebase url&lt;/param&gt;
         /// &lt;param name=&quot;getTokenManager&quot;&gt;&lt;see cref=&quot;IFirebaseTokenManager&quot;/&gt; factory function&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The name of HttpClient&lt;/param&gt;
         /// &lt;returns&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/returns&gt;
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;Aguacongas.Identity.Firebase&quot;)
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddFirebaseClient(url, getTokenManager);
+            builder.Services.AddFirebaseClient(url, getTokenManager, httpClientName);
 
             return builder;
         }
@@ -67,20 +64,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// &lt;param name=&quot;builder&quot;&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/param&gt;
         /// &lt;param name=&quot;url&quot;&gt;Firebase url&lt;/param&gt;
         /// &lt;param name=&quot;configure&quot;&gt;Action to configure AuthTokenOptions&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The name of HttpClient&lt;/param&gt;
         /// &lt;returns&gt;The &lt;see cref=&quot;IdentityBuilder&quot;/&gt; instance this method extends.&lt;/returns&gt;
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Action&lt;AuthTokenOptions&gt; configure)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Action&lt;OAuthServiceAccountKey&gt; configure, string httpClientName = &quot;Aguacongas.Identity.Firebase&quot;)
         {
             builder.Services.Configure(configure);
 
             return builder
                 .AddFirebaseStores(url, provider =&gt;
                 {
-                    var options = provider.GetRequiredService&lt;IOptions&lt;AuthTokenOptions&gt;&gt;();
+                    var options = provider.GetRequiredService&lt;IOptions&lt;OAuthServiceAccountKey&gt;&gt;();
                     var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
                     return GoogleCredential.FromJson(json)
                         .CreateScoped(&quot;https://www.googleapis.com/auth/userinfo.email&quot;, &quot;https://www.googleapis.com/auth/firebase.database&quot;)
                         .UnderlyingCredential;
-                });
+                }, httpClientName);
         }
 
         private static void AddStores(IServiceCollection services, Type userType, Type roleType)
@@ -133,7 +131,7 @@ namespace Microsoft.Extensions.DependencyInjection
 }
     </pre>
     <script type="text/javascript">
-      highlightRanges([[32,9,32,10,1],[33,13,33,77,1],[34,13,34,69,1],[36,13,36,28,1],[37,9,37,10,1],[47,9,47,10,1],[48,13,48,77,1],[49,13,49,70,1],[51,13,51,28,1],[52,9,52,10,1],[62,9,62,10,1],[63,13,63,51,1],[65,13,67,17,1],[67,17,67,18,1],[67,18,68,21,1],[68,21,68,93,1],[68,93,69,21,1],[69,21,69,128,1],[69,128,70,21,1],[70,21,72,47,1],[72,47,73,17,1],[73,17,73,18,1],[73,18,73,20,1],[65,13,73,20,1],[74,9,74,10,1],[77,9,77,10,1],[78,13,78,96,1],[79,13,79,42,1],[80,13,80,14,0],[81,17,81,152,0],[84,13,84,87,1],[86,13,86,34,1],[87,13,87,14,1],[88,17,88,100,1],[89,17,89,46,1],[90,17,90,18,0],[91,21,91,156,0],[94,17,94,94,1],[95,17,95,83,1],[97,17,97,109,1],[98,17,98,102,1],[99,17,99,102,1],[100,13,100,14,1],[102,13,102,14,0],[103,17,103,106,0],[104,13,104,14,0],[105,9,105,10,1],[108,9,108,10,1],[109,13,109,36,1],[110,13,110,33,1],[111,13,111,14,1],[112,17,112,51,1],[113,17,113,67,1],[114,17,114,75,1],[115,17,115,18,1],[116,21,116,37,1],[118,17,118,38,1],[119,13,119,14,1],[120,13,120,25,0],[121,9,121,10,1]]);
+      highlightRanges([[28,9,28,10,1],[29,13,29,77,1],[30,13,30,85,1],[32,13,32,28,1],[33,9,33,10,1],[44,9,44,10,1],[45,13,45,77,1],[46,13,46,86,1],[48,13,48,28,1],[49,9,49,10,1],[60,9,60,10,1],[61,13,61,51,1],[63,13,65,17,1],[65,17,65,18,1],[65,18,66,21,1],[66,21,66,99,1],[66,99,67,21,1],[67,21,67,128,1],[67,128,68,21,1],[68,21,70,47,1],[70,47,71,17,1],[71,17,71,18,1],[71,18,71,36,1],[63,13,71,36,1],[72,9,72,10,1],[75,9,75,10,1],[76,13,76,96,1],[77,13,77,42,1],[78,13,78,14,0],[79,17,79,152,0],[82,13,82,87,1],[84,13,84,34,1],[85,13,85,14,1],[86,17,86,100,1],[87,17,87,46,1],[88,17,88,18,0],[89,21,89,156,0],[92,17,92,94,1],[93,17,93,83,1],[95,17,95,109,1],[96,17,96,102,1],[97,17,97,102,1],[98,13,98,14,1],[100,13,100,14,0],[101,17,101,106,0],[102,13,102,14,0],[103,9,103,10,1],[106,9,106,10,1],[107,13,107,36,1],[108,13,108,33,1],[109,13,109,14,1],[110,17,110,51,1],[111,17,111,67,1],[112,17,112,75,1],[113,17,113,18,1],[114,21,114,37,1],[116,17,116,38,1],[117,13,117,14,1],[118,13,118,25,0],[119,9,119,10,1]]);
     </script>
   </body>
 </html>

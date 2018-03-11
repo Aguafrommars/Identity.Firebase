@@ -17,13 +17,29 @@ using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase
 {
+    /// &lt;summary&gt;
+    /// Extentions methods for &lt;see cref=&quot;HttpClient&quot;/&gt;
+    /// &lt;/summary&gt;
     public static class HttpExtensions
     {
-        public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null, bool requestEtag = false, string etag = null)
+        /// &lt;summary&gt;
+        /// Create JSON content
+        /// &lt;/summary&gt;
+        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
+        /// &lt;param name=&quot;httpClient&quot;&gt;The &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;data&quot;&gt;Data to serialize&lt;/param&gt;
+        /// &lt;param name=&quot;jsonSerializerSettings&quot;&gt;A &lt;see cref=&quot;JsonSerializerSettings&quot;/&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;StreamContent&quot;/&gt;&lt;/returns&gt;
+        public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null)
         {
             return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
         }
 
+        /// &lt;summary&gt;
+        /// Sets X-Firebase-ETag header if requestEtag is true
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;headers&quot;&gt;The &lt;see cref=&quot;HttpHeaders&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
         public static void SetRequestEtag(this HttpHeaders headers, bool requestEtag)
         {
             if (requestEtag)
@@ -32,6 +48,11 @@ namespace Aguacongas.Firebase
             }
         }
 
+        /// &lt;summary&gt;
+        /// Sets if-match header if etag is true
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;headers&quot;&gt;The &lt;see cref=&quot;HttpHeaders&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;etag&quot;&gt;True to set if-match header&lt;/param&gt;
         public static void SetIfMath(this HttpHeaders headers, string etag)
         {
             if (!string.IsNullOrEmpty(etag))
@@ -40,6 +61,13 @@ namespace Aguacongas.Firebase
             }
         }
 
+        /// &lt;summary&gt;
+        /// Deserialize a Firebase response
+        /// &lt;/summary&gt;
+        /// &lt;typeparam name=&quot;T&quot;&gt;The type of response&lt;/typeparam&gt;
+        /// &lt;param name=&quot;response&quot;&gt;The &lt;see cref=&quot;HttpResponseMessage&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;jsonSerializerSettings&quot;&gt;A &lt;see cref=&quot;JsonSerializerSettings&quot;/&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
         public static async Task&lt;FirebaseResponse&lt;T&gt;&gt; DeserializeResponseAsync&lt;T&gt;(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
         {
             await response.EnsureIsSuccess();
@@ -53,6 +81,12 @@ namespace Aguacongas.Firebase
             };
         }
 
+        /// &lt;summary&gt;
+        /// Ensure response is success
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;response&quot;&gt;The &lt;see cref=&quot;HttpResponseMessage&quot;/&gt;&lt;/param&gt;
+        /// &lt;exception cref=&quot;FirebaseException&quot;&gt;If response is not success&lt;/exception&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
         public static async Task EnsureIsSuccess(this HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
@@ -65,7 +99,7 @@ namespace Aguacongas.Firebase
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[13,9,13,10,1],[14,13,14,132,1],[15,9,15,10,1],[18,9,18,10,1],[19,13,19,29,1],[20,13,20,14,1],[21,17,21,89,1],[22,13,22,14,1],[23,9,23,10,1],[26,9,26,10,1],[27,13,27,45,1],[28,13,28,14,1],[29,17,29,80,1],[30,13,30,14,1],[31,9,31,10,1],[34,9,34,10,1],[35,13,35,46,1],[37,13,37,75,1],[38,13,41,62,1],[41,62,41,96,1],[41,96,43,15,1],[38,13,43,15,1],[44,9,44,10,1],[47,9,47,10,1],[48,13,48,47,1],[49,13,49,14,1],[50,17,50,161,1],[52,9,52,10,1]]);
+      highlightRanges([[24,9,24,10,1],[25,13,25,132,1],[26,9,26,10,1],[34,9,34,10,1],[35,13,35,29,1],[36,13,36,14,1],[37,17,37,89,1],[38,13,38,14,1],[39,9,39,10,1],[47,9,47,10,1],[48,13,48,45,1],[49,13,49,14,1],[50,17,50,80,1],[51,13,51,14,1],[52,9,52,10,1],[62,9,62,10,1],[63,13,63,46,1],[65,13,65,75,1],[66,13,69,62,1],[69,62,69,96,1],[69,96,71,15,1],[66,13,71,15,1],[72,9,72,10,1],[81,9,81,10,1],[82,13,82,47,1],[83,13,83,14,1],[84,17,84,161,1],[86,9,86,10,1]]);
     </script>
   </body>
 </html>

@@ -9,14 +9,18 @@
   <body>
     <pre id="content" class="source-code">
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Aguacongas.Firebase
 {
+    /// &lt;summary&gt;
+    /// Firebase rules
+    /// &lt;/summary&gt;
     public class FirebaseRules
     {
+        /// &lt;summary&gt;
+        /// Gets or sets rules property
+        /// &lt;/summary&gt;
         [JsonProperty(PropertyName = &quot;rules&quot;)]
         public Dictionary&lt;string, object&gt; Rules { get; set; }
     }
@@ -24,7 +28,7 @@ namespace Aguacongas.Firebase
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[11,51,11,55,1],[11,56,11,60,1]]);
+      highlightRanges([[15,51,15,55,1],[15,56,15,60,1]]);
     </script>
   </body>
 </html>
