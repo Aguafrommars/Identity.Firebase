@@ -292,3 +292,6 @@ __pycache__/
 
 /coverage
 /test/testsettings.json
+/JetBrains.dotCover.CommandLineTools/tools
+/ReportGenerator
+*.snapshot
