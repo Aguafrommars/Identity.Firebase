@@ -82,7 +82,7 @@ namespace Aguacongas.Identity.Firebase
                 var userDictionary = response.Data;
                 if (userDictionary == null)
                 {
-                    return new List<TUser>().AsQueryable();
+                    return new List<TUser>(0).AsQueryable();
                 }
 
                 var taskList = new List<Task<TUser>>();
@@ -91,8 +91,11 @@ namespace Aguacongas.Identity.Firebase
                     taskList.Add(FindByIdAsync(key));
                 }
 
-                var results = Task.WhenAll(taskList).GetAwaiter().GetResult();
-                var users = new List<TUser>(results.Where(u => u != null));
+                Task.WaitAll(taskList.ToArray());
+                var users = taskList.Where(t => t.Result != null)
+                    .Select(t => t.Result)
+                    .ToList();
+
                 return users.AsQueryable();
             }
         }

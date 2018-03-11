@@ -87,9 +87,9 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override Expression<Func<TestRole, bool>> RoleNameEqualsPredicate(string roleName) => r => r.Name == roleName;
 
-        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name.StartsWith(roleName);
+        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name != null && r.Name.StartsWith(roleName);
 
-        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName.StartsWith(userName);
+        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName != null &&  u.UserName.StartsWith(userName);
 
         [Fact]
         [Trait("firebase", "firebase")]
