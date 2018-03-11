@@ -38,7 +38,7 @@ install:
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
     - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
-    - sh: mono secure-file/tools/secure-file -decrypt test\testsettings.json.enc -secret $decrypt_secret
+    - sh: mono secure-file/tools/secure-file.exe -decrypt test\testsettings.json.enc -secret $decrypt_secret
     - dotnet restore
 build_script:
 - ps: ./build.ps1
