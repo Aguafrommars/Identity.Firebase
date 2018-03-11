@@ -3,10 +3,7 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using Xunit;
 
 namespace Aguacongas.Firebase.Test
@@ -22,7 +19,7 @@ namespace Aguacongas.Firebase.Test
             {
                 options.DatabaseUrl = "http://test1";
             }, 
-            provider => new EmailPasswordTokenManager(provider.GetRequiredService<HttpClient>(), provider.GetRequiredService<IOptions<EmailPasswordOptions>>()),
+            provider => new EmailPasswordTokenManager(provider.GetRequiredService<IHttpClientFactory>().CreateClient(), provider.GetRequiredService<IOptions<EmailPasswordOptions>>()),
             "instance1")
             .Configure<EmailPasswordOptions>(options =>
             {
@@ -36,6 +33,17 @@ namespace Aguacongas.Firebase.Test
 
             var firebaseClient = serviceProvider.GetRequiredService<IFirebaseClient>();
             var tokenManager = serviceProvider.GetRequiredService<IFirebaseTokenManager>();
+
+            services.AddFirebaseClient(options =>
+            {
+                options.DatabaseUrl = "http://test2";
+            },
+            provider => accessTokenMock.Object,
+            "instance2");
+
+            serviceProvider = services.BuildServiceProvider();
+            firebaseClient = serviceProvider.GetRequiredService<IFirebaseClient>();
+            var tokenAccess = serviceProvider.GetRequiredService<ITokenAccess>();
         }
     }
 }
