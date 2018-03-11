@@ -2,29 +2,42 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseResponse.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseOptions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseResponse&lt;T&gt;
+    /// &lt;summary&gt;
+    /// Firebase options
+    /// &lt;/summary&gt;
+    public class FirebaseOptions
     {
-        public T Data { get; set; }
+        /// &lt;summary&gt;
+        /// Gets or sets serialization settings
+        /// &lt;/summary&gt;
+        public JsonSerializerSettings JsonSerializerSettings { get; set; }
 
-        public string Etag { get; set; }
+        /// &lt;summary&gt;
+        /// Gets or sets the firebase url
+        /// &lt;/summary&gt;
+        public string DatabaseUrl { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the database name
+        /// &lt;/summary&gt;
+        internal string DatabaseName { get; set; } = &quot;firebase&quot;;
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,25,9,29,1],[9,30,9,34,1],[11,30,11,34,1],[11,35,11,39,1]]);
+      highlightRanges([[14,64,14,68,1],[14,69,14,73,0],[19,37,19,41,1],[19,42,19,46,1],[24,40,24,44,1],[24,45,24,49,1],[24,54,24,64,1]]);
     </script>
   </body>
 </html>

@@ -2,44 +2,42 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthTokenManager.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthResponse.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Google.Apis.Auth.OAuth2;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Aguacongas.Firebase.TokenManager
 {
-    public class AuthTokenManager : IFirebaseTokenManager
+    public class AuthResponse
     {
-        private readonly ITokenAccess _credential;
+        public string Kind { get; set; }
 
-        public string AuthParamName { get; } = &quot;access_token&quot;;
+        public string LocalId { get; set; }
 
-        public AuthTokenManager(ITokenAccess credential)
-        {
-            _credential = credential ?? throw new ArgumentNullException(nameof(credential));
-        }
+        public string Email { get; set; }
 
-        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return await _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
-        }
+        public string DisplayName { get; set; }
 
-        public void Dispose()
-        {
-        }
+        public string IdToken { get; set; }
+
+        public bool Registered { get; set; }
+
+        public string RefreshToken { get; set; }
+
+        public int ExpiresIn { get; set; }
     }
+
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[12,39,12,43,0],[12,48,12,62,0],[14,9,14,57,0],[15,9,15,10,0],[16,13,16,93,0],[17,9,17,10,0],[20,9,20,10,0],[21,13,21,106,0],[22,9,22,10,0],[25,9,25,10,0],[26,9,26,10,0]]);
+      highlightRanges([[9,30,9,34,1],[9,35,9,39,1],[11,33,11,37,1],[11,38,11,42,1],[13,31,13,35,1],[13,36,13,40,1],[15,37,15,41,1],[15,42,15,46,1],[17,33,17,37,1],[17,38,17,42,1],[19,34,19,38,1],[19,39,19,43,1],[21,38,21,42,1],[21,43,21,47,1],[23,32,23,36,1],[23,37,23,41,1]]);
     </script>
   </body>
 </html>

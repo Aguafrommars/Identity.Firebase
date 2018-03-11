@@ -2,27 +2,143 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseError.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseClient.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseError
+    public class FirebaseClient : IFirebaseClient
     {
-        public string Error { get; set; }
+        private readonly HttpClient _httpClient;
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
+
+        public FirebaseClient(IHttpClientFactory httpClientFactory, FirebaseOptions options)
+        {
+            if (httpClientFactory == null)
+            {
+                throw new ArgumentNullException(nameof(httpClientFactory));
+            }
+            _httpClient = httpClientFactory.CreateClient(options.DatabaseName);
+            _httpClient.BaseAddress = new Uri(options.DatabaseUrl);
+            _jsonSerializerSettings = options.JsonSerializerSettings;
+        }
+
+        public async Task&lt;FirebaseResponse&lt;string&gt;&gt; PostAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
+        {
+            if(data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            var response = await SendFirebaseRequest&lt;PostResponse&gt;(url, &quot;POST&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null);
+            return new FirebaseResponse&lt;string&gt;
+            {
+                Data = response.Data.Name,
+                Etag = response.Etag
+            };
+        }
+
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PutAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;PUT&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, etag);
+        }
+
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PatchAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;PATCH&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, false, null);
+        }
+
+        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
+        {
+            var message = new HttpRequestMessage(new HttpMethod(&quot;DELETE&quot;), GetFirebaseUrl(url, cancellationToken));
+            message.Headers.SetIfMath(etag);
+            message.Headers.SetRequestEtag(requestEtag);
+
+            using (var response =
+                await _httpClient.SendAsync(message, cancellationToken))
+            {
+                await response.EnsureIsSuccess();
+            }                
+        }
+
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
+        {
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null, queryString);
+        }
+
+        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
+        {
+            var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, cancellationToken, queryString))
+            {
+                Content = content
+            };
+            message.Headers.SetIfMath(eTag);
+            message.Headers.SetRequestEtag(requestEtag);
+
+            var response = await _httpClient.SendAsync(message, cancellationToken);
+            return await GetFirebaseResponse&lt;T&gt;(response);
+        }
+        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; GetFirebaseResponse&lt;T&gt;(HttpResponseMessage response)
+        {
+            using (response)
+            {
+                return await response.DeserializeResponseAsync&lt;T&gt;(_jsonSerializerSettings);
+            }
+        }
+
+        private Uri GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+
+            var sanetizedUrl = url;
+            if (!url.EndsWith(&quot;.json&quot;))
+            {
+                sanetizedUrl = url + &quot;.json&quot;;
+            }
+
+            var baseAddress = _httpClient.BaseAddress;
+            var builder = new UriBuilder(baseAddress.Scheme, baseAddress.Host, baseAddress.Port, sanetizedUrl)
+            {
+                Query = queryString
+            };
+
+            
+            return builder.Uri;
+        }
+
+        class PostResponse
+        {
+            public string Name { get; set; }
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,31,9,35,0],[9,36,9,40,0]]);
+      highlightRanges([[15,9,15,93,1],[16,9,16,10,1],[17,13,17,43,1],[18,13,18,14,0],[19,17,19,76,0],[21,13,21,80,1],[22,13,22,68,1],[23,13,23,70,1],[24,9,24,10,1],[27,9,27,10,1],[28,13,28,29,1],[29,13,29,14,1],[30,17,30,63,1],[33,13,33,181,1],[34,13,38,15,1],[39,9,39,10,1],[42,9,42,10,1],[43,13,43,30,1],[44,13,44,14,1],[45,17,45,63,1],[48,13,48,155,1],[49,9,49,10,1],[52,9,52,10,1],[53,13,53,30,1],[54,13,54,14,1],[55,17,55,63,1],[58,13,58,151,1],[59,9,59,10,1],[62,9,62,10,1],[63,13,63,116,1],[64,13,64,45,1],[65,13,65,57,1],[67,20,68,72,1],[69,13,69,14,1],[70,17,70,50,1],[71,13,71,14,1],[72,9,72,10,1],[75,9,75,10,1],[76,13,76,112,1],[77,9,77,10,1],[80,9,80,10,1],[81,13,84,15,1],[85,13,85,45,1],[86,13,86,57,1],[88,13,88,84,1],[89,13,89,59,1],[90,9,90,10,1],[92,9,92,10,1],[93,13,93,29,1],[94,13,94,14,1],[95,17,95,92,1],[97,9,97,10,1],[100,9,100,10,1],[101,13,101,43,1],[102,13,102,14,1],[103,17,103,62,1],[106,13,106,36,1],[107,13,107,40,1],[108,13,108,14,1],[109,17,109,46,1],[110,13,110,14,1],[112,13,112,55,1],[113,13,116,15,1],[119,13,119,32,1],[120,9,120,10,1],[124,34,124,38,1],[124,39,124,43,1]]);
     </script>
   </body>
 </html>

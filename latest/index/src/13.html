@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordOptions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthTokenOptions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
@@ -14,20 +14,24 @@ using System.Text;
 
 namespace Aguacongas.Firebase.TokenManager
 {
-    public class EmailPasswordOptions
+    public class AuthTokenOptions
     {
-        public string Email { get; set; }
-
-        public string Password { get; set; }
-        public string ApiKey { get; set; }
-
-        public string SignUpUrl { get; set; } = &quot;https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword&quot;;
+        public string type { get; set; } = &quot;service_account&quot;;
+        public string project_id { get; set; }
+        public string private_key_id { get; set; }
+        public string private_key { get; set; }
+        public string client_email { get; set; }
+        public string client_id { get; set; }
+        public string auth_uri { get; set; } = &quot;https://accounts.google.com/o/oauth2/auth&quot;;
+        public string token_uri { get; set; } = &quot;https://accounts.google.com/o/oauth2/token&quot;;
+        public string auth_provider_x509_cert_url { get; set; } = &quot;https://www.googleapis.com/oauth2/v1/certs&quot;;
+        public string client_x509_cert_url { get; set; } = &quot;https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-bmyi7%40identityfirebase.iam.gserviceaccount.com&quot;;
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,31,9,35,1],[9,36,9,40,1],[11,34,11,38,1],[11,39,11,43,1],[12,32,12,36,1],[12,37,12,41,1],[14,35,14,39,1],[14,40,14,44,1],[14,49,14,124,1]]);
+      highlightRanges([[9,30,9,34,1],[9,35,9,39,1],[9,44,9,61,1],[10,36,10,40,1],[10,41,10,45,1],[11,40,11,44,1],[11,45,11,49,1],[12,37,12,41,1],[12,42,12,46,1],[13,38,13,42,1],[13,43,13,47,1],[14,35,14,39,1],[14,40,14,44,1],[15,34,15,38,1],[15,39,15,43,1],[15,48,15,91,1],[16,35,16,39,1],[16,40,16,44,1],[16,49,16,93,1],[17,53,17,57,1],[17,58,17,62,1],[17,67,17,111,1],[18,46,18,50,1],[18,51,18,55,1],[18,60,18,178,1]]);
     </script>
   </body>
 </html>

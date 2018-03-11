@@ -2,177 +2,132 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseClient.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\ServiceCollectionExtentions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
+using Aguacongas.Firebase;
+using Aguacongas.Firebase.Http;
+using Aguacongas.Firebase.TokenManager;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Aguacongas.Firebase
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public class FirebaseClient : IFirebaseClient, IDisposable
+    /// &lt;summary&gt;
+    /// Extensions methods to configure an Microsoft.Extensions.DependencyInjection.IServiceCollection
+    ///     for Aguacongas.Firebase.IFirebaseClient.
+    /// &lt;/summary&gt;
+    public static class ServiceCollectionExtentions
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _url;
-        private readonly IFirebaseTokenManager _tokenManager;
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
-
-        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, IOptions&lt;FirebaseOptions&gt; options):
-            this(httpClient, tokenManager, options?.Value?.DatabaseUrl, options?.Value?.JsonSerializerSettings)
-        { }
-
-        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, string url, JsonSerializerSettings jsonSerializerSettings)
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures a binding between the IFirebaseClient
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
+        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
+        ///     to configure the client.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string databaseName = &quot;firebase&quot;)
         {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
-            _url = url ?? throw new ArgumentNullException(nameof(url));
-
-            if (!_url.EndsWith(&quot;/&quot;))
-            {
-                _url = _url + &quot;/&quot;;
-            }
+            return services.AddHttpMiddleware(configure, databaseName)
+                .AddTransient&lt;IFirebaseTokenManager, AuthTokenManager&gt;()
+                .AddSingleton(getTokenAccess);
         }
 
-        public async Task&lt;FirebaseResponse&lt;string&gt;&gt; PostAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures a binding between the IFirebaseClient
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
+        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
+        ///     to configure the client.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string databaseName = &quot;firebase&quot;)
         {
-            if(data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            var response = await SendFirebaseRequest&lt;PostResponse&gt;(url, &quot;POST&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null);
-            return new FirebaseResponse&lt;string&gt;
-            {
-                Data = response.Data.Name,
-                Etag = response.Etag
-            };
-        }
-
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PutAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;PUT&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, etag);
-        }
-
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PatchAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;PATCH&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, false, null);
-        }
-
-        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
-        {
-            var message = new HttpRequestMessage(new HttpMethod(&quot;DELETE&quot;), await GetFirebaseUrl(url, cancellationToken));
-            message.Headers.SetIfMath(etag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            using (var response =
-                await _httpClient.SendAsync(message, cancellationToken))
-            {
-                await response.EnsureIsSuccess();
-            }                
-        }
-
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
-        {
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null, queryString);
-        }
-
-        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
-        {
-            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken, queryString))
-            {
-                Content = content
-            };
-            message.Headers.SetIfMath(eTag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            var response = await _httpClient.SendAsync(message, cancellationToken);
-            return await GetFirebaseResponse&lt;T&gt;(response);
-        }
-        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; GetFirebaseResponse&lt;T&gt;(HttpResponseMessage response)
-        {
-            using (response)
-            {
-                return await response.DeserializeResponseAsync&lt;T&gt;(_jsonSerializerSettings);
-            }
-        }
-
-        private async Task&lt;string&gt; GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
-        {
-            if (string.IsNullOrEmpty(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
-
-            var sanetizedUrl = url;
-            if (!url.EndsWith(&quot;.json&quot;))
-            {
-                sanetizedUrl = url + &quot;.json&quot;;
-            }
-
-            while (sanetizedUrl.StartsWith(&quot;/&quot;))
-            {
-                sanetizedUrl = sanetizedUrl.Substring(1);
-            }
-
-            var result = $&quot;{_url}{sanetizedUrl}?{_tokenManager.AuthParamName}={await _tokenManager.GetTokenAsync(cancellationToken)}&quot;;
-            if(!string.IsNullOrEmpty(queryString))
-            {
-                result += &quot;&amp;&quot; + queryString; 
-            }
-            return result;
-        }
-
-        class PostResponse
-        {
-            public string Name { get; set; }
-        }
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
+            return services.AddHttpMiddleware(options =&gt;
                 {
-                    _httpClient.Dispose();
-                    _tokenManager.Dispose();
-                }
-
-                disposedValue = true;
-            }
+                    options.DatabaseUrl = url;
+                }, databaseName)
+                .AddTransient&lt;IFirebaseTokenManager, AuthTokenManager&gt;()
+                .AddSingleton(getTokenAccess);
         }
 
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures a binding between the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
+        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
+        ///     to configure the client.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string databaseName = &quot;firebase&quot;)
         {
-            Dispose(true);
+            return services.AddHttpMiddleware(options =&gt;
+                {
+                    options.DatabaseUrl = url;
+                }, databaseName)
+                .AddSingleton(provider =&gt; getTokenManager(provider));
         }
-        #endregion
+
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures a binding between the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
+        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
+        ///     to configure the client.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string databaseName = &quot;firebase&quot;)
+        {
+            return services.AddHttpMiddleware(configure, databaseName)
+                .AddSingleton(provider =&gt; getTokenManager(provider));
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures a binding between the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;databaseName&quot;&gt;The logical name of the System.Net.Http.HttpClient to configure&lt;/param&gt;
+        /// &lt;returns&gt;An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
+        ///     to configure the client.&lt;/returns&gt;
+        private static IServiceCollection AddHttpMiddleware(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, string databaseName = &quot;firebase&quot;)
+        {
+            services.Configure&lt;FirebaseOptions&gt;(databaseName, options =&gt;
+                {
+                    options.DatabaseName = databaseName;
+                    configure?.Invoke(options);
+                })
+                .AddTransient&lt;FirebaseAuthenticationHandler&gt;()
+                .AddScoped&lt;IFirebaseClient&gt;(provider =&gt;
+                    new FirebaseClient(provider.GetRequiredService&lt;IHttpClientFactory&gt;(),
+                        provider.GetRequiredService&lt;IOptionsSnapshot&lt;FirebaseOptions&gt;&gt;().Get(databaseName)))
+                .AddHttpClient&lt;FirebaseClient&gt;(databaseName)
+                .AddHttpMessageHandler&lt;FirebaseAuthenticationHandler&gt;();
+
+            return services;
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[18,13,18,112,1],[19,9,19,10,1],[19,11,19,12,1],[21,9,21,148,1],[22,9,22,10,1],[23,13,23,93,1],[24,13,24,99,1],[25,13,25,72,1],[27,13,27,37,1],[28,13,28,14,1],[29,17,29,35,1],[30,13,30,14,1],[31,9,31,10,1],[34,9,34,10,1],[35,13,35,29,1],[36,13,36,14,1],[37,17,37,63,1],[40,13,40,181,1],[41,13,45,15,1],[46,9,46,10,1],[49,9,49,10,1],[50,13,50,30,1],[51,13,51,14,1],[52,17,52,63,1],[55,13,55,155,1],[56,9,56,10,1],[59,9,59,10,1],[60,13,60,30,1],[61,13,61,14,1],[62,17,62,63,1],[65,13,65,151,1],[66,9,66,10,1],[69,9,69,10,1],[70,13,70,122,1],[71,13,71,45,1],[72,13,72,57,1],[74,20,75,72,1],[76,13,76,14,1],[77,17,77,50,1],[78,13,78,14,1],[79,9,79,10,1],[82,9,82,10,1],[83,13,83,112,1],[84,9,84,10,1],[87,9,87,10,1],[88,13,91,15,1],[92,13,92,45,1],[93,13,93,57,1],[95,13,95,84,1],[96,13,96,59,1],[97,9,97,10,1],[99,9,99,10,1],[100,13,100,29,1],[101,13,101,14,1],[102,17,102,92,1],[104,9,104,10,1],[107,9,107,10,1],[108,13,108,43,1],[109,13,109,14,1],[110,17,110,62,1],[113,13,113,36,1],[114,13,114,40,1],[115,13,115,14,1],[116,17,116,46,1],[117,13,117,14,1],[119,13,119,49,1],[120,13,120,14,1],[121,17,121,58,1],[122,13,122,14,1],[124,13,124,135,1],[125,13,125,51,1],[126,13,126,14,0],[127,17,127,45,0],[128,13,128,14,0],[129,13,129,27,1],[130,9,130,10,1],[134,34,134,38,1],[134,39,134,43,1],[138,9,138,44,1],[141,9,141,10,1],[142,13,142,32,1],[143,13,143,14,1],[144,17,144,31,1],[145,17,145,18,1],[146,21,146,43,1],[147,21,147,45,1],[148,17,148,18,1],[150,17,150,38,1],[151,13,151,14,1],[152,9,152,10,1],[156,9,156,10,1],[157,13,157,27,1],[158,9,158,10,1]]);
+      highlightRanges([[28,9,28,10,0],[29,13,31,47,0],[32,9,32,10,0],[45,9,45,10,1],[46,13,47,17,1],[47,17,47,18,1],[47,18,48,21,1],[48,21,48,47,1],[48,47,49,17,1],[49,17,49,18,1],[49,18,51,47,1],[46,13,51,47,1],[52,9,52,10,1],[65,9,65,10,1],[66,13,67,17,1],[67,17,67,18,1],[67,18,68,21,1],[68,21,68,47,1],[68,47,69,17,1],[69,17,69,18,1],[69,18,70,43,1],[70,43,70,68,1],[70,68,70,70,1],[66,13,70,70,1],[71,9,71,10,1],[84,9,84,10,0],[85,13,86,43,0],[86,43,86,68,0],[86,68,86,70,0],[85,13,86,70,0],[87,9,87,10,0],[100,9,100,10,1],[101,13,102,17,1],[102,17,102,18,1],[102,18,103,21,1],[103,21,103,57,1],[103,57,104,21,1],[104,21,104,48,1],[104,48,105,17,1],[105,17,105,18,1],[105,18,108,21,1],[108,21,109,108,1],[109,108,111,73,1],[101,13,111,73,1],[113,13,113,29,1],[114,9,114,10,1]]);
     </script>
   </body>
 </html>

@@ -2,36 +2,44 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthTokenOptions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthTokenManager.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
+using Google.Apis.Auth.OAuth2;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase.TokenManager
 {
-    public class AuthTokenOptions
+    public class AuthTokenManager : IFirebaseTokenManager
     {
-        public string type { get; set; } = &quot;service_account&quot;;
-        public string project_id { get; set; }
-        public string private_key_id { get; set; }
-        public string private_key { get; set; }
-        public string client_email { get; set; }
-        public string client_id { get; set; }
-        public string auth_uri { get; set; } = &quot;https://accounts.google.com/o/oauth2/auth&quot;;
-        public string token_uri { get; set; } = &quot;https://accounts.google.com/o/oauth2/token&quot;;
-        public string auth_provider_x509_cert_url { get; set; } = &quot;https://www.googleapis.com/oauth2/v1/certs&quot;;
-        public string client_x509_cert_url { get; set; } = &quot;https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-bmyi7%40identityfirebase.iam.gserviceaccount.com&quot;;
+        private readonly ITokenAccess _credential;
+
+        public string AuthParamName { get; } = &quot;access_token&quot;;
+
+        public AuthTokenManager(ITokenAccess credential)
+        {
+            _credential = credential ?? throw new ArgumentNullException(nameof(credential));
+        }
+
+        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,30,9,34,0],[9,35,9,39,0],[9,44,9,61,0],[10,36,10,40,0],[10,41,10,45,0],[11,40,11,44,0],[11,45,11,49,0],[12,37,12,41,0],[12,42,12,46,0],[13,38,13,42,0],[13,43,13,47,0],[14,35,14,39,0],[14,40,14,44,0],[15,34,15,38,0],[15,39,15,43,0],[15,48,15,91,0],[16,35,16,39,0],[16,40,16,44,0],[16,49,16,93,0],[17,53,17,57,0],[17,58,17,62,0],[17,67,17,111,0],[18,46,18,50,0],[18,51,18,55,0],[18,60,18,178,0]]);
+      highlightRanges([[12,39,12,43,1],[12,48,12,62,1],[14,9,14,57,1],[15,9,15,10,1],[16,13,16,93,1],[17,9,17,10,1],[20,9,20,10,1],[21,13,21,106,1],[22,9,22,10,1],[25,9,25,10,0],[26,9,26,10,0]]);
     </script>
   </body>
 </html>

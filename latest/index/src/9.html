@@ -2,31 +2,70 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthRequest.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\Http\HttpExtensions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Aguacongas.Firebase.TokenManager
+namespace Aguacongas.Firebase
 {
-    public class AuthRequest
+    public static class HttpExtensions
     {
-        public string Email { get; set; }
+        public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null, bool requestEtag = false, string etag = null)
+        {
+            return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
+        }
 
-        public string Password { get; set; }
+        public static void SetRequestEtag(this HttpHeaders headers, bool requestEtag)
+        {
+            if (requestEtag)
+            {
+                var result = headers.TryAddWithoutValidation(&quot;X-Firebase-ETag&quot;, &quot;true&quot;);
+            }
+        }
 
-        public bool ReturnSecureToken { get; set; } = true;
+        public static void SetIfMath(this HttpHeaders headers, string etag)
+        {
+            if (!string.IsNullOrEmpty(etag))
+            {
+                var result = headers.TryAddWithoutValidation(&quot;if-match&quot;, etag);
+            }
+        }
+
+        public static async Task&lt;FirebaseResponse&lt;T&gt;&gt; DeserializeResponseAsync&lt;T&gt;(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
+        {
+            await response.EnsureIsSuccess();
+            
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return new FirebaseResponse&lt;T&gt;
+            {
+                Data = JsonConvert.DeserializeObject&lt;T&gt;(jsonResponse, jsonSerializerSettings),
+                Etag = response.Headers.SingleOrDefault(h =&gt; h.Key.ToUpperInvariant() == &quot;ETAG&quot;)
+                    .Value?.FirstOrDefault()
+            };
+        }
+
+        public static async Task EnsureIsSuccess(this HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, await response.Content.ReadAsStringAsync(), response.Headers.ETag?.Tag);
+            }
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[9,31,9,35,1],[9,36,9,40,1],[11,34,11,38,1],[11,39,11,43,1],[13,41,13,45,1],[13,46,13,50,0],[13,55,13,59,1]]);
+      highlightRanges([[13,9,13,10,1],[14,13,14,132,1],[15,9,15,10,1],[18,9,18,10,1],[19,13,19,29,1],[20,13,20,14,1],[21,17,21,89,1],[22,13,22,14,1],[23,9,23,10,1],[26,9,26,10,1],[27,13,27,45,1],[28,13,28,14,1],[29,17,29,80,1],[30,13,30,14,1],[31,9,31,10,1],[34,9,34,10,1],[35,13,35,46,1],[37,13,37,75,1],[38,13,41,62,1],[41,62,41,96,1],[41,96,43,15,1],[38,13,43,15,1],[44,9,44,10,1],[47,9,47,10,1],[48,13,48,47,1],[49,13,49,14,1],[50,17,50,161,1],[52,9,52,10,1]]);
     </script>
   </body>
 </html>

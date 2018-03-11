@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseOptions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseIndex.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
@@ -15,17 +15,22 @@ using System.Text;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseOptions
+    public class FirebaseIndexes
     {
-        public string DatabaseUrl { get; set; }
+        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
+        public string[] On { get; set; }
+    }
 
-        public JsonSerializerSettings JsonSerializerSettings { get; set; }
+    public class FirebaseIndex
+    {
+        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
+        public string On { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[10,37,10,41,1],[10,42,10,46,1],[12,64,12,68,1],[12,69,12,73,0]]);
+      highlightRanges([[11,30,11,34,1],[11,35,11,39,1],[17,28,17,32,1],[17,33,17,37,1]]);
     </script>
   </body>
 </html>

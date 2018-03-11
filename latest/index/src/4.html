@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseIndex.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseException.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
@@ -11,26 +11,47 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseIndexes
+    public class FirebaseException: Exception
     {
-        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
-        public string[] On { get; set; }
-    }
+        public HttpStatusCode StatusCode { get; private set; }
+        public string ReasonPhrase { get; private set; }
 
-    public class FirebaseIndex
-    {
-        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
-        public string On { get; set; }
+        public string Etag { get; private set; }
+
+        public string Error { get; private set; }
+
+        public FirebaseError FirebaseError {
+            get
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject&lt;FirebaseError&gt;(Error);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string error, string eTag): base($&quot;HTTP Error {statusCode}: {reasonPhrase}&quot;)
+        {
+            StatusCode = statusCode;
+            ReasonPhrase = reasonPhrase;
+            Etag = eTag;
+            Error = error;
+        }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[11,30,11,34,0],[11,35,11,39,0],[17,28,17,32,0],[17,33,17,37,0]]);
+      highlightRanges([[11,44,11,48,0],[11,49,11,61,1],[12,38,12,42,0],[12,43,12,55,1],[14,30,14,34,0],[14,35,14,47,1],[16,31,16,35,1],[16,36,16,48,1],[20,13,20,14,1],[22,17,22,18,1],[23,21,23,80,1],[25,17,25,22,0],[26,17,26,18,0],[27,21,27,33,0],[29,13,29,14,1],[32,110,32,158,1],[33,9,33,10,1],[34,13,34,37,1],[35,13,35,41,1],[36,13,36,25,1],[37,13,37,27,1],[38,9,38,10,1]]);
     </script>
   </body>
 </html>
