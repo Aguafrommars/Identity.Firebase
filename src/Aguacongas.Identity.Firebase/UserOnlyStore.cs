@@ -92,8 +92,8 @@ namespace Aguacongas.Identity.Firebase
                 }
 
                 var results = Task.WhenAll(taskList).GetAwaiter().GetResult();
-
-                return results.Where(u => u != null).AsQueryable();
+                var users = new List<TUser>(results.Where(u => u != null));
+                return users.AsQueryable();
             }
         }
 

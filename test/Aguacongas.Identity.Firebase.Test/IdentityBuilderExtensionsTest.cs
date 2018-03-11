@@ -21,7 +21,7 @@ namespace Aguacongas.Identity.Firebase.Test
 
             var services = new ServiceCollection();
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddFirebaseStores("http:test", options =>
+                .AddFirebaseStores("http://test", options =>
                 {
                     configuration.GetSection("AuthTokenOptions").Bind(options);
                 });

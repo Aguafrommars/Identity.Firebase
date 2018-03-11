@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Reflection;
 using Aguacongas.Firebase;
+using Aguacongas.Firebase.Http;
 using Aguacongas.Firebase.TokenManager;
 using Aguacongas.Identity.Firebase;
 using Google.Apis.Auth.OAuth2;
@@ -30,10 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, ITokenAccess> getTokenAccess)
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddScoped<HttpClient>()
-                .AddScoped<IFirebaseClient>(provider => new FirebaseClient(provider.GetRequiredService<HttpClient>(), provider.GetRequiredService<IFirebaseTokenManager>(), url, new JsonSerializerSettings()))
-                .AddScoped<IFirebaseTokenManager, AuthTokenManager>()
-                .AddSingleton(getTokenAccess);
+            builder.Services.AddFirebaseClient(url, getTokenAccess);
 
             return builder;
         }
@@ -48,9 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager)
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddScoped<HttpClient>()
-                .AddScoped<IFirebaseClient>(provider => new FirebaseClient(provider.GetRequiredService<HttpClient>(), provider.GetRequiredService<IFirebaseTokenManager>(), url, new JsonSerializerSettings()))
-                .AddSingleton(provider => getTokenManager(provider));
+            builder.Services.AddFirebaseClient(url, getTokenManager);
 
             return builder;
         }

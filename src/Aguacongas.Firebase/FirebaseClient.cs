@@ -7,27 +7,20 @@ using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase
 {
-    public class FirebaseClient : IFirebaseClient, IDisposable
+    public class FirebaseClient : IFirebaseClient
     {
         private readonly HttpClient _httpClient;
-        private readonly string _url;
-        private readonly IFirebaseTokenManager _tokenManager;
         private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, IOptions<FirebaseOptions> options):
-            this(httpClient, tokenManager, options?.Value?.DatabaseUrl, options?.Value?.JsonSerializerSettings)
-        { }
-
-        public FirebaseClient(HttpClient httpClient, IFirebaseTokenManager tokenManager, string url, JsonSerializerSettings jsonSerializerSettings)
+        public FirebaseClient(IHttpClientFactory httpClientFactory, FirebaseOptions options)
         {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
-            _url = url ?? throw new ArgumentNullException(nameof(url));
-
-            if (!_url.EndsWith("/"))
+            if (httpClientFactory == null)
             {
-                _url = _url + "/";
+                throw new ArgumentNullException(nameof(httpClientFactory));
             }
+            _httpClient = httpClientFactory.CreateClient(options.DatabaseName);
+            _httpClient.BaseAddress = new Uri(options.DatabaseUrl);
+            _jsonSerializerSettings = options.JsonSerializerSettings;
         }
 
         public async Task<FirebaseResponse<string>> PostAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
@@ -67,7 +60,7 @@ namespace Aguacongas.Firebase
 
         public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod("DELETE"), await GetFirebaseUrl(url, cancellationToken));
+            var message = new HttpRequestMessage(new HttpMethod("DELETE"), GetFirebaseUrl(url, cancellationToken));
             message.Headers.SetIfMath(etag);
             message.Headers.SetRequestEtag(requestEtag);
 
@@ -85,7 +78,7 @@ namespace Aguacongas.Firebase
 
         private async Task<FirebaseResponse<T>> SendFirebaseRequest<T>(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod(method), await GetFirebaseUrl(url, cancellationToken, queryString))
+            var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, cancellationToken, queryString))
             {
                 Content = content
             };
@@ -103,7 +96,7 @@ namespace Aguacongas.Firebase
             }
         }
 
-        private async Task<string> GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
+        private Uri GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -116,46 +109,19 @@ namespace Aguacongas.Firebase
                 sanetizedUrl = url + ".json";
             }
 
-            while (sanetizedUrl.StartsWith("/"))
+            var baseAddress = _httpClient.BaseAddress;
+            var builder = new UriBuilder(baseAddress.Scheme, baseAddress.Host, baseAddress.Port, sanetizedUrl)
             {
-                sanetizedUrl = sanetizedUrl.Substring(1);
-            }
+                Query = queryString
+            };
 
-            var result = $"{_url}{sanetizedUrl}?{_tokenManager.AuthParamName}={await _tokenManager.GetTokenAsync(cancellationToken)}";
-            if(!string.IsNullOrEmpty(queryString))
-            {
-                result += "&" + queryString; 
-            }
-            return result;
+            
+            return builder.Uri;
         }
 
         class PostResponse
         {
             public string Name { get; set; }
         }
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _httpClient.Dispose();
-                    _tokenManager.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-        #endregion
     }
 }

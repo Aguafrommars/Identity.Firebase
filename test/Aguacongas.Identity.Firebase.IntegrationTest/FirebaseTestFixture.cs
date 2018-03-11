@@ -1,12 +1,7 @@
 ﻿using Aguacongas.Firebase;
-using Aguacongas.Firebase.TokenManager;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
-using System.Text;
 
 namespace Aguacongas.Identity.Firebase.IntegrationTest
 {
