@@ -16,7 +16,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             var builder = new ConfigurationBuilder();
             Configuration = builder.AddUserSecrets<UserStoreTest>()
                 .AddEnvironmentVariables()
-                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\testsettings.json"))
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "../../../../testsettings.json"))
                 .Build();
 
             FirebaseOptions = new FirebaseOptions();
