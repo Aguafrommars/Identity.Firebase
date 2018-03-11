@@ -21,13 +21,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection.</param>
         /// <param name="configure">An action to configure a FirebaseOptions</param>
         /// <param name="getTokenAccess">A fonction to create the ITokenAccess</param>
-        /// <param name="databaseName">The logical name of the System.Net.Http.HttpClient to configure</param>
+        /// <param name="httpClientName">The logical name of the System.Net.Http.HttpClient to configure</param>
         /// <returns>An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.</returns>
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action<FirebaseOptions> configure, Func<IServiceProvider, ITokenAccess> getTokenAccess, string databaseName = "firebase")
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action<FirebaseOptions> configure, Func<IServiceProvider, ITokenAccess> getTokenAccess, string httpClientName = "firebase")
         {
-            return services.AddHttpMiddleware(configure, databaseName)
-                .AddTransient<IFirebaseTokenManager, AuthTokenManager>()
+            return services.AddHttpMiddleware(configure, httpClientName)
+                .AddTransient<IFirebaseTokenManager, OAuthTokenManager>()
                 .AddSingleton(getTokenAccess);
         }
 
@@ -38,16 +38,16 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection.</param>
         /// <param name="url">The firebase url</param>
         /// <param name="getTokenAccess">A fonction to create the ITokenAccess</param>
-        /// <param name="databaseName">The logical name of the System.Net.Http.HttpClient to configure</param>
+        /// <param name="httpClientName">The logical name of the System.Net.Http.HttpClient to configure</param>
         /// <returns>An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.</returns>
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func<IServiceProvider, ITokenAccess> getTokenAccess, string databaseName = "firebase")
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func<IServiceProvider, ITokenAccess> getTokenAccess, string httpClientName = "firebase")
         {
             return services.AddHttpMiddleware(options =>
                 {
                     options.DatabaseUrl = url;
-                }, databaseName)
-                .AddTransient<IFirebaseTokenManager, AuthTokenManager>()
+                }, httpClientName)
+                .AddTransient<IFirebaseTokenManager, OAuthTokenManager>()
                 .AddSingleton(getTokenAccess);
         }
 
@@ -58,15 +58,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection.</param>
         /// <param name="url">The firebase url</param>
         /// <param name="getTokenManager">A fonction to create the IFirebaseTokenManager</param>
-        /// <param name="databaseName">The logical name of the System.Net.Http.HttpClient to configure</param>
+        /// <param name="httpClientName">The logical name of the System.Net.Http.HttpClient to configure</param>
         /// <returns>An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.</returns>
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager, string databaseName = "firebase")
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager, string httpClientName = "firebase")
         {
             return services.AddHttpMiddleware(options =>
                 {
                     options.DatabaseUrl = url;
-                }, databaseName)
+                }, httpClientName)
                 .AddSingleton(provider => getTokenManager(provider));
         }
 
@@ -77,12 +77,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection.</param>
         /// <param name="configure">An action to configure a FirebaseOptions</param>
         /// <param name="getTokenManager">A fonction to create the IFirebaseTokenManager</param>
-        /// <param name="databaseName">The logical name of the System.Net.Http.HttpClient to configure</param>
+        /// <param name="httpClientName">The logical name of the System.Net.Http.HttpClient to configure</param>
         /// <returns>An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.</returns>
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action<FirebaseOptions> configure, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager, string databaseName = "firebase")
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action<FirebaseOptions> configure, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager, string httpClientName = "firebase")
         {
-            return services.AddHttpMiddleware(configure, databaseName)
+            return services.AddHttpMiddleware(configure, httpClientName)
                 .AddSingleton(provider => getTokenManager(provider));
         }
 
@@ -93,21 +93,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection.</param>
         /// <param name="url">The firebase url</param>
         /// <param name="configure">An action to configure FirebaseOptions</param>
-        /// <param name="databaseName">The logical name of the System.Net.Http.HttpClient to configure</param>
+        /// <param name="httpClientName">The logical name of the System.Net.Http.HttpClient to configure</param>
         /// <returns>An Microsoft.Extensions.DependencyInjection.IHttpClientBuilder that can be used
         ///     to configure the client.</returns>
-        private static IServiceCollection AddHttpMiddleware(this IServiceCollection services, Action<FirebaseOptions> configure, string databaseName = "firebase")
+        private static IServiceCollection AddHttpMiddleware(this IServiceCollection services, Action<FirebaseOptions> configure, string httpClientName = "firebase")
         {
-            services.Configure<FirebaseOptions>(databaseName, options =>
+            services.Configure<FirebaseOptions>(httpClientName, options =>
                 {
-                    options.DatabaseName = databaseName;
+                    options.HttpClientName = httpClientName;
                     configure?.Invoke(options);
                 })
                 .AddTransient<FirebaseAuthenticationHandler>()
                 .AddScoped<IFirebaseClient>(provider =>
                     new FirebaseClient(provider.GetRequiredService<IHttpClientFactory>(),
-                        provider.GetRequiredService<IOptionsSnapshot<FirebaseOptions>>().Get(databaseName)))
-                .AddHttpClient<FirebaseClient>(databaseName)
+                        provider.GetRequiredService<IOptionsSnapshot<FirebaseOptions>>().Get(httpClientName)))
+                .AddHttpClient<FirebaseClient>(httpClientName)
                 .AddHttpMessageHandler<FirebaseAuthenticationHandler>();
 
             return services;
