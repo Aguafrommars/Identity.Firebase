@@ -19,8 +19,8 @@ namespace Aguacongas.Firebase
         public string DatabaseUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the database name
+        /// Gets or sets the HttpClient name
         /// </summary>
-        internal string DatabaseName { get; set; } = "firebase";
+        internal string HttpClientName { get; set; } = "firebase";
     }
 }

@@ -1,11 +1,10 @@
 ﻿using Aguacongas.Firebase;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Aguacongas.Identity.Firebase
 {
+    /// <summary>
+    /// User indexes
+    /// </summary>
     public class UserIndex: FirebaseIndexes
     {
         public UserIndex()

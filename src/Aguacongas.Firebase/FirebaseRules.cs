@@ -1,12 +1,16 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Aguacongas.Firebase
 {
+    /// <summary>
+    /// Firebase rules
+    /// </summary>
     public class FirebaseRules
     {
+        /// <summary>
+        /// Gets or sets rules property
+        /// </summary>
         [JsonProperty(PropertyName = "rules")]
         public Dictionary<string, object> Rules { get; set; }
     }

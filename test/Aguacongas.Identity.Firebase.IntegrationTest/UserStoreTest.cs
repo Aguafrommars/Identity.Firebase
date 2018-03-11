@@ -28,14 +28,14 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override void AddUserStore(IServiceCollection services, object context = null)
         {
-            services.Configure<AuthTokenOptions>(options =>
+            services.Configure<OAuthServiceAccountKey>(options =>
             {
                 _fixture.Configuration.GetSection("AuthTokenOptions").Bind(options);
             });
 
             services.AddFirebaseClient(_fixture.Configuration["FirebaseOptions:DatabaseUrl"], provider =>
             {
-                var options = provider.GetRequiredService<IOptions<AuthTokenOptions>>();
+                var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
                 var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
                 return GoogleCredential.FromJson(json)
                     .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")

@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Aguacongas.Firebase
+﻿namespace Aguacongas.Firebase
 {
+    /// <summary>
+    /// Firebase error
+    /// </summary>
     public class FirebaseError
     {
+        /// <summary>
+        /// Gets or sets the error
+        /// </summary>
         public string Error { get; set; }
     }
 }
