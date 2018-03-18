@@ -18,15 +18,11 @@ namespace Aguacongas.Firebase
         /// <summary>
         /// Create a new instance of <see cref="FirebaseClient"/>
         /// </summary>
-        /// <param name="httpClientFactory">The <see cref="IHttpClientFactory"/></param>
+        /// <param name="httpClient">The <see cref="HttpClient"/></param>
         /// <param name="options">A <see cref="FirebaseOptions"/></param>
-        public FirebaseClient(IHttpClientFactory httpClientFactory, FirebaseOptions options)
+        public FirebaseClient(HttpClient httpClient, FirebaseOptions options)
         {
-            if (httpClientFactory == null)
-            {
-                throw new ArgumentNullException(nameof(httpClientFactory));
-            }
-            _httpClient = httpClientFactory.CreateClient(options.HttpClientName);
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.BaseAddress = new Uri(options.DatabaseUrl);
             _jsonSerializerSettings = options.JsonSerializerSettings;
         }

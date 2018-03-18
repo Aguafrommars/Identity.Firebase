@@ -192,11 +192,7 @@ namespace Aguacongase.Identity.Firebase.Test
 
             var client = new HttpClient(new FirebaseAuthenticationHandler(tokenManager, new DelegatingHandlerStub(handlerFunc)));
 
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-            httpClientFactoryMock.Setup(m => m.CreateClient(It.IsAny<string>()))
-                   .Returns(client);
-
-            return new FirebaseClient(httpClientFactoryMock.Object, new FirebaseOptions { DatabaseUrl = "http://test" } );
+            return new FirebaseClient(client, new FirebaseOptions { DatabaseUrl = "http://test" } );
         }
     }
 }
