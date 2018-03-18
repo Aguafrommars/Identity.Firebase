@@ -1,4 +1,4 @@
-# 2.0.0-beta.1 (Mar. 11 2018)
+# 2.0.0-beta.1 (Mar. 18 2018)
 
 Tooks advantage of new HttpClientFactory
 
