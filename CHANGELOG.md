@@ -10,7 +10,7 @@ Tooks advantage of new HttpClientFactory
 
 ## Breaking changes
 
-* FirebaseClient constructor takes an IHttpClientFactory and a FirebaseOptions instances
+* FirebaseClient constructor takes an HttpClient and a FirebaseOptions instances
 * New DelegatingHandler, FirebaseAuthenticationHandler to manage authentication. Authentication is now manage by this handler
 * AuthRequest renamed EmailPasswordAuthRequest
 * AuthTokenManager renamed OAuthTokenManager
