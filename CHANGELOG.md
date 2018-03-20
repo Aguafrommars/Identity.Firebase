@@ -18,22 +18,6 @@ Takes advantage of new [HttpClientFactory](https://github.com/aspnet/HttpClientF
 * AuthTokenManager renamed OAuthTokenManager
 * IFirebaseTokenManager doesn't extends IDisposable anymore
 
-## Improvements
-
-* Tooks advantage of new HttpClientFactory. The underlying HttpClient is created with a named instance
-* New IServiceCollection extensions methods
-* Better code documentation
-
-## Breaking changes
-
-* FirebaseClient constructor takes an HttpClient and a FirebaseOptions instances
-* New DelegatingHandler, FirebaseAuthenticationHandler to manage authentication. Authentication is now manage by this handler
-* AuthRequest renamed EmailPasswordAuthRequest
-* AuthTokenManager renamed OAuthTokenManager
-* AuthOptions renamed OAuthServiceAccountKey
-* AuthTokenManager renamed OAuthTokenManager
-* IFirebaseTokenManager doesn't extends IDisposable anymore
-
 # 1.1.1 (Mar. 02 2018)
 
 ## Bug Fixe  
