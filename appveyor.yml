@@ -5,7 +5,7 @@ branches:
   - gh-pages
 image: 
 - Ubuntu
-- Visual Studio 2017
+- Visual Studio 2017 Preview
 environment:
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
