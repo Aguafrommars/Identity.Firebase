@@ -1,10 +1,10 @@
 # 2.0.0-beta.1 (Mar. 18 2018)
 
-Tooks advantage of new HttpClientFactory
+Takes advantage of new [HttpClientFactory](https://github.com/aspnet/HttpClientFactory)
 
 ## Improvements
 
-* Tooks advantage of new HttpClientFactory. The underlying HttpClient is created with a named instance
+* Takes advantage of new [HttpClientFactory](https://github.com/aspnet/HttpClientFactory). The underlying HttpClient is created with a named instance
 * New IServiceCollection extensions methods
 * Better code documentation
 
