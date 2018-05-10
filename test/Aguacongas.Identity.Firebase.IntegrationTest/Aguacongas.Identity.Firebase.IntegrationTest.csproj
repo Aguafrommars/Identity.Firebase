@@ -21,8 +21,4 @@
     <ProjectReference Include="..\..\src\Aguacongas.Identity.Firebase\Aguacongas.Identity.Firebase.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
-  </ItemGroup>
-
 </Project>
