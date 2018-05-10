@@ -13,11 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Auth" Version="1.32.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.0-preview2-final" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.33.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.0-rc1-final" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0-preview2-final" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.0-preview2-final" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0-rc1-final" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.0-rc1-final" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
