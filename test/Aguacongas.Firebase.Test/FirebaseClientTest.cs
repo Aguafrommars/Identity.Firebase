@@ -53,7 +53,7 @@ namespace Aguacongase.Identity.Firebase.Test
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.ToString());
+                Assert.Equal("http://test/test.json?auth=%5BID_TOKEN%5D", request.RequestUri.ToString());
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent("{\"name\": \"test\"}")
@@ -83,7 +83,7 @@ namespace Aguacongase.Identity.Firebase.Test
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.ToString());
+                Assert.Equal("http://test/test.json?auth=%5BID_TOKEN%5D", request.RequestUri.ToString());
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(JsonConvert.SerializeObject("test"))
@@ -114,7 +114,7 @@ namespace Aguacongase.Identity.Firebase.Test
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.ToString());
+                Assert.Equal("http://test/test.json?auth=%5BID_TOKEN%5D", request.RequestUri.ToString());
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(JsonConvert.SerializeObject("test"))
@@ -133,7 +133,7 @@ namespace Aguacongase.Identity.Firebase.Test
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
-                Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.ToString());
+                Assert.Equal("http://test/test.json?auth=%5BID_TOKEN%5D", request.RequestUri.ToString());
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(JsonConvert.SerializeObject(null))
@@ -149,7 +149,7 @@ namespace Aguacongase.Identity.Firebase.Test
         {
             var sut = CreateSut((request, cancellationToken) =>
              {
-                 Assert.Equal("http://test/test.json?auth=[ID_TOKEN]", request.RequestUri.ToString());
+                 Assert.Equal("http://test/test.json?auth=%5BID_TOKEN%5D", request.RequestUri.ToString());
                  return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                  {
                      Content = new StringContent(JsonConvert.SerializeObject(null))
