@@ -1,6 +1,11 @@
 version: 1.0.{build}
 skip_tags: true
-image: Visual Studio 2017
+branches:
+  except:
+  - gh-pages
+image: 
+- Ubuntu
+- Visual Studio 2017
 environment:
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
@@ -25,29 +30,40 @@ environment:
 init:
     - cmd: git config --global core.autocrlf true
 install:
+    - sh: wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+    - sh: sudo dpkg -i packages-microsoft-prod.deb
+    - sh: sudo apt-get -y install apt-transport-https
+    - sh: sudo apt-get update
+    - sh: sudo apt-get -y install dotnet-sdk-2.1
+    - sh: sudo apt -y install nuget
+    - sh: nuget install GitVersion.CommandLine -ExcludeVersion
+    - sh: mono GitVersion.CommandLine/tools/GitVersion.exe /l console /output buildserver
     - cmd: gitversion /l console /output buildserver
-    - cmd: nuget install secure-file -ExcludeVersion
+    - cmd: nuget install JetBrains.dotCover.CommandLineTools -ExcludeVersion
+    - cmd: nuget install ReportGenerator -ExcludeVersion
+    - nuget install secure-file -ExcludeVersion
     - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
-    - cmd: dotnet restore
+    - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
+    - dotnet restore
 build_script:
-    - cmd: msbuild src\Aguacongas.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
-    - cmd: msbuild src\Aguacongas.Identity.Firebase /t:Pack /p:Version="%GITVERSION_NuGetVersion%" /p:FileVersion="%GITVERSION_AssemblySemVer%" /p:AssemblyVersion="%GITVERSION_AssemblySemVer%" /p:Configuration=Release
+- ps: ./build.ps1
 test_script:
-    - cmd: cover.cmd
+- cmd: publish.cmd
 artifacts:
-    - path: src/**/*.nupkg
+    - path: artifacts/**/*.nupkg
       name: nuget    
 on_success:
-    - git config --global credential.helper store
-    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-    - git config --global user.email "aguacongas@gmail.com"
-    - git config --global user.name "Aguacongas"
-    - git checkout gh-pages
-    - rmdir /S /Q latest
-    - move coverage\docs latest
-    - git add latest
-    - git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
-    - git push
+    - cmd: git config --global credential.helper store
+    - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
+    - cmd: git config --global user.email "aguacongas@gmail.com"
+    - cmd: git config --global user.name "Aguacongas"
+    - cmd: git stash
+    - cmd: git checkout gh-pages
+    - cmd: IF EXIST latest ( rmdir /S /Q latest )
+    - cmd: move coverage\docs latest
+    - cmd: git add latest
+    - cmd: git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+    - cmd: git push
 deploy:
     - provider: NuGet
       api_key:
@@ -56,40 +72,44 @@ deploy:
         branch: 
             - master
             - /release*/
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - provider: GitHub
       auth_token:
         secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
-      draft: false
+      draft: true
       prerelease: true
       release: $(GitVersion_SemVer)
       on:
         branch: 
             - /release*/
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - provider: GitHub
       auth_token:
         secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
-      draft: false
-      prerelease: true
+      draft: true
+      prerelease: false
       release: $(GitVersion_SemVer)
       on:
-        branch: 
+        branch:             
             - master
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 for:
 -
   branches:
     only:
       - master
   on_success:
-      - git config --global credential.helper store
-      - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-      - git config --global user.email "aguacongas@gmail.com"
-      - git config --global user.name "Aguacongas"
-      - git checkout gh-pages
-      - mkdir %GITVERSION_NuGetVersion%
-      - move coverage\docs %GITVERSION_NuGetVersion%
-      - git add %GITVERSION_NuGetVersion%
-      - git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
-      - git push
+      - cmd: git config --global credential.helper store
+      - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
+      - cmd: git config --global user.email "aguacongas@gmail.com"
+      - cmd: git config --global user.name "Aguacongas"
+      - cmd: git checkout gh-pages
+      - cmd: git stash
+      - cmd: mkdir %GITVERSION_NuGetVersion%
+      - cmd: move coverage\docs %GITVERSION_NuGetVersion%
+      - cmd: git add %GITVERSION_NuGetVersion%
+      - cmd: git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+      - cmd: git push
 -
   branches:
     except:

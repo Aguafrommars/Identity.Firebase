@@ -28,32 +28,24 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override void AddUserStore(IServiceCollection services, object context = null)
         {
-            services.Configure<AuthTokenOptions>(options =>
+            services.Configure<OAuthServiceAccountKey>(options =>
             {
                 _fixture.Configuration.GetSection("AuthTokenOptions").Bind(options);
             });
 
-            services.Configure<FirebaseOptions>(options =>
+            services.AddFirebaseClient(_fixture.Configuration["FirebaseOptions:DatabaseUrl"], provider =>
             {
-                options.DatabaseUrl = _fixture.FirebaseOptions.DatabaseUrl;
+                var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
+                var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
+                return GoogleCredential.FromJson(json)
+                    .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
+                    .UnderlyingCredential;
             });
 
             var userType = typeof(TestUser);
             var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
             services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetService<IdentityErrorDescriber>()));
             services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
-
-            services.AddSingleton<HttpClient>()
-                .AddSingleton<IFirebaseClient, FirebaseClient>()
-                .AddSingleton<IFirebaseTokenManager, AuthTokenManager>()
-                .AddSingleton<ITokenAccess>(provider =>
-                {
-                    var options = provider.GetRequiredService<IOptions<AuthTokenOptions>>();
-                    var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
-                    return GoogleCredential.FromJson(json)
-                        .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
-                        .UnderlyingCredential;
-                });
         }
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)
@@ -95,9 +87,9 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override Expression<Func<TestRole, bool>> RoleNameEqualsPredicate(string roleName) => r => r.Name == roleName;
 
-        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name.StartsWith(roleName);
+        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name != null && r.Name.StartsWith(roleName);
 
-        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName.StartsWith(userName);
+        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName != null &&  u.UserName.StartsWith(userName);
 
         [Fact]
         [Trait("firebase", "firebase")]

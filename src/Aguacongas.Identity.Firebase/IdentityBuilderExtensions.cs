@@ -1,9 +1,3 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
-using System;
-using System.Net.Http;
-using System.Reflection;
 using Aguacongas.Firebase;
 using Aguacongas.Firebase.TokenManager;
 using Aguacongas.Identity.Firebase;
@@ -12,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,14 +22,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
         /// <param name="url">Firebase url</param>
         /// <param name="getTokenAccess"><see cref="ITokenAccess"/> factory function</param>
+        /// <param name="httpClientName">The name of HttpClient</param>
         /// <returns>The <see cref="IdentityBuilder"/> instance this method extends.</returns>
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, ITokenAccess> getTokenAccess)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, ITokenAccess> getTokenAccess, string httpClientName = "Aguacongas.Identity.Firebase")
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddScoped<HttpClient>()
-                .AddScoped<IFirebaseClient>(provider => new FirebaseClient(provider.GetRequiredService<HttpClient>(), provider.GetRequiredService<IFirebaseTokenManager>(), url, new JsonSerializerSettings()))
-                .AddScoped<IFirebaseTokenManager, AuthTokenManager>()
-                .AddSingleton(getTokenAccess);
+            builder.Services.AddFirebaseClient(url, getTokenAccess, httpClientName);
 
             return builder;
         }
@@ -44,13 +38,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
         /// <param name="url">Firebase url</param>
         /// <param name="getTokenManager"><see cref="IFirebaseTokenManager"/> factory function</param>
+        /// <param name="httpClientName">The name of HttpClient</param>
         /// <returns>The <see cref="IdentityBuilder"/> instance this method extends.</returns>
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Func<IServiceProvider, IFirebaseTokenManager> getTokenManager, string httpClientName = "Aguacongas.Identity.Firebase")
         {
             AddStores(builder.Services, builder.UserType, builder.RoleType);
-            builder.Services.AddScoped<HttpClient>()
-                .AddScoped<IFirebaseClient>(provider => new FirebaseClient(provider.GetRequiredService<HttpClient>(), provider.GetRequiredService<IFirebaseTokenManager>(), url, new JsonSerializerSettings()))
-                .AddSingleton(provider => getTokenManager(provider));
+            builder.Services.AddFirebaseClient(url, getTokenManager, httpClientName);
 
             return builder;
         }
@@ -61,20 +54,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
         /// <param name="url">Firebase url</param>
         /// <param name="configure">Action to configure AuthTokenOptions</param>
+        /// <param name="httpClientName">The name of HttpClient</param>
         /// <returns>The <see cref="IdentityBuilder"/> instance this method extends.</returns>
-        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Action<AuthTokenOptions> configure)
+        public static IdentityBuilder AddFirebaseStores(this IdentityBuilder builder, string url, Action<OAuthServiceAccountKey> configure, string httpClientName = "Aguacongas.Identity.Firebase")
         {
             builder.Services.Configure(configure);
 
             return builder
                 .AddFirebaseStores(url, provider =>
                 {
-                    var options = provider.GetRequiredService<IOptions<AuthTokenOptions>>();
+                    var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
                     var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
                     return GoogleCredential.FromJson(json)
                         .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
                         .UnderlyingCredential;
-                });
+                }, httpClientName);
         }
 
         private static void AddStores(IServiceCollection services, Type userType, Type roleType)
