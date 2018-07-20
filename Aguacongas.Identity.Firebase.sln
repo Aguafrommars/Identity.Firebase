@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{66F9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentitySample.Mvc", "samples\IdentitySample.Mvc\IdentitySample.Mvc.csproj", "{2149234A-93E9-46C4-8C7E-DEA3BB3D5E65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aguacongas.Firebase.Authentication", "src\Aguacongas.Firebase.Authentication\Aguacongas.Firebase.Authentication.csproj", "{9AE5AC86-C1E2-4DC3-9831-BB927D28C171}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{2149234A-93E9-46C4-8C7E-DEA3BB3D5E65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2149234A-93E9-46C4-8C7E-DEA3BB3D5E65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2149234A-93E9-46C4-8C7E-DEA3BB3D5E65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{186D392B-2330-4CED-8568-2E8CA04434A5} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
 		{C121D35C-FB16-48F8-BD20-A215FB8D1E78} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
 		{2149234A-93E9-46C4-8C7E-DEA3BB3D5E65} = {66F9719E-6DB1-476A-878C-C26884588373}
+		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171} = {C8860BFF-CF88-4368-9B29-E486606A6649}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DCB8F9E7-93CA-40BF-ADE6-55E23192FE72}
