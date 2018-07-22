@@ -1,4 +1,4 @@
-﻿using Aguacongas.Firebase;
+﻿using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Aguacongas.Identity.Firebase
+namespace Aguacongas.Identity.Firestore
 {
     /// <summary>
     /// Creates a new instance of a persistence store for roles.
@@ -21,9 +21,9 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole}"/>.
         /// </summary>
-        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
+        /// <param name="db">The <see cref="FirestoreDb"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
+        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ namespace Aguacongas.Identity.Firebase
 
         protected const string RulePath = ".settings/rules.json";
 
-        private readonly IFirebaseClient _client;
+        private readonly FirestoreDb _db;
         private bool _disposed;
 
         /// <summary>
@@ -54,22 +54,7 @@ namespace Aguacongas.Identity.Firebase
         {
             get
             {
-                var response = _client.GetAsync<Dictionary<string, object>>(GetFirebasePath(RolesTableName), queryString: "shallow=true").GetAwaiter().GetResult();
-                var roleDictionary = response.Data;
-                if (roleDictionary == null)
-                {
-                    return new List<TRole>().AsQueryable();
-                }
-
-                var taskList = new List<Task<TRole>>();
-                foreach (var key in roleDictionary.Keys)
-                {
-                    taskList.Add(FindByIdAsync(key));
-                }
-
-                var results = Task.WhenAll(taskList).GetAwaiter().GetResult();
-
-                return results.Where(r => r != null).AsQueryable();
+                throw new NotImplementedException();
             }
         }
 
@@ -77,11 +62,11 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole, TUserRole, TRoleClaim}"/>.
         /// </summary>
-        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
+        /// <param name="db">The <see cref="FirestoreDb"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null)
+        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _db = db ?? throw new ArgumentNullException(nameof(db));
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
 
@@ -98,17 +83,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            var response = await _client.PostAsync(GetFirebasePath(RolesTableName), role, cancellationToken, true);
-            role.Id = response.Data;
-            role.ConcurrencyStamp = response.Etag;
-
-            return IdentityResult.Success;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -119,26 +94,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-
-            try
-            {
-                var response = await _client.PutAsync(GetFirebasePath(RolesTableName, role.Id), role, cancellationToken, true, role.ConcurrencyStamp);
-                role.ConcurrencyStamp = response.Etag;
-            }
-            catch (FirebaseException e)
-                when(e.StatusCode == HttpStatusCode.PreconditionFailed)
-            {
-                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
-            }
-
-
-            return IdentityResult.Success;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -149,26 +105,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-
-            try
-            {
-                await _client.DeleteAsync(GetFirebasePath(RolesTableName, role.Id), cancellationToken, true, role.ConcurrencyStamp);
-            }
-            catch (FirebaseException e)
-            {
-                if (e.StatusCode == HttpStatusCode.PreconditionFailed)
-                {
-                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
-                }
-                throw;
-            }
-            return IdentityResult.Success;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -179,13 +116,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that contains the ID of the role.</returns>
         public virtual Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(role.Id);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -196,13 +127,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
         public virtual Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(role.Name);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -214,14 +139,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            role.Name = roleName;
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -232,17 +150,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         public virtual async Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            var response = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, id), cancellationToken, true);
-            var role = response.Data;
-            if (role != null)
-            {
-                role.Id = id;
-                role.ConcurrencyStamp = response.Etag;
-            }
-
-            return role;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -253,33 +161,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         public virtual async Task<TRole> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-
-            Dictionary<string, TRole> data;
-            try
-            {
-                var response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedName}\"");
-                data = response.Data;
-            }
-            catch (FirebaseException e)
-               when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
-            {
-                await SetIndex(RolesTableName, new RoleIndex(), cancellationToken);
-
-                var response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedName}\"");
-                data = response.Data;
-            }
-
-            if (data != null)
-            {
-                foreach (var kv in data)
-                {
-                    return await FindByIdAsync(kv.Key, cancellationToken);
-                }
-            }
-            return null;
-
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -290,13 +172,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
         public virtual Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(role.NormalizedName);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -308,14 +184,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            role.NormalizedName = normalizedName;
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -342,25 +211,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a role.</returns>
         public async virtual Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-
-            try
-            {
-                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
-                return response.Data.Values.Select(rc => new Claim(rc.ClaimType, rc.ClaimValue)).ToList();
-            }
-            catch (FirebaseException e)
-               when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
-            {
-                await SetIndex(RoleClaimsTableName, new RoleClaimIndex(), cancellationToken);
-
-                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
-                return response.Data.Values.Select(rc => new Claim(rc.ClaimType, rc.ClaimValue)).ToList();
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -372,17 +223,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-
-            await _client.PostAsync(GetFirebasePath(RoleClaimsTableName), CreateRoleClaim(role, claim), cancellationToken);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -394,42 +235,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-
-            Dictionary<string, TRoleClaim> claims;
-            try
-            {
-                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
-                claims = response.Data;
-            }
-            catch (FirebaseException e)
-                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
-            {
-                await SetIndex(RoleClaimsTableName, new RoleClaimIndex(), cancellationToken);
-
-                var response = await _client.GetAsync<Dictionary<string, TRoleClaim>>(GetFirebasePath(RoleClaimsTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
-                claims = response.Data;
-            }
-
-            if (claims != null)
-            {
-                foreach(var kv in claims)
-                {
-                    var roleClaim = kv.Value;
-                    if (roleClaim.ClaimType == claim.Type && roleClaim.ClaimValue == claim.Value)
-                    {
-                        await _client.DeleteAsync(GetFirebasePath(RoleClaimsTableName, kv.Key), cancellationToken);
-                    }
-                }
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -453,10 +259,7 @@ namespace Aguacongas.Identity.Firebase
 
         private async Task SetIndex(string onTable, object index, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken);
-            var rules = response.Data ?? new FirebaseRules();
-            SetIndex(rules.Rules, onTable, index);
-            await _client.PutAsync(RulePath, rules, cancellationToken);
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Aguacongas.Identity.Firebase
+namespace Aguacongas.Identity.Firestore
 {
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user type.
@@ -15,7 +15,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
-    public abstract class FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken> :
+    public abstract class FirestoreUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken> :
         IQueryableUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
@@ -37,8 +37,6 @@ namespace Aguacongas.Identity.Firebase
         private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
         private const string RecoveryCodeTokenName = "RecoveryCodes";
 
-        protected const string RulePath = ".settings/rules.json";
-
         private bool _disposed;
 
 
@@ -56,7 +54,7 @@ namespace Aguacongas.Identity.Firebase
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public FirebaseUserStoreBase(IdentityErrorDescriber describer)
+        public FirestoreUserStoreBase(IdentityErrorDescriber describer)
         {
             if (describer == null)
             {
@@ -777,7 +775,7 @@ namespace Aguacongas.Identity.Firebase
             }
 
             var tokens = await GetUserTokensAsync(user, cancellationToken);
-            var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);        
+            var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);
             if (token == null)
             {
                 tokens.Add(CreateUserToken(user, loginProvider, name, value));
@@ -1037,7 +1035,7 @@ namespace Aguacongas.Identity.Firebase
             }
         }
 
-        protected virtual string GetFirebasePath(params string[] objectPath)
+        protected virtual string GetFirestorePath(params string[] objectPath)
         {
             return string.Join("/", objectPath);
         }
@@ -1058,11 +1056,11 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
-    public abstract class FirebaseUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
-        FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
+    public abstract class FirestoreUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
+        FirestoreUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
         IUserRoleStore<TUser>
         where TUser : IdentityUser<string>
-        where TRole : IdentityRole<string> 
+        where TRole : IdentityRole<string>
         where TUserClaim : IdentityUserClaim<string>, new()
         where TUserRole : IdentityUserRole<string>, new()
         where TUserLogin : IdentityUserLogin<string>, new()
@@ -1073,7 +1071,7 @@ namespace Aguacongas.Identity.Firebase
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public FirebaseUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
+        public FirestoreUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
 
         /// <summary>
         /// Retrieves all users in the specified role.

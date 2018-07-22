@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+        <Company>Olivier Lefebvre</Company>
+        <Description>Identity stores implementation for Firestore</Description>
+        <Copyright>Olivier Lefebvre @2018</Copyright>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>identity firestore</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.1.0" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta05" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Aguacongas.Firebase.Authentication\Aguacongas.Firebase.Authentication.csproj" />
+    </ItemGroup>
+
+</Project>
