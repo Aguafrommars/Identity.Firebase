@@ -46,8 +46,8 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     /// <typeparam name="TRole">The type representing a role.</typeparam>
     public class UserStore<TUser, TRole> : UserStore<TUser, TRole, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityUserToken<string>, IdentityRoleClaim<string>>
-        where TUser : IdentityUser<string>
-        where TRole : IdentityRole<string>
+        where TUser : IdentityUser<string>, new()
+        where TRole : IdentityRole<string>, new()
     {
         /// <summary>
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, string}"/>.
@@ -69,8 +69,8 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
     public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
         FirestoreUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
-        where TUser : IdentityUser<string>
-        where TRole : IdentityRole<string>
+        where TUser : IdentityUser<string>, new()
+        where TRole : IdentityRole<string>, new()
         where TUserClaim : IdentityUserClaim<string>, new()
         where TUserRole : IdentityUserRole<string>, new()
         where TUserLogin : IdentityUserLogin<string>, new()

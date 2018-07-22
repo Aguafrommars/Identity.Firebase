@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace Aguacongas.Identity.Firestore
     /// </summary>
     /// <typeparam name="TUser">The type representing a user.</typeparam>
     public class UserOnlyStore<TUser> : UserOnlyStore<TUser, IdentityUserClaim<string>, IdentityUserLogin<string>, IdentityUserToken<string>>
-        where TUser : IdentityUser<string>
+        where TUser : IdentityUser<string>, new()
     {
         /// <summary>
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TKey}"/>.
@@ -59,7 +60,7 @@ namespace Aguacongas.Identity.Firestore
         IUserAuthenticationTokenStore<TUser>,
         IUserAuthenticatorKeyStore<TUser>,
         IUserTwoFactorRecoveryCodeStore<TUser>
-        where TUser : IdentityUser<string>
+        where TUser : IdentityUser<string>, new()
         where TUserClaim : IdentityUserClaim<string>, new()
         where TUserLogin : IdentityUserLogin<string>, new()
         where TUserToken : IdentityUserToken<string>, new()
@@ -109,9 +110,9 @@ namespace Aguacongas.Identity.Firestore
                 throw new ArgumentNullException(nameof(user));
             }
 
-            user.ConcurrencyStamp = Guid.NewGuid().ToString();
-            var response = await _users.AddAsync(user, cancellationToken);
-            user.Id = response.Id;
+            var dictionary = ToDictionary(user);
+            var response = await _users.Document(user.Id).SetAsync(dictionary, cancellationToken: cancellationToken);
+
             return IdentityResult.Success;
         }
 
@@ -160,7 +161,14 @@ namespace Aguacongas.Identity.Firestore
         /// </returns>
         public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var snapShot = await _users.WhereEqualTo("NormalizedUserName", normalizedUserName)
+                .GetSnapshotAsync();
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                return FromDictionary(document.ToDictionary());
+            }
+            return null;
         }
 
         /// <summary>
@@ -407,6 +415,36 @@ namespace Aguacongas.Identity.Firestore
         protected virtual async Task<Dictionary<string, TUserLogin>> GetUserLoginsAsync(string userId, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        protected virtual TUser FromDictionary(Dictionary<string, object> dictionary)
+        {
+            var user = new TUser();
+            var type = user.GetType();
+            foreach(var key in dictionary.Keys)
+            {
+                var property = type.GetProperty(key);
+                var value = dictionary[key];
+                if (value != null && value.GetType() != property.PropertyType)
+                {
+                    value = Convert.ChangeType(value, property.PropertyType);
+                }
+                property.SetValue(user, value);
+            }
+            return user;
+        }
+
+        protected virtual Dictionary<string, object> ToDictionary(TUser user)
+        {
+            var type = user.GetType();
+            var properties = type.GetProperties()
+                .Where(p => p.PropertyType.IsValueType || p.PropertyType == typeof(string));
+            var dictionary = new Dictionary<string, object>(properties.Count());
+            foreach(var property in properties)
+            {
+                dictionary.Add(property.Name, property.GetValue(user));
+            }
+            return dictionary;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                 .Build();
 
             FirestoreOptions = new FirestoreOptions();
-            Configuration.GetSection("FirebaseOptions").Bind(FirestoreOptions);
+            Configuration.GetSection("FirestoreOptions").Bind(FirestoreOptions);
         }
     }
 }

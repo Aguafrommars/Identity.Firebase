@@ -43,7 +43,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                     credentials.ToChannelCredentials());
                 var client = FirestoreClient.Create(channel);
                 var options = provider.GetRequiredService<IOptions<FirestoreOptions>>();
-                return FirestoreDb.Create(options.Value.Project, client: client);
+                return FirestoreDb.Create(_fixture.FirestoreOptions.Project, client: client);
             });
 
             var userType = typeof(TestUser);
