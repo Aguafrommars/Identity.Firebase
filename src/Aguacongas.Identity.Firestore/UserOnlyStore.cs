@@ -252,16 +252,6 @@ namespace Aguacongas.Identity.Firestore
             }
         }
 
-        private static Dictionary<string, object> ClaimsToDictionary(TUser user, Claim claim)
-        {
-            return new Dictionary<string, object>
-                {
-                    { "UserId",  user.Id },
-                    { "Type", claim.Type },
-                    { "Value", claim.Value }
-                };
-        }
-
         /// <summary>
         /// Replaces the <paramref name="claim"/> on the specified <paramref name="user"/>, with the <paramref name="newClaim"/>.
         /// </summary>
@@ -314,7 +304,14 @@ namespace Aguacongas.Identity.Firestore
         public override async Task AddLoginAsync(TUser user, UserLoginInfo login,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var dictionary = new Dictionary<string, object>
+            {
+                { "UserId", user.Id },
+                { "LoginProvider", login.LoginProvider },
+                { "ProviderKey", login.ProviderKey },
+                { "ProviderDisplayName", login.ProviderDisplayName }
+            };
+            await _usersLogins.AddAsync(dictionary);
         }
 
         /// <summary>
@@ -328,7 +325,15 @@ namespace Aguacongas.Identity.Firestore
         public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            await _db.RunTransactionAsync(async transaction =>
+            {
+                var snapShot = await _usersLogins.WhereEqualTo("UserId", user.Id)
+                    .WhereEqualTo("LoginProvider", loginProvider)
+                    .WhereEqualTo("ProviderKey", providerKey)
+                    .GetSnapshotAsync(cancellationToken);
+                var document = snapShot.Documents.First();
+                transaction.Delete(document.Reference);
+            });
         }
 
         /// <summary>
@@ -341,7 +346,17 @@ namespace Aguacongas.Identity.Firestore
         /// </returns>
         public async override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var snapShot = await _usersLogins.WhereEqualTo("UserId", user.Id)
+                .GetSnapshotAsync(cancellationToken);
+            var documents = snapShot.Documents;
+            var list = new List<UserLoginInfo>(documents.Count);
+            foreach(var doc in documents)
+            {
+                list.Add(new UserLoginInfo(doc.GetValue<string>("LoginProvider"),
+                    doc.GetValue<string>("ProviderKey"),
+                    doc.GetValue<string>("ProviderDisplayName")));
+            }
+            return list;
         }
 
         /// <summary>
@@ -545,6 +560,16 @@ namespace Aguacongas.Identity.Firestore
                 dictionary.Add(property.Name, property.GetValue(user));
             }
             return dictionary;
+        }
+
+        protected virtual Dictionary<string, object> ClaimsToDictionary(TUser user, Claim claim)
+        {
+            return new Dictionary<string, object>
+                {
+                    { "UserId",  user.Id },
+                    { "Type", claim.Type },
+                    { "Value", claim.Value }
+                };
         }
     }
 }
