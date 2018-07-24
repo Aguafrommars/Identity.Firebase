@@ -83,7 +83,8 @@ namespace Aguacongas.Identity.Firestore
         {
             get
             {
-                throw new NotImplementedException();
+                var documents = _users.GetSnapshotAsync().GetAwaiter().GetResult();
+                return documents.Select(d => FromDictionary<TUser>(d.ToDictionary())).AsQueryable();
             }
         }
 
@@ -141,14 +142,14 @@ namespace Aguacongas.Identity.Firestore
             return await _db.RunTransactionAsync(async transaction =>
                {
                    var userRef = _users.Document(user.Id);
-                   var snapShot = await transaction.GetSnapshotAsync(userRef);
+                   var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
                    if (snapShot.GetValue<string>("ConcurrencyStamp") != user.ConcurrencyStamp)
                    {
                        return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
                    }
                    transaction.Update(userRef, dictionary);
                    return IdentityResult.Success;
-               });
+               }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -169,14 +170,14 @@ namespace Aguacongas.Identity.Firestore
             return await _db.RunTransactionAsync(async transaction =>
             {
                 var userRef = _users.Document(user.Id);
-                var snapShot = await transaction.GetSnapshotAsync(userRef);
+                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
                 if (snapShot.GetValue<string>("ConcurrencyStamp") != user.ConcurrencyStamp)
                 {
                     return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
                 }
                 transaction.Delete(userRef);
                 return IdentityResult.Success;
-            });
+            }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -189,10 +190,10 @@ namespace Aguacongas.Identity.Firestore
         /// </returns>
         public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var snapShot = await _users.Document(userId).GetSnapshotAsync();
+            var snapShot = await _users.Document(userId).GetSnapshotAsync(cancellationToken);
             if (snapShot != null)
             {
-                return FromDictionary(snapShot.ToDictionary());
+                return FromDictionary<TUser>(snapShot.ToDictionary());
             }
 
             return null;
@@ -209,11 +210,12 @@ namespace Aguacongas.Identity.Firestore
         public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var snapShot = await _users.WhereEqualTo("NormalizedUserName", normalizedUserName)
-                .GetSnapshotAsync();
-            var document = snapShot.Documents.FirstOrDefault();
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents
+                .FirstOrDefault();
             if (document != null)
             {
-                return FromDictionary(document.ToDictionary());
+                return FromDictionary<TUser>(document.ToDictionary());
             }
             return null;
         }
@@ -227,13 +229,10 @@ namespace Aguacongas.Identity.Firestore
         public async override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
-                .GetSnapshotAsync();
-            var claims = new List<Claim>(snapShot.Count);
-            foreach(var document in snapShot.Documents)
-            {
-                claims.Add(new Claim(document.GetValue<string>("Type"), document.GetValue<string>("Value")));
-            }
-            return claims;
+                .GetSnapshotAsync(cancellationToken);
+            return snapShot.Documents
+                .Select(d => new Claim(d.GetValue<string>("Type"), d.GetValue<string>("Value")))
+                .ToList();
         }
 
         /// <summary>
@@ -248,7 +247,7 @@ namespace Aguacongas.Identity.Firestore
             foreach(var claim in claims)
             {
                 Dictionary<string, object> dictionary = ClaimsToDictionary(user, claim);
-                await _usersClaims.AddAsync(dictionary);
+                await _usersClaims.AddAsync(dictionary, cancellationToken);
             }
         }
 
@@ -266,10 +265,10 @@ namespace Aguacongas.Identity.Firestore
             {
                 var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
                     .WhereEqualTo("Type", claim.Type)
-                    .GetSnapshotAsync();
+                    .GetSnapshotAsync(cancellationToken);
                 var document = snapShot.Documents.First();
                 transaction.Update(document.Reference, ClaimsToDictionary(user, newClaim));
-            });
+            }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -287,11 +286,11 @@ namespace Aguacongas.Identity.Firestore
                 {
                     var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
                         .WhereEqualTo("Type", claim.Type)
-                        .GetSnapshotAsync();
+                        .GetSnapshotAsync(cancellationToken);
                     var document = snapShot.Documents.First();
                     transaction.Delete(document.Reference);
                 }
-            });
+            }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -311,7 +310,7 @@ namespace Aguacongas.Identity.Firestore
                 { "ProviderKey", login.ProviderKey },
                 { "ProviderDisplayName", login.ProviderDisplayName }
             };
-            await _usersLogins.AddAsync(dictionary);
+            await _usersLogins.AddAsync(dictionary, cancellationToken);
         }
 
         /// <summary>
@@ -333,7 +332,7 @@ namespace Aguacongas.Identity.Firestore
                     .GetSnapshotAsync(cancellationToken);
                 var document = snapShot.Documents.First();
                 transaction.Delete(document.Reference);
-            });
+            }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -393,11 +392,11 @@ namespace Aguacongas.Identity.Firestore
         public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
         {
             var snapShot = await _users.WhereEqualTo("NormalizedEmail", normalizedEmail)
-                .GetSnapshotAsync();
+                .GetSnapshotAsync(cancellationToken);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
-                return FromDictionary(document.ToDictionary());
+                return FromDictionary<TUser>(document.ToDictionary());
             }
             return null;
         }
@@ -412,7 +411,17 @@ namespace Aguacongas.Identity.Firestore
         /// </returns>
         public async override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var snapShot = await _usersClaims.WhereEqualTo("Type", claim.Type)
+                .WhereEqualTo("Value", claim.Value)
+                .GetSnapshotAsync(cancellationToken);
+            var documents = snapShot.Documents;
+            var list = new ConcurrentBag<TUser>();
+            Parallel.ForEach(documents, async document =>
+            {
+                var user = await FindByIdAsync(document.GetValue<string>("UserId"));
+                list.Add(user);
+            });
+            return list.ToList();
         }
 
         /// <summary>
@@ -484,12 +493,16 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The user login if it exists.</returns>
         protected override async Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            var data = await GetUserLoginsAsync(userId, cancellationToken);
-            if (data != null)
+            var snapShot = await _usersLogins.WhereEqualTo("UserId", userId)
+                .WhereEqualTo("LoginProvider", loginProvider)
+                .WhereEqualTo("ProviderKey", providerKey)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
             {
-                return data.Values.FirstOrDefault(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey);
+                return FromDictionary<TUserLogin>(document.ToDictionary());
             }
-            return null;
+            return default(TUserLogin);
         }
 
         /// <summary>
@@ -501,7 +514,15 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The user login if it exists.</returns>
         protected override async Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var snapShot = await _usersLogins.WhereEqualTo("LoginProvider", loginProvider)
+                    .WhereEqualTo("ProviderKey", providerKey)
+                    .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                return FromDictionary<TUserLogin>(document.ToDictionary());
+            }
+            return default(TUserLogin);
         }
 
         /// <summary>
@@ -512,7 +533,11 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>User tokens.</returns>
         protected override async Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var snapShot = await _usersTokens.WhereEqualTo("UserId", user.Id)
+                .GetSnapshotAsync(cancellationToken);
+            return snapShot.Documents
+                .Select(d => FromDictionary<TUserToken>(d.ToDictionary()))
+                .ToList();
         }
 
         /// <summary>
@@ -524,40 +549,69 @@ namespace Aguacongas.Identity.Firestore
         /// <returns></returns>
         protected override async Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            foreach(var token in tokens)
+            {
+                var snapShop = await _usersTokens.WhereEqualTo("UserId", token.UserId)
+                    .WhereEqualTo("LoginProvider", token.LoginProvider)
+                    .WhereEqualTo("Name", token.Name)
+                    .GetSnapshotAsync(cancellationToken);
+                var document = snapShop.Documents.FirstOrDefault();
+                if (document != null)
+                {
+                    await _usersTokens.Document(document.Id).SetAsync(ToDictionary(token), cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    await _usersTokens.AddAsync(ToDictionary(token), cancellationToken);
+                }
+            }
         }
 
-        protected virtual async Task<Dictionary<string, TUserLogin>> GetUserLoginsAsync(string userId, CancellationToken cancellationToken)
+        protected virtual T FromDictionary<T>(Dictionary<string, object> dictionary) where T: new()
         {
-            throw new NotImplementedException();
-        }
-
-        protected virtual TUser FromDictionary(Dictionary<string, object> dictionary)
-        {
-            var user = new TUser();
+            if (dictionary == null)
+            {
+                return default(T);
+            }
+            var user = new T();
             var type = user.GetType();
             foreach (var key in dictionary.Keys)
             {
                 var property = type.GetProperty(key);
                 var value = dictionary[key];
-                if (value != null && value.GetType() != property.PropertyType)
+                var valueType = value?.GetType();
+                if (value != null && valueType != property.PropertyType)
                 {
-                    value = Convert.ChangeType(value, property.PropertyType);
+                    if (valueType == typeof(Timestamp))
+                    {                        
+                        if (property.PropertyType == typeof(DateTimeOffset) || property.PropertyType == typeof(DateTimeOffset?))
+                        {
+                            value = ((Timestamp)value).ToDateTimeOffset();
+                        }
+                        else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                        {
+                            value = ((Timestamp)value).ToDateTime();
+                        }
+                    }
+                    else
+                    {
+                        value = Convert.ChangeType(value, property.PropertyType);
+                    }
                 }
                 property.SetValue(user, value);
             }
             return user;
         }
 
-        protected virtual Dictionary<string, object> ToDictionary(TUser user)
+        protected virtual Dictionary<string, object> ToDictionary<T>(T obj)
         {
-            var type = user.GetType();
+            var type = obj.GetType();
             var properties = type.GetProperties()
                 .Where(p => p.PropertyType.IsValueType || p.PropertyType == typeof(string));
             var dictionary = new Dictionary<string, object>(properties.Count());
             foreach (var property in properties)
             {
-                dictionary.Add(property.Name, property.GetValue(user));
+                dictionary.Add(property.Name, property.GetValue(obj));
             }
             return dictionary;
         }

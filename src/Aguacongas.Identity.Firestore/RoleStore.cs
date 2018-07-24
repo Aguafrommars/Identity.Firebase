@@ -42,9 +42,9 @@ namespace Aguacongas.Identity.Firestore
         private const string RolesTableName = "roles";
         private const string RoleClaimsTableName = "role-claims";
 
-        protected const string RulePath = ".settings/rules.json";
-
         private readonly FirestoreDb _db;
+        private readonly CollectionReference _roles;
+        private readonly CollectionReference _roleClaims;
         private bool _disposed;
 
         /// <summary>
@@ -67,6 +67,8 @@ namespace Aguacongas.Identity.Firestore
         public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
+            _roles = _db.Collection(RolesTableName);
+            _roleClaims = _db.Collection(RoleClaimsTableName);
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
 
