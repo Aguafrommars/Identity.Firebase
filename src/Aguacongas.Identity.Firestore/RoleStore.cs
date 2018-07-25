@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
     public class RoleStore<TRole> : RoleStore<TRole, IdentityUserRole<string>, IdentityRoleClaim<string>>,
         IRoleClaimStore<TRole>
-        where TRole : IdentityRole<string>
+        where TRole : IdentityRole<string>, new()
     {
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole}"/>.
@@ -35,7 +34,7 @@ namespace Aguacongas.Identity.Firestore
     public class RoleStore<TRole, TUserRole, TRoleClaim> :
         IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
-        where TRole : IdentityRole<string>
+        where TRole : IdentityRole<string>, new()
         where TUserRole : IdentityUserRole<string>, new()
         where TRoleClaim : IdentityRoleClaim<string>, new()
     {
@@ -54,7 +53,9 @@ namespace Aguacongas.Identity.Firestore
         {
             get
             {
-                throw new NotImplementedException();
+                var documents = _roles.GetSnapshotAsync().GetAwaiter().GetResult();
+                return documents.Select(d => Map.FromDictionary<TRole>(d.ToDictionary())).AsQueryable();
+
             }
         }
 
@@ -85,7 +86,18 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var dictionary = Map.ToDictionary(role);
+            var response = await _roles.Document(role.Id).SetAsync(dictionary, cancellationToken: cancellationToken);
+
+            return IdentityResult.Success;
+
         }
 
         /// <summary>
@@ -96,7 +108,25 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var dictionary = Map.ToDictionary(role);
+            return await _db.RunTransactionAsync(async transaction =>
+            {
+                var roleRef = _roles.Document(role.Id);
+                var snapShot = await transaction.GetSnapshotAsync(roleRef, cancellationToken);
+                if (snapShot.GetValue<string>("ConcurrencyStamp") != role.ConcurrencyStamp)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                transaction.Update(roleRef, dictionary);
+                return IdentityResult.Success;
+            }, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -107,7 +137,25 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
         public async virtual Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return await _db.RunTransactionAsync(async transaction =>
+            {
+                var userRef = _roles.Document(role.Id);
+                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
+                if (snapShot.GetValue<string>("ConcurrencyStamp") != role   .ConcurrencyStamp)
+                {
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+                }
+                transaction.Delete(userRef);
+                return IdentityResult.Success;
+            }, cancellationToken: cancellationToken);
+
         }
 
         /// <summary>
@@ -118,7 +166,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that contains the ID of the role.</returns>
         public virtual Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.Id);
+
         }
 
         /// <summary>
@@ -129,7 +184,13 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
         public virtual Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.Name);
         }
 
         /// <summary>
@@ -141,7 +202,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            role.Name = roleName;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -152,7 +220,19 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         public virtual async Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            var snapShot = await _roles.Document(id).GetSnapshotAsync(cancellationToken);
+            if (snapShot != null)
+            {
+                return Map.FromDictionary<TRole>(snapShot.ToDictionary());
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -163,7 +243,22 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
         public virtual async Task<TRole> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+            {
+                throw new ArgumentNullException(nameof(normalizedName));
+            }
+
+            var snapShot = await _roles.WhereEqualTo("NormalizedName", normalizedName)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents
+                .FirstOrDefault();
+            if (document != null)
+            {
+                return Map.FromDictionary<TRole>(document.ToDictionary());
+            }
+            return null;
+
         }
 
         /// <summary>
@@ -174,7 +269,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
         public virtual Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.NormalizedName);
+
         }
 
         /// <summary>
@@ -186,7 +288,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            role.NormalizedName = normalizedName;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -213,7 +322,18 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a role.</returns>
         public async virtual Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var snapShot = await _roleClaims.WhereEqualTo("RoleId", role.Id)
+                .GetSnapshotAsync(cancellationToken);
+            return snapShot.Documents
+                .Select(d => new Claim(d.GetValue<string>("Type"), d.GetValue<string>("Value")))
+                .ToList();
+
         }
 
         /// <summary>
@@ -225,7 +345,19 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            Dictionary<string, object> dictionary = ClaimsToDictionary(role, claim);
+            await _roleClaims.AddAsync(dictionary, cancellationToken: cancellationToken);
+
         }
 
         /// <summary>
@@ -237,7 +369,23 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+            var snapShot = await _roleClaims.WhereEqualTo("RoleId", role.Id)
+                .WhereEqualTo("Type", claim.Type)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                await _roleClaims.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken);
+            }
         }
 
         /// <summary>
@@ -249,19 +397,15 @@ namespace Aguacongas.Identity.Firestore
         protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
             => new TRoleClaim { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
 
-        protected virtual string GetFirebasePath(params string[] objectPath)
+        protected virtual Dictionary<string, object> ClaimsToDictionary(TRole role, Claim claim)
         {
-            return string.Join("/", objectPath);
+            return new Dictionary<string, object>
+                {
+                    { "RoleId",  role.Id },
+                    { "Type", claim.Type },
+                    { "Value", claim.Value }
+                };
         }
 
-        protected virtual void SetIndex(Dictionary<string, object> rules, string key, object index)
-        {
-            rules[key] = index;
-        }
-
-        private async Task SetIndex(string onTable, object index, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

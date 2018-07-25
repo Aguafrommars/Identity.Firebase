@@ -976,36 +976,6 @@ namespace Aguacongas.Identity.Firestore
         protected abstract Task<TUserLogin> FindUserLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserClaim{string}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="claim">The associated claim.</param>
-        /// <returns></returns>
-        protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
-        {
-            var userClaim = new TUserClaim { UserId = user.Id };
-            userClaim.InitializeFromClaim(claim);
-            return userClaim;
-        }
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserLogin{string}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="login">The sasociated login.</param>
-        /// <returns></returns>
-        protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
-        {
-            return new TUserLogin
-            {
-                UserId = user.Id,
-                ProviderKey = login.ProviderKey,
-                LoginProvider = login.LoginProvider,
-                ProviderDisplayName = login.ProviderDisplayName
-            };
-        }
-
-        /// <summary>
         /// Called to create a new instance of a <see cref="IdentityUserToken{string}"/>.
         /// </summary>
         /// <param name="user">The associated user.</param>
@@ -1033,11 +1003,6 @@ namespace Aguacongas.Identity.Firestore
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
-        }
-
-        protected virtual string GetFirestorePath(params string[] objectPath)
-        {
-            return string.Join("/", objectPath);
         }
 
         protected virtual void Dispose(bool disposed)
@@ -1135,20 +1100,5 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The user role if it exists.</returns>
         protected abstract Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Called to create a new instance of a <see cref="IdentityUserRole{string}"/>.
-        /// </summary>
-        /// <param name="user">The associated user.</param>
-        /// <param name="role">The associated role.</param>
-        /// <returns></returns>
-        protected virtual TUserRole CreateUserRole(TUser user, TRole role)
-        {
-            return new TUserRole()
-            {
-                UserId = user.Id,
-                RoleId = role.Id
-            };
-        }
     }
 }

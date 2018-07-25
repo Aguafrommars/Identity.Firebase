@@ -34,16 +34,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                 _fixture.Configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
             }).AddScoped(provider =>
             {
-                var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                var json = JsonConvert.SerializeObject(authOptions.Value);
-                var credentials = GoogleCredential.FromJson(json)
-                    .CreateScoped("https://www.googleapis.com/auth/datastore");
-                var channel = new Grpc.Core.Channel(
-                    FirestoreClient.DefaultEndpoint.ToString(),
-                    credentials.ToChannelCredentials());
-                var client = FirestoreClient.Create(channel);
-                var options = provider.GetRequiredService<IOptions<FirestoreOptions>>();
-                return FirestoreDb.Create(_fixture.FirestoreOptions.Project, client: client);
+                return _fixture.CreateFirestoreDb(provider);
             });
 
             var userType = typeof(TestUser);

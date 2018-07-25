@@ -81,6 +81,8 @@ namespace Aguacongas.Identity.Firestore
         private const string RolesTableName = "roles";
 
         private readonly FirestoreDb _db;
+        private readonly CollectionReference _userRoles;
+        private readonly CollectionReference _roles;
         private readonly UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
 
         /// <summary>
@@ -96,6 +98,8 @@ namespace Aguacongas.Identity.Firestore
         public UserStore(FirestoreDb db, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
+            _userRoles = _db.Collection(UserRolesTableName);
+            _roles = _db.Collection(RolesTableName);
             _userOnlyStore = userOnlyStore ?? throw new ArgumentNullException(nameof(userOnlyStore));
         }
 
@@ -157,7 +161,28 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public async override Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (role == null)
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "RoleNotFound {0}", normalizedRoleName));
+            }
+
+            var dictionary = new Dictionary<string, object>
+            {
+                { "UserId", user.Id },
+                { "RoleId", role.Id }
+            };
+            await _userRoles.AddAsync(dictionary, cancellationToken);
         }
 
         /// <summary>
@@ -169,7 +194,28 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public async override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (role != null)
+            {
+                var snapShot = await _userRoles.WhereEqualTo("UserId", user.Id)
+                    .WhereEqualTo("RoleId", role.Id)
+                    .GetSnapshotAsync();
+                var document = snapShot.Documents.FirstOrDefault();
+                if (document != null)
+                {
+                    await _userRoles.Document(document.Id).DeleteAsync();
+                }
+            }
         }
 
         /// <summary>
@@ -180,7 +226,26 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>A <see cref="Task{TResult}"/> that contains the roles the user is a member of.</returns>
         public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var snapShot = await _userRoles.WhereEqualTo("UserId", user.Id)
+                .GetSnapshotAsync();
+
+            var documents = snapShot.Documents;
+            var list = new List<string>(documents.Count);
+            foreach(var document in documents)
+            {
+                var role = await FindRoleByIdAsync(document.GetValue<string>("RoleId"));
+                if (role != null)
+                {
+                    list.Add(role.Name);
+                }
+            }
+            return list;
         }
 
         /// <summary>
@@ -193,9 +258,26 @@ namespace Aguacongas.Identity.Firestore
         /// user is a member of the group the returned value with be true, otherwise it will be false.</returns>
         public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (role != null)
+            {
+                var snapShot = await _userRoles.WhereEqualTo("UserId", user.Id)
+                    .WhereEqualTo("RoleId", role.Id)
+                    .GetSnapshotAsync();
+                return snapShot.Documents.Any();
+            }
+            return false;
         }
-
         /// <summary>
         /// Get the claims associated with the specified <paramref name="user"/> as an asynchronous operation.
         /// </summary>
@@ -315,7 +397,27 @@ namespace Aguacongas.Identity.Firestore
         /// </returns>
         public async override Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            if (role != null)
+            {
+                var snapShot = await _userRoles
+                    .WhereEqualTo("RoleId", role.Id)
+                    .GetSnapshotAsync();
+                var documents = snapShot.Documents;
+                var list = new List<TUser>(documents.Count);
+                foreach(var document in documents)
+                {
+                    list.Add(await FindByIdAsync(document.GetValue<string>("UserId")));
+                }
+                return list;
+            }
+            return new List<TUser>(0);
         }
 
         /// <summary>
@@ -326,7 +428,20 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The role if it exists.</returns>
         protected override async Task<TRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(normalizedRoleName))
+            {
+                throw new ArgumentNullException(nameof(normalizedRoleName));
+            }
+            var snapShot = await _roles.WhereEqualTo("NormalizedName", normalizedRoleName)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                return Map.FromDictionary<TRole>(document.ToDictionary());
+            }
+            return null;
         }
 
         /// <summary>
@@ -338,7 +453,25 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>The user role if it exists.</returns>
         protected override async Task<TUserRole> FindUserRoleAsync(string userId, string roleId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            if (string.IsNullOrWhiteSpace(roleId))
+            {
+                throw new ArgumentNullException(nameof(roleId));
+            }
+            var snapShot = await _roles.WhereEqualTo("UserId", userId)
+                .WhereEqualTo("RoleId", roleId)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                return Map.FromDictionary<TUserRole>(document.ToDictionary());
+            }
+            return null;
         }
 
         /// <summary>
@@ -398,7 +531,13 @@ namespace Aguacongas.Identity.Firestore
 
         protected virtual async Task<TRole> FindRoleByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            var snapShot = await _roles.Document(id)
+                .GetSnapshotAsync(cancellationToken);
+            if (snapShot != null)
+            {
+                return Map.FromDictionary<TRole>(snapShot.ToDictionary());
+            }
+            return null;
         }
     }
 }
