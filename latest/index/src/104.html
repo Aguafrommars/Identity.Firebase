@@ -2,192 +2,29 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseClient.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseError.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Aguacongas.Firebase
 {
     /// &lt;summary&gt;
-    /// Firebase client
+    /// Firebase error
     /// &lt;/summary&gt;
-    public class FirebaseClient : IFirebaseClient
+    public class FirebaseError
     {
-        private readonly HttpClient _httpClient;
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
-
         /// &lt;summary&gt;
-        /// Create a new instance of &lt;see cref=&quot;FirebaseClient&quot;/&gt;
+        /// Gets or sets the error
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;httpClient&quot;&gt;The &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;options&quot;&gt;A &lt;see cref=&quot;FirebaseOptions&quot;/&gt;&lt;/param&gt;
-        public FirebaseClient(HttpClient httpClient, FirebaseOptions options)
-        {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _httpClient.BaseAddress = new Uri(options.DatabaseUrl);
-            _jsonSerializerSettings = options.JsonSerializerSettings;
-        }
-
-        /// &lt;summary&gt;
-        /// Sends a POST request to create data
-        /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
-        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
-        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
-        /// &lt;returns&gt;The data id&lt;/returns&gt;
-        public async Task&lt;FirebaseResponse&lt;string&gt;&gt; PostAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
-        {
-            if(data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            var response = await SendFirebaseRequest&lt;PostResponse&gt;(url, &quot;POST&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null);
-            return new FirebaseResponse&lt;string&gt;
-            {
-                Data = response.Data.Name,
-                Etag = response.Etag
-            };
-        }
-
-        /// &lt;summary&gt;
-        /// Send a PUT request to update data
-        /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
-        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
-        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
-        /// &lt;param name=&quot;etag&quot;&gt;ETag value&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PutAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;PUT&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, etag);
-        }
-
-        /// &lt;summary&gt;
-        /// Send a PATCH request to path data
-        /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
-        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
-        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PatchAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;PATCH&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, false, null);
-        }
-
-        /// &lt;summary&gt;
-        /// Send a DELETE request to delete data
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
-        /// &lt;param name=&quot;etag&quot;&gt;Etag value&lt;/param&gt;
-        /// &lt;returns&gt;&lt;/returns&gt;
-        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
-        {
-            var message = new HttpRequestMessage(new HttpMethod(&quot;DELETE&quot;), GetFirebaseUrl(url, cancellationToken));
-            message.Headers.SetIfMath(etag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            using (var response =
-                await _httpClient.SendAsync(message, cancellationToken))
-            {
-                await response.EnsureIsSuccess();
-            }                
-        }
-
-        /// &lt;summary&gt;
-        /// Send a GET request to request data
-        /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;The type of data&lt;/typeparam&gt;
-        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
-        /// &lt;param name=&quot;queryString&quot;&gt;A query string&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
-        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
-        {
-            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null, queryString);
-        }
-
-        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
-        {
-            var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, cancellationToken, queryString))
-            {
-                Content = content
-            };
-            message.Headers.SetIfMath(eTag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            var response = await _httpClient.SendAsync(message, cancellationToken);
-            return await GetFirebaseResponse&lt;T&gt;(response);
-        }
-
-        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; GetFirebaseResponse&lt;T&gt;(HttpResponseMessage response)
-        {
-            using (response)
-            {
-                return await response.DeserializeResponseAsync&lt;T&gt;(_jsonSerializerSettings);
-            }
-        }
-
-        private Uri GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
-        {
-            if (string.IsNullOrEmpty(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
-
-            var sanetizedUrl = url;
-            if (!url.EndsWith(&quot;.json&quot;))
-            {
-                sanetizedUrl = url + &quot;.json&quot;;
-            }
-
-            var baseAddress = _httpClient.BaseAddress;
-            var builder = new UriBuilder(baseAddress.Scheme, baseAddress.Host, baseAddress.Port, sanetizedUrl)
-            {
-                Query = queryString
-            };
-
-            
-            return builder.Uri;
-        }
-
-        class PostResponse
-        {
-            public string Name { get; set; }
-        }
+        public string Error { get; set; }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[23,9,23,78,1],[24,9,24,10,1],[25,13,25,93,1],[26,13,26,68,1],[27,13,27,70,1],[28,9,28,10,1],[40,9,40,10,1],[41,13,41,29,1],[42,13,42,14,1],[43,17,43,63,1],[46,13,46,181,1],[47,13,51,15,1],[52,9,52,10,1],[65,9,65,10,1],[66,13,66,30,1],[67,13,67,14,1],[68,17,68,63,1],[71,13,71,155,1],[72,9,72,10,1],[83,9,83,10,1],[84,13,84,30,1],[85,13,85,14,1],[86,17,86,63,1],[89,13,89,151,1],[90,9,90,10,1],[101,9,101,10,1],[102,13,102,116,1],[103,13,103,45,1],[104,13,104,57,1],[106,20,107,72,1],[108,13,108,14,1],[109,17,109,50,1],[110,13,110,14,1],[111,9,111,10,1],[123,9,123,10,1],[124,13,124,112,1],[125,9,125,10,1],[128,9,128,10,1],[129,13,132,15,1],[133,13,133,45,1],[134,13,134,57,1],[136,13,136,84,1],[137,13,137,59,1],[138,9,138,10,1],[141,9,141,10,1],[142,13,142,29,1],[143,13,143,14,1],[144,17,144,92,1],[146,9,146,10,1],[149,9,149,10,1],[150,13,150,43,1],[151,13,151,14,1],[152,17,152,62,1],[155,13,155,36,1],[156,13,156,40,1],[157,13,157,14,1],[158,17,158,46,1],[159,13,159,14,1],[161,13,161,55,1],[162,13,165,15,1],[168,13,168,32,1],[169,9,169,10,1],[173,34,173,38,1],[173,39,173,43,1]]);
+      highlightRanges([[11,31,11,35,1],[11,36,11,40,1]]);
     </script>
   </body>
 </html>

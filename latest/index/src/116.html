@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\LoginIndex.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\RoleClaimIndex.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
@@ -13,21 +13,20 @@ using Aguacongas.Firebase;
 namespace Aguacongas.Identity.Firebase
 {
     /// &lt;summary&gt;
-    /// Login indexes
+    /// Role claim index
     /// &lt;/summary&gt;
-    public class LoginIndex : FirebaseIndexes
+    public class RoleClaimIndex : FirebaseIndex
     {
         /// &lt;inheritdoc /&gt;
-        public LoginIndex()
+        public RoleClaimIndex()
         {
-            On = new string[] { &quot;ProviderKey&quot;, &quot;UserId&quot; };
+            On = &quot;RoleId&quot;;
         }
     }
 }
-
     </pre>
     <script type="text/javascript">
-      highlightRanges([[11,9,11,28,1],[12,9,12,10,1],[13,13,13,59,1],[14,9,14,10,1]]);
+      highlightRanges([[11,9,11,32,1],[12,9,12,10,1],[13,13,13,27,1],[14,9,14,10,1]]);
     </script>
   </body>
 </html>

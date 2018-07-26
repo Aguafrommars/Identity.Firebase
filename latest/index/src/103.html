@@ -2,133 +2,192 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\ServiceCollectionExtentions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseClient.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Aguacongas.Firebase;
-using Aguacongas.Firebase.Http;
-using Aguacongas.Firebase.TokenManager;
-using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Aguacongas.Firebase
 {
     /// &lt;summary&gt;
-    /// Extensions methods to configure an &lt;see cref=&quot;IServiceCollection&quot;/&gt;
-    ///     for &lt;see cref=&quot;IFirebaseClient&quot;/&gt;.
+    /// Firebase client
     /// &lt;/summary&gt;
-    public static class ServiceCollectionExtentions
+    public class FirebaseClient : IFirebaseClient
     {
+        private readonly HttpClient _httpClient;
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
+
         /// &lt;summary&gt;
-        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
-        ///     and configures the IFirebaseClient type.
+        /// Create a new instance of &lt;see cref=&quot;FirebaseClient&quot;/&gt;
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
-        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
-        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
-        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
+        /// &lt;param name=&quot;httpClient&quot;&gt;The &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;options&quot;&gt;A &lt;see cref=&quot;FirebaseOptions&quot;/&gt;&lt;/param&gt;
+        public FirebaseClient(HttpClient httpClient, FirebaseOptions options)
         {
-            return services.AddHttpClientServices(configure, httpClientName)
-                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
-                .AddSingleton(getTokenAccess);
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _httpClient.BaseAddress = new Uri(options.DatabaseUrl);
+            _jsonSerializerSettings = options.JsonSerializerSettings;
         }
 
         /// &lt;summary&gt;
-        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
-        ///     and configures the IFirebaseClient type.
+        /// Sends a POST request to create data
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
-        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
-        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
-        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
+        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
+        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
+        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
+        /// &lt;returns&gt;The data id&lt;/returns&gt;
+        public async Task&lt;FirebaseResponse&lt;string&gt;&gt; PostAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
         {
-            return services.AddHttpClientServices(options =&gt;
-                {
-                    options.DatabaseUrl = url;
-                }, httpClientName)
-                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
-                .AddSingleton(getTokenAccess);
+            if(data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            var response = await SendFirebaseRequest&lt;PostResponse&gt;(url, &quot;POST&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null);
+            return new FirebaseResponse&lt;string&gt;
+            {
+                Data = response.Data.Name,
+                Etag = response.Etag
+            };
         }
 
         /// &lt;summary&gt;
-        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
-        ///     and configures the IFirebaseClient type.
+        /// Send a PUT request to update data
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
-        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
-        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
-        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
+        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
+        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
+        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
+        /// &lt;param name=&quot;etag&quot;&gt;ETag value&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PutAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
         {
-            return services.AddHttpClientServices(options =&gt;
-                {
-                    options.DatabaseUrl = url;
-                }, httpClientName)
-                .AddSingleton(provider =&gt; getTokenManager(provider));
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;PUT&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, etag);
         }
 
         /// &lt;summary&gt;
-        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
-        ///     and configures the IFirebaseClient type.
+        /// Send a PATCH request to path data
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
-        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
-        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
-        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
-        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
+        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
+        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
+        /// &lt;param name=&quot;data&quot;&gt;Data&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; PatchAsync&lt;T&gt;(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return services.AddHttpClientServices(configure, httpClientName)
-                .AddSingleton(provider =&gt; getTokenManager(provider));
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;PATCH&quot;, _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, false, null);
         }
 
         /// &lt;summary&gt;
-        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
-        ///     and configures the IFirebaseClient type.
+        /// Send a DELETE request to delete data
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
-        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
-        /// &lt;param name=&quot;configure&quot;&gt;An action to configure FirebaseOptions&lt;/param&gt;
-        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
-        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
-        private static IServiceCollection AddHttpClientServices(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, string httpClientName = &quot;firebase&quot;)
+        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
+        /// &lt;param name=&quot;etag&quot;&gt;Etag value&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
         {
-            services.Configure&lt;FirebaseOptions&gt;(httpClientName, options =&gt;
-                {
-                    options.HttpClientName = httpClientName;
-                    configure?.Invoke(options);
-                })
-                .AddTransient&lt;FirebaseAuthenticationHandler&gt;()
-                .AddTransient&lt;IFirebaseClient&gt;(provider =&gt;                 
-                {
-                    var factory = provider.GetRequiredService&lt;IHttpClientFactory&gt;();
-                    var httpClient = factory.CreateClient(httpClientName);
-                    var snapshot = provider.GetRequiredService&lt;IOptionsSnapshot&lt;FirebaseOptions&gt;&gt;();
-                    var options = snapshot.Get(httpClientName);
+            var message = new HttpRequestMessage(new HttpMethod(&quot;DELETE&quot;), GetFirebaseUrl(url, cancellationToken));
+            message.Headers.SetIfMath(etag);
+            message.Headers.SetRequestEtag(requestEtag);
 
-                    return new FirebaseClient(httpClient, options);
-                })
-                .AddHttpClient(httpClientName)
-                .AddHttpMessageHandler&lt;FirebaseAuthenticationHandler&gt;();
+            using (var response =
+                await _httpClient.SendAsync(message, cancellationToken))
+            {
+                await response.EnsureIsSuccess();
+            }                
+        }
 
-            return services;
+        /// &lt;summary&gt;
+        /// Send a GET request to request data
+        /// &lt;/summary&gt;
+        /// &lt;typeparam name=&quot;T&quot;&gt;The type of data&lt;/typeparam&gt;
+        /// &lt;param name=&quot;url&quot;&gt;Data uri&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
+        /// &lt;param name=&quot;queryString&quot;&gt;A query string&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
+        public Task&lt;FirebaseResponse&lt;T&gt;&gt; GetAsync&lt;T&gt;(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
+        {
+            return SendFirebaseRequest&lt;T&gt;(url, &quot;GET&quot;, null, cancellationToken, requestEtag, null, queryString);
+        }
+
+        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; SendFirebaseRequest&lt;T&gt;(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
+        {
+            var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, cancellationToken, queryString))
+            {
+                Content = content
+            };
+            message.Headers.SetIfMath(eTag);
+            message.Headers.SetRequestEtag(requestEtag);
+
+            var response = await _httpClient.SendAsync(message, cancellationToken);
+            return await GetFirebaseResponse&lt;T&gt;(response);
+        }
+
+        private async Task&lt;FirebaseResponse&lt;T&gt;&gt; GetFirebaseResponse&lt;T&gt;(HttpResponseMessage response)
+        {
+            using (response)
+            {
+                return await response.DeserializeResponseAsync&lt;T&gt;(_jsonSerializerSettings);
+            }
+        }
+
+        private Uri GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+
+            var sanetizedUrl = url;
+            if (!url.EndsWith(&quot;.json&quot;))
+            {
+                sanetizedUrl = url + &quot;.json&quot;;
+            }
+
+            var baseAddress = _httpClient.BaseAddress;
+            var builder = new UriBuilder(baseAddress.Scheme, baseAddress.Host, baseAddress.Port, sanetizedUrl)
+            {
+                Query = queryString
+            };
+
+            
+            return builder.Uri;
+        }
+
+        class PostResponse
+        {
+            public string Name { get; set; }
         }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[27,9,27,10,1],[28,13,30,47,1],[31,9,31,10,1],[43,9,43,10,1],[44,13,45,17,1],[45,17,45,18,1],[45,18,46,21,1],[46,21,46,47,1],[46,47,47,17,1],[47,17,47,18,1],[47,18,49,47,1],[44,13,49,47,1],[50,9,50,10,1],[62,9,62,10,1],[63,13,64,17,1],[64,17,64,18,1],[64,18,65,21,1],[65,21,65,47,1],[65,47,66,17,1],[66,17,66,18,1],[66,18,67,43,1],[67,43,67,68,1],[67,68,67,70,1],[63,13,67,70,1],[68,9,68,10,1],[80,9,80,10,1],[81,13,82,43,1],[82,43,82,68,1],[82,68,82,70,1],[81,13,82,70,1],[83,9,83,10,1],[95,9,95,10,1],[96,13,97,17,1],[97,17,97,18,1],[97,18,98,21,1],[98,21,98,61,1],[98,61,99,21,1],[99,21,99,48,1],[99,48,100,17,1],[100,17,100,18,1],[100,18,103,17,1],[103,17,103,18,1],[103,18,104,21,1],[104,21,104,85,1],[104,85,105,21,1],[105,21,105,75,1],[105,75,106,21,1],[106,21,106,101,1],[106,101,107,21,1],[107,21,107,64,1],[107,64,109,21,1],[109,21,109,68,1],[109,68,110,17,1],[110,17,110,18,1],[110,18,112,73,1],[96,13,112,73,1],[114,13,114,29,1],[115,9,115,10,1]]);
+      highlightRanges([[23,9,23,78,1],[24,9,24,10,1],[25,13,25,93,1],[26,13,26,68,1],[27,13,27,70,1],[28,9,28,10,1],[40,9,40,10,1],[41,13,41,29,1],[42,13,42,14,1],[43,17,43,63,1],[46,13,46,181,1],[47,13,51,15,1],[52,9,52,10,1],[65,9,65,10,1],[66,13,66,30,1],[67,13,67,14,1],[68,17,68,63,1],[71,13,71,155,1],[72,9,72,10,1],[83,9,83,10,1],[84,13,84,30,1],[85,13,85,14,1],[86,17,86,63,1],[89,13,89,151,1],[90,9,90,10,1],[101,9,101,10,1],[102,13,102,116,1],[103,13,103,45,1],[104,13,104,57,1],[106,20,107,72,1],[108,13,108,14,1],[109,17,109,50,1],[110,13,110,14,1],[111,9,111,10,1],[123,9,123,10,1],[124,13,124,112,1],[125,9,125,10,1],[128,9,128,10,1],[129,13,132,15,1],[133,13,133,45,1],[134,13,134,57,1],[136,13,136,84,1],[137,13,137,59,1],[138,9,138,10,1],[141,9,141,10,1],[142,13,142,29,1],[143,13,143,14,1],[144,17,144,92,1],[146,9,146,10,1],[149,9,149,10,1],[150,13,150,43,1],[151,13,151,14,1],[152,17,152,62,1],[155,13,155,36,1],[156,13,156,40,1],[157,13,157,14,1],[158,17,158,46,1],[159,13,159,14,1],[161,13,161,55,1],[162,13,165,15,1],[168,13,168,32,1],[169,9,169,10,1],[173,34,173,38,1],[173,39,173,43,1]]);
     </script>
   </body>
 </html>

@@ -2,100 +2,32 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\EmailPasswordTokenManager.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firebase\LoginIndex.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using Aguacongas.Firebase;
 
-namespace Aguacongas.Firebase.TokenManager
+namespace Aguacongas.Identity.Firebase
 {
     /// &lt;summary&gt;
-    /// Email password token manager
+    /// Login indexes
     /// &lt;/summary&gt;
-    public class EmailPasswordTokenManager : IFirebaseTokenManager
+    public class LoginIndex : FirebaseIndexes
     {
-        private readonly HttpClient _httpClient;
-        private readonly EmailPasswordOptions _options;
-        private readonly EmailPasswordAuthRequest _authRequest;
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+        /// &lt;inheritdoc /&gt;
+        public LoginIndex()
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
-        private DateTime _nextRenewTime = DateTime.MinValue;
-        private string _authKey;
-
-        /// &lt;summary&gt;
-        /// Gets the authentication param name
-        /// &lt;/summary&gt;
-        public string AuthParamName { get; } = &quot;auth&quot;;
-
-        /// &lt;summary&gt;
-        /// Initialize a new instance of &lt;see cref=&quot;EmailPasswordTokenManager&quot;/&gt;
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;httpClient&quot;&gt;A &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;options&quot;&gt;A &lt;see cref=&quot;IOptions{EmailPasswordOptions}&quot;/&gt;&lt;/param&gt;
-        public EmailPasswordTokenManager(HttpClient httpClient, IOptions&lt;EmailPasswordOptions&gt; options):
-            this(httpClient, options?.Value)
-        { }
-
-        /// &lt;summary&gt;
-        /// Initialize a new instance of &lt;see cref=&quot;EmailPasswordTokenManager&quot;/&gt;
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;httpClient&quot;&gt;A &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;options&quot;&gt;A &lt;see cref=&quot;EmailPasswordOptions&quot;/&gt;&lt;/param&gt;
-        public EmailPasswordTokenManager(HttpClient httpClient, EmailPasswordOptions options)
-        {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-
-            _authRequest = new EmailPasswordAuthRequest
-            {
-                Email = _options.Email,
-                Password = _options.Password
-            };
-        }
-
-        /// &lt;summary&gt;
-        /// Gets the authentication token
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
-        /// &lt;returns&gt;The token&lt;/returns&gt;
-        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (_nextRenewTime &gt; DateTime.UtcNow.AddSeconds(-1))
-            {
-                return _authKey;
-            }
-
-            var content = _httpClient.CreateJsonContent(_authRequest, _jsonSerializerSettings);
-
-            var response = await _httpClient.PostAsync($&quot;{_options.SignUpUrl}?key={_options.ApiKey}&quot;, content, cancellationToken);
-
-            var authResponse = await response.DeserializeResponseAsync&lt;AuthResponse&gt;(_jsonSerializerSettings);
-            var data = authResponse.Data;
-            _authKey = data.IdToken;
-            _nextRenewTime = DateTime.UtcNow.AddSeconds(data.ExpiresIn);
-
-            return _authKey;
+            On = new string[] { &quot;ProviderKey&quot;, &quot;UserId&quot; };
         }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[19,9,24,11,1],[26,9,26,61,1],[32,39,32,43,1],[32,48,32,54,1],[40,13,40,45,1],[41,9,41,10,1],[41,11,41,12,1],[48,9,48,94,1],[49,9,49,10,1],[50,13,50,93,1],[51,13,51,84,1],[53,13,57,15,1],[58,9,58,10,1],[66,9,66,10,1],[67,13,67,65,1],[68,13,68,14,1],[69,17,69,33,1],[72,13,72,96,1],[74,13,74,131,1],[76,13,76,111,1],[77,13,77,42,1],[78,13,78,37,1],[79,13,79,73,1],[81,13,81,29,1],[82,9,82,10,1]]);
+      highlightRanges([[11,9,11,28,1],[12,9,12,10,1],[13,13,13,59,1],[14,9,14,10,1]]);
     </script>
   </body>
 </html>

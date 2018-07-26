@@ -2,104 +2,65 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\Http\HttpExtensions.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\TokenManager\AuthResponse.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Newtonsoft.Json;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Aguacongas.Firebase
+namespace Aguacongas.Firebase.TokenManager
 {
     /// &lt;summary&gt;
-    /// Extentions methods for &lt;see cref=&quot;HttpClient&quot;/&gt;
+    /// Authentitcation response
     /// &lt;/summary&gt;
-    public static class HttpExtensions
+    public class AuthResponse
     {
         /// &lt;summary&gt;
-        /// Create JSON content
+        /// Gets or sets the kind
         /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;Type of data&lt;/typeparam&gt;
-        /// &lt;param name=&quot;httpClient&quot;&gt;The &lt;see cref=&quot;HttpClient&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;data&quot;&gt;Data to serialize&lt;/param&gt;
-        /// &lt;param name=&quot;jsonSerializerSettings&quot;&gt;A &lt;see cref=&quot;JsonSerializerSettings&quot;/&gt;&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;StreamContent&quot;/&gt;&lt;/returns&gt;
-        public static StringContent CreateJsonContent&lt;T&gt;(this HttpClient httpClient, T data, JsonSerializerSettings jsonSerializerSettings = null)
-        {
-            return new StringContent(JsonConvert.SerializeObject(data, jsonSerializerSettings), Encoding.UTF8, &quot;application/json&quot;);
-        }
+        public string Kind { get; set; }
 
         /// &lt;summary&gt;
-        /// Sets X-Firebase-ETag header if requestEtag is true
+        /// Gets or sets the local id
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;headers&quot;&gt;The &lt;see cref=&quot;HttpHeaders&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;requestEtag&quot;&gt;True to request ETag&lt;/param&gt;
-        public static void SetRequestEtag(this HttpHeaders headers, bool requestEtag)
-        {
-            if (requestEtag)
-            {
-                var result = headers.TryAddWithoutValidation(&quot;X-Firebase-ETag&quot;, &quot;true&quot;);
-            }
-        }
+        public string LocalId { get; set; }
 
         /// &lt;summary&gt;
-        /// Sets if-match header if etag is true
+        /// Gets or sets the user email
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;headers&quot;&gt;The &lt;see cref=&quot;HttpHeaders&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;etag&quot;&gt;True to set if-match header&lt;/param&gt;
-        public static void SetIfMath(this HttpHeaders headers, string etag)
-        {
-            if (!string.IsNullOrEmpty(etag))
-            {
-                var result = headers.TryAddWithoutValidation(&quot;if-match&quot;, etag);
-            }
-        }
+        public string Email { get; set; }
 
         /// &lt;summary&gt;
-        /// Deserialize a Firebase response
+        /// Gets or sets the users display name
         /// &lt;/summary&gt;
-        /// &lt;typeparam name=&quot;T&quot;&gt;The type of response&lt;/typeparam&gt;
-        /// &lt;param name=&quot;response&quot;&gt;The &lt;see cref=&quot;HttpResponseMessage&quot;/&gt;&lt;/param&gt;
-        /// &lt;param name=&quot;jsonSerializerSettings&quot;&gt;A &lt;see cref=&quot;JsonSerializerSettings&quot;/&gt;&lt;/param&gt;
-        /// &lt;returns&gt;A &lt;see cref=&quot;FirebaseResponse{T}&quot;/&gt;&lt;/returns&gt;
-        public static async Task&lt;FirebaseResponse&lt;T&gt;&gt; DeserializeResponseAsync&lt;T&gt;(this HttpResponseMessage response, JsonSerializerSettings jsonSerializerSettings = null)
-        {
-            await response.EnsureIsSuccess();
-            
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return new FirebaseResponse&lt;T&gt;
-            {
-                Data = JsonConvert.DeserializeObject&lt;T&gt;(jsonResponse, jsonSerializerSettings),
-                Etag = response.Headers.SingleOrDefault(h =&gt; h.Key.ToUpperInvariant() == &quot;ETAG&quot;)
-                    .Value?.FirstOrDefault()
-            };
-        }
+        public string DisplayName { get; set; }
 
         /// &lt;summary&gt;
-        /// Ensure response is success
+        /// Gets or sets the id token
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;response&quot;&gt;The &lt;see cref=&quot;HttpResponseMessage&quot;/&gt;&lt;/param&gt;
-        /// &lt;exception cref=&quot;FirebaseException&quot;&gt;If response is not success&lt;/exception&gt;
-        /// &lt;returns&gt;&lt;/returns&gt;
-        public static async Task EnsureIsSuccess(this HttpResponseMessage response)
-        {
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, await response.Content.ReadAsStringAsync(), response.Headers.ETag?.Tag);
-            }
-        }
+        public string IdToken { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets registered flag
+        /// &lt;/summary&gt;
+        public bool Registered { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the refresh token
+        /// &lt;/summary&gt;
+        public string RefreshToken { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the expires in
+        /// &lt;/summary&gt;
+        public int ExpiresIn { get; set; }
     }
+
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[24,9,24,10,1],[25,13,25,132,1],[26,9,26,10,1],[34,9,34,10,1],[35,13,35,29,1],[36,13,36,14,1],[37,17,37,89,1],[38,13,38,14,1],[39,9,39,10,1],[47,9,47,10,1],[48,13,48,45,1],[49,13,49,14,1],[50,17,50,80,1],[51,13,51,14,1],[52,9,52,10,1],[62,9,62,10,1],[63,13,63,46,1],[65,13,65,75,1],[66,13,69,62,1],[69,62,69,96,1],[69,96,71,15,1],[66,13,71,15,1],[72,9,72,10,1],[81,9,81,10,1],[82,13,82,47,1],[83,13,83,14,1],[84,17,84,161,1],[86,9,86,10,1]]);
+      highlightRanges([[11,30,11,34,1],[11,35,11,39,1],[16,33,16,37,1],[16,38,16,42,1],[21,31,21,35,1],[21,36,21,40,1],[26,37,26,41,1],[26,42,26,46,1],[31,33,31,37,1],[31,38,31,42,1],[36,34,36,38,1],[36,39,36,43,1],[41,38,41,42,1],[41,43,41,47,1],[46,32,46,36,1],[46,37,46,41,1]]);
     </script>
   </body>
 </html>

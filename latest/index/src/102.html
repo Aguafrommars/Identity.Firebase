@@ -2,69 +2,133 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase.Authentication\Http\FirebaseAuthenticationHandler.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\ServiceCollectionExtentions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Microsoft.AspNetCore.Http;
+using Aguacongas.Firebase;
+using Aguacongas.Firebase.Http;
+using Aguacongas.Firebase.TokenManager;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Aguacongas.Firebase.Http
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// &lt;summary&gt;
-    /// Firebase Authentication Delegating Handler
+    /// Extensions methods to configure an &lt;see cref=&quot;IServiceCollection&quot;/&gt;
+    ///     for &lt;see cref=&quot;IFirebaseClient&quot;/&gt;.
     /// &lt;/summary&gt;
-    public class FirebaseAuthenticationHandler: DelegatingHandler
+    public static class ServiceCollectionExtentions
     {
-        private readonly IFirebaseTokenManager _tokenManager;
-
         /// &lt;summary&gt;
-        /// Create a new instance of &lt;see cref=&quot;FirebaseAuthenticationHandler&quot;/&gt;
+        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
+        ///     and configures the IFirebaseClient type.
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;tokenManager&quot;&gt;The token manager to use&lt;/param&gt;
-        public FirebaseAuthenticationHandler(IFirebaseTokenManager tokenManager)
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
         {
-            _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
+            return services.AddHttpClientServices(configure, httpClientName)
+                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
+                .AddSingleton(getTokenAccess);
         }
 
         /// &lt;summary&gt;
-        /// Create a new instance of &lt;see cref=&quot;FirebaseAuthenticationHandler&quot;/&gt;
+        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
+        ///     and configures the IFirebaseClient type.
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;tokenManager&quot;&gt;The token manager to use&lt;/param&gt;
-        /// &lt;param name=&quot;innerHandler&quot;&gt;An inner delegating handler&lt;/param&gt;
-        public FirebaseAuthenticationHandler(IFirebaseTokenManager tokenManager, DelegatingHandler innerHandler): base(innerHandler)
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenAccess&quot;&gt;A fonction to create the ITokenAccess&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, ITokenAccess&gt; getTokenAccess, string httpClientName = &quot;firebase&quot;)
         {
-            _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
+            return services.AddHttpClientServices(options =&gt;
+                {
+                    options.DatabaseUrl = url;
+                }, httpClientName)
+                .AddTransient&lt;IFirebaseTokenManager, OAuthTokenManager&gt;()
+                .AddSingleton(getTokenAccess);
         }
 
-        /// &lt;inheritdoc /&gt;
-        protected async override Task&lt;HttpResponseMessage&gt; SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        /// &lt;summary&gt;
+        /// Adds &lt;see cref=&quot;IFirebaseClient&quot;/&gt; and related services to the &lt;see cref=&quot;IServiceCollection&quot;/&gt;
+        ///     and configures the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, string url, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
         {
-            var currentUri = request.RequestUri;
-            var queryString = new QueryString(currentUri.Query);
-            var token = await _tokenManager.GetTokenAsync();
-            queryString = queryString.Add(_tokenManager.AuthParamName, token);
-            var uriBuilder = new UriBuilder(currentUri)
-            {
-                Query = queryString.Value
-            };
-            request.RequestUri = uriBuilder.Uri;
+            return services.AddHttpClientServices(options =&gt;
+                {
+                    options.DatabaseUrl = url;
+                }, httpClientName)
+                .AddSingleton(provider =&gt; getTokenManager(provider));
+        }
 
-            return await base.SendAsync(request, cancellationToken);
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure a FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;getTokenManager&quot;&gt;A fonction to create the IFirebaseTokenManager&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
+        public static IServiceCollection AddFirebaseClient(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, Func&lt;IServiceProvider, IFirebaseTokenManager&gt; getTokenManager, string httpClientName = &quot;firebase&quot;)
+        {
+            return services.AddHttpClientServices(configure, httpClientName)
+                .AddSingleton(provider =&gt; getTokenManager(provider));
+        }
+
+        /// &lt;summary&gt;
+        /// Adds the System.Net.Http.IFirebaseClient and related services to the Microsoft.Extensions.DependencyInjection.IServiceCollection
+        ///     and configures the IFirebaseClient type.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;services&quot;&gt;The Microsoft.Extensions.DependencyInjection.IServiceCollection.&lt;/param&gt;
+        /// &lt;param name=&quot;url&quot;&gt;The firebase url&lt;/param&gt;
+        /// &lt;param name=&quot;configure&quot;&gt;An action to configure FirebaseOptions&lt;/param&gt;
+        /// &lt;param name=&quot;httpClientName&quot;&gt;The logical name of the underlying &lt;see cref=&quot;HttpClient&quot;/&gt; to configure&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;IServiceCollection&quot;/&gt;.&lt;/returns&gt;
+        private static IServiceCollection AddHttpClientServices(this IServiceCollection services, Action&lt;FirebaseOptions&gt; configure, string httpClientName = &quot;firebase&quot;)
+        {
+            services.Configure&lt;FirebaseOptions&gt;(httpClientName, options =&gt;
+                {
+                    options.HttpClientName = httpClientName;
+                    configure?.Invoke(options);
+                })
+                .AddTransient&lt;FirebaseAuthenticationHandler&gt;()
+                .AddTransient&lt;IFirebaseClient&gt;(provider =&gt;                 
+                {
+                    var factory = provider.GetRequiredService&lt;IHttpClientFactory&gt;();
+                    var httpClient = factory.CreateClient(httpClientName);
+                    var snapshot = provider.GetRequiredService&lt;IOptionsSnapshot&lt;FirebaseOptions&gt;&gt;();
+                    var options = snapshot.Get(httpClientName);
+
+                    return new FirebaseClient(httpClient, options);
+                })
+                .AddHttpClient(httpClientName)
+                .AddHttpMessageHandler&lt;FirebaseAuthenticationHandler&gt;();
+
+            return services;
         }
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[22,9,22,81,1],[23,9,23,10,1],[24,13,24,99,1],[25,9,25,10,1],[32,115,32,133,1],[33,9,33,10,1],[34,13,34,99,1],[35,9,35,10,1],[39,9,39,10,1],[40,13,40,49,1],[41,13,41,65,1],[42,13,42,61,1],[43,13,43,79,1],[44,13,47,15,1],[48,13,48,49,1],[50,13,50,69,1],[51,9,51,10,1]]);
+      highlightRanges([[27,9,27,10,1],[28,13,30,47,1],[31,9,31,10,1],[43,9,43,10,1],[44,13,45,17,1],[45,17,45,18,1],[45,18,46,21,1],[46,21,46,47,1],[46,47,47,17,1],[47,17,47,18,1],[47,18,49,47,1],[44,13,49,47,1],[50,9,50,10,1],[62,9,62,10,1],[63,13,64,17,1],[64,17,64,18,1],[64,18,65,21,1],[65,21,65,47,1],[65,47,66,17,1],[66,17,66,18,1],[66,18,67,43,1],[67,43,67,68,1],[67,68,67,70,1],[63,13,67,70,1],[68,9,68,10,1],[80,9,80,10,1],[81,13,82,43,1],[82,43,82,68,1],[82,68,82,70,1],[81,13,82,70,1],[83,9,83,10,1],[95,9,95,10,1],[96,13,97,17,1],[97,17,97,18,1],[97,18,98,21,1],[98,21,98,61,1],[98,61,99,21,1],[99,21,99,48,1],[99,48,100,17,1],[100,17,100,18,1],[100,18,103,17,1],[103,17,103,18,1],[103,18,104,21,1],[104,21,104,85,1],[104,85,105,21,1],[105,21,105,75,1],[105,75,106,21,1],[106,21,106,101,1],[106,101,107,21,1],[107,21,107,64,1],[107,64,109,21,1],[109,21,109,68,1],[109,68,110,17,1],[110,17,110,18,1],[110,18,112,73,1],[96,13,112,73,1],[114,13,114,29,1],[115,9,115,10,1]]);
     </script>
   </body>
 </html>

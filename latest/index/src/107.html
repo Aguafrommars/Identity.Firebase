@@ -2,47 +2,41 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseIndex.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseOptions.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Aguacongas.Firebase
 {
     /// &lt;summary&gt;
-    /// Collection of Firebase index
+    /// Firebase options
     /// &lt;/summary&gt;
-    public class FirebaseIndexes
+    public class FirebaseOptions
     {
         /// &lt;summary&gt;
-        /// Gets or sets the .indexOn property
+        /// Gets or sets serialization settings
         /// &lt;/summary&gt;
-        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
-        public string[] On { get; set; }
-    }
+        public JsonSerializerSettings JsonSerializerSettings { get; set; }
 
-    /// &lt;summary&gt;
-    /// Firebase index
-    /// &lt;/summary&gt;
-    public class FirebaseIndex
-    {
         /// &lt;summary&gt;
-        /// Gets or sets the .indexOn property
+        /// Gets or sets the firebase url
         /// &lt;/summary&gt;
-        [JsonProperty(PropertyName = &quot;.indexOn&quot;)]
-        public string On { get; set; }
+        public string DatabaseUrl { get; set; }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the HttpClient name
+        /// &lt;/summary&gt;
+        internal string HttpClientName { get; set; } = &quot;firebase&quot;;
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[17,30,17,34,1],[17,35,17,39,1],[29,28,29,32,1],[29,33,29,37,1]]);
+      highlightRanges([[13,64,13,68,1],[13,69,13,73,0],[18,37,18,41,1],[18,42,18,46,1],[23,42,23,46,0],[23,47,23,51,1],[23,56,23,66,1]]);
     </script>
   </body>
 </html>
