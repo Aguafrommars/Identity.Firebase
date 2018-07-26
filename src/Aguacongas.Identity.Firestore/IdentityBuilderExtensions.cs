@@ -38,8 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         FirestoreClient.DefaultEndpoint.ToString(),
                         credentials.ToChannelCredentials());
                     var client = FirestoreClient.Create(channel);
-                    var firestoreOptions = provider.GetRequiredService<IOptions<FirestoreOptions>>();
-                    return FirestoreDb.Create(firestoreOptions.Value.Project, client: client);
+                    return FirestoreDb.Create(authOptions.Value.project_id, client: client);
                 });
             AddStores(services, builder.UserType, builder.RoleType);
             return builder;

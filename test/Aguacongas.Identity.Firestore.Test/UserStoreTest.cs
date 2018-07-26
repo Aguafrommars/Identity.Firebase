@@ -137,10 +137,6 @@ namespace Aguacongas.Identity.Firestore.Test
             {
                 configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
             })
-            .Configure<FirestoreOptions>(options =>
-            {
-                configuration.GetSection("FirestoreOptions").Bind(options);
-            })
             .AddScoped(provider =>
             {
                 var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
@@ -151,8 +147,7 @@ namespace Aguacongas.Identity.Firestore.Test
                     FirestoreClient.DefaultEndpoint.ToString(),
                     credentials.ToChannelCredentials());
                 var client = FirestoreClient.Create(channel);
-                var firestoreOptions = provider.GetRequiredService<IOptions<FirestoreOptions>>();
-                return FirestoreDb.Create(firestoreOptions.Value.Project, client: client);
+                return FirestoreDb.Create(authOptions.Value.project_id, client: client);
             });
 
             return services.BuildServiceProvider().GetRequiredService<FirestoreDb>();

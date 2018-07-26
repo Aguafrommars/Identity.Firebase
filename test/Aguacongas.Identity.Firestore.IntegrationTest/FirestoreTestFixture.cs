@@ -16,7 +16,6 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
     public class FirestoreTestFixture
     {
         public IConfigurationRoot Configuration { get; private set; }
-        public FirestoreOptions FirestoreOptions { get; private set; }
 
         public string TestDb { get; } = DateTime.Now.ToString("s");
         public FirestoreTestFixture()
@@ -27,8 +26,6 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "../../../../identityfirestore.json"))
                 .Build();
 
-            FirestoreOptions = new FirestoreOptions();
-            Configuration.GetSection("FirestoreOptions").Bind(FirestoreOptions);
             var services = new ServiceCollection();
             services.Configure<OAuthServiceAccountKey>(options =>
             {
@@ -66,8 +63,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                 FirestoreClient.DefaultEndpoint.ToString(),
                 credentials.ToChannelCredentials());
             var client = FirestoreClient.Create(channel);
-            var options = provider.GetRequiredService<IOptions<FirestoreOptions>>();
-            return FirestoreDb.Create(FirestoreOptions.Project, client: client);
+            return FirestoreDb.Create(authOptions.Value.project_id, client: client);
         }
     }
 }
