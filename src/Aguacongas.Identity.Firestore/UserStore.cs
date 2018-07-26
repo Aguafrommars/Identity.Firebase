@@ -98,9 +98,9 @@ namespace Aguacongas.Identity.Firestore
         public UserStore(FirestoreDb db, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
+            _userOnlyStore = userOnlyStore ?? throw new ArgumentNullException(nameof(userOnlyStore));
             _userRoles = _db.Collection(UserRolesTableName);
             _roles = _db.Collection(RolesTableName);
-            _userOnlyStore = userOnlyStore ?? throw new ArgumentNullException(nameof(userOnlyStore));
         }
 
         /// <summary>

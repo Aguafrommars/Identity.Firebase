@@ -37,7 +37,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Firebase.Authent
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Identity.Firestore", "src\Aguacongas.Identity.Firestore\Aguacongas.Identity.Firestore.csproj", "{43CF12D1-61B2-4805-885D-700F5F0670A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aguacongas.Identity.Firestore.IntegrationTest", "test\Aguacongas.Identity.Firestore.IntegrationTest\Aguacongas.Identity.Firestore.IntegrationTest.csproj", "{51A0A8A5-3595-48AA-88BB-0551441E1A33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aguacongas.Identity.Firestore.IntegrationTest", "test\Aguacongas.Identity.Firestore.IntegrationTest\Aguacongas.Identity.Firestore.IntegrationTest.csproj", "{51A0A8A5-3595-48AA-88BB-0551441E1A33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aguacongas.Identity.Firestore.Test", "test\Aguacongas.Identity.Firestore.Test\Aguacongas.Identity.Firestore.Test.csproj", "{918CF80B-A15C-4B67-8636-19707CC0570A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{51A0A8A5-3595-48AA-88BB-0551441E1A33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51A0A8A5-3595-48AA-88BB-0551441E1A33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51A0A8A5-3595-48AA-88BB-0551441E1A33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{918CF80B-A15C-4B67-8636-19707CC0570A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{918CF80B-A15C-4B67-8636-19707CC0570A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{918CF80B-A15C-4B67-8636-19707CC0570A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{918CF80B-A15C-4B67-8636-19707CC0570A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +101,7 @@ Global
 		{9AE5AC86-C1E2-4DC3-9831-BB927D28C171} = {C8860BFF-CF88-4368-9B29-E486606A6649}
 		{43CF12D1-61B2-4805-885D-700F5F0670A2} = {C8860BFF-CF88-4368-9B29-E486606A6649}
 		{51A0A8A5-3595-48AA-88BB-0551441E1A33} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
+		{918CF80B-A15C-4B67-8636-19707CC0570A} = {2068ADBE-BD98-4D00-A01C-15074A3E0D63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DCB8F9E7-93CA-40BF-ADE6-55E23192FE72}
