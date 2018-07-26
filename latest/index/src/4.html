@@ -2,83 +2,427 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase\FirebaseException.cs</title>
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firestore\RoleStore.cs</title>
     <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
   </head>
   <body>
     <pre id="content" class="source-code">
-using Newtonsoft.Json;
+using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Aguacongas.Firebase
+namespace Aguacongas.Identity.Firestore
 {
     /// &lt;summary&gt;
-    /// Firebase exception
+    /// Creates a new instance of a persistence store for roles.
     /// &lt;/summary&gt;
-    public class FirebaseException: Exception
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type of the class representing a role.&lt;/typeparam&gt;
+    public class RoleStore&lt;TRole&gt; : RoleStore&lt;TRole, IdentityUserRole&lt;string&gt;, IdentityRoleClaim&lt;string&gt;&gt;,
+        IRoleClaimStore&lt;TRole&gt;
+        where TRole : IdentityRole&lt;string&gt;, new()
     {
         /// &lt;summary&gt;
-        /// Gets the HTTP statuc code
+        /// Constructs a new instance of &lt;see cref=&quot;RoleStore{TRole}&quot;/&gt;.
         /// &lt;/summary&gt;
-        public HttpStatusCode StatusCode { get; private set; }
+        /// &lt;param name=&quot;db&quot;&gt;The &lt;see cref=&quot;FirestoreDb&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
+    }
+
+    /// &lt;summary&gt;
+    /// Creates a new instance of a persistence store for roles.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name=&quot;TRole&quot;&gt;The type of the class representing a role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TUserRole&quot;&gt;The type of the class representing a user role.&lt;/typeparam&gt;
+    /// &lt;typeparam name=&quot;TRoleClaim&quot;&gt;The type of the class representing a role claim.&lt;/typeparam&gt;
+    public class RoleStore&lt;TRole, TUserRole, TRoleClaim&gt; :
+        IQueryableRoleStore&lt;TRole&gt;,
+        IRoleClaimStore&lt;TRole&gt;
+        where TRole : IdentityRole&lt;string&gt;, new()
+        where TUserRole : IdentityUserRole&lt;string&gt;, new()
+        where TRoleClaim : IdentityRoleClaim&lt;string&gt;, new()
+    {
+        private const string RolesTableName = &quot;roles&quot;;
+        private const string RoleClaimsTableName = &quot;role-claims&quot;;
+
+        private readonly FirestoreDb _db;
+        private readonly CollectionReference _roles;
+        private readonly CollectionReference _roleClaims;
+        private bool _disposed;
 
         /// &lt;summary&gt;
-        /// Gets the reason phrase
+        /// A navigation property for the roles the store contains.
         /// &lt;/summary&gt;
-        public string ReasonPhrase { get; private set; }
-
-        /// &lt;summary&gt;
-        /// Gets the Etag
-        /// &lt;/summary&gt;
-        public string Etag { get; private set; }
-
-        /// &lt;summary&gt;
-        /// Gets the error content
-        /// &lt;/summary&gt;
-
-        public string Error { get; private set; }
-
-        /// &lt;summary&gt;
-        /// Gets the &lt;see cref=&quot;FirebaseError&quot;/&gt;
-        /// &lt;/summary&gt;
-        public FirebaseError FirebaseError {
+        public IQueryable&lt;TRole&gt; Roles
+        {
             get
             {
-                try
+                var documents = _roles.GetSnapshotAsync().GetAwaiter().GetResult();
+                return documents.Select(d =&gt; Map.FromDictionary&lt;TRole&gt;(d.ToDictionary())).AsQueryable();
+
+            }
+        }
+
+
+        /// &lt;summary&gt;
+        /// Constructs a new instance of &lt;see cref=&quot;RoleStore{TRole, TUserRole, TRoleClaim}&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;db&quot;&gt;The &lt;see cref=&quot;FirestoreDb&quot;/&gt;.&lt;/param&gt;
+        /// &lt;param name=&quot;describer&quot;&gt;The &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt;.&lt;/param&gt;
+        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null)
+        {
+            _db = db ?? throw new ArgumentNullException(nameof(db));
+            _roles = _db.Collection(RolesTableName);
+            _roleClaims = _db.Collection(RoleClaimsTableName);
+            ErrorDescriber = describer ?? new IdentityErrorDescriber();
+        }
+
+        /// &lt;summary&gt;
+        /// Gets or sets the &lt;see cref=&quot;IdentityErrorDescriber&quot;/&gt; for any error that occurred with the current operation.
+        /// &lt;/summary&gt;
+        public IdentityErrorDescriber ErrorDescriber { get; set; }
+
+        /// &lt;summary&gt;
+        /// Creates a new role in a store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role to create in the store.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
+        public async virtual Task&lt;IdentityResult&gt; CreateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var dictionary = Map.ToDictionary(role);
+            var response = await _roles.Document(role.Id).SetAsync(dictionary, cancellationToken: cancellationToken);
+
+            return IdentityResult.Success;
+
+        }
+
+        /// &lt;summary&gt;
+        /// Updates a role in a store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role to update in the store.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
+        public async virtual Task&lt;IdentityResult&gt; UpdateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var dictionary = Map.ToDictionary(role);
+            return await _db.RunTransactionAsync(async transaction =&gt;
+            {
+                var roleRef = _roles.Document(role.Id);
+                var snapShot = await transaction.GetSnapshotAsync(roleRef, cancellationToken);
+                if (snapShot.GetValue&lt;string&gt;(&quot;ConcurrencyStamp&quot;) != role.ConcurrencyStamp)
                 {
-                    return JsonConvert.DeserializeObject&lt;FirebaseError&gt;(Error);
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
                 }
-                catch
+                transaction.Update(roleRef, dictionary);
+                return IdentityResult.Success;
+            }, cancellationToken: cancellationToken);
+        }
+
+        /// &lt;summary&gt;
+        /// Deletes a role from the store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role to delete from the store.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that represents the &lt;see cref=&quot;IdentityResult&quot;/&gt; of the asynchronous query.&lt;/returns&gt;
+        public async virtual Task&lt;IdentityResult&gt; DeleteAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return await _db.RunTransactionAsync(async transaction =&gt;
+            {
+                var userRef = _roles.Document(role.Id);
+                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
+                if (snapShot.GetValue&lt;string&gt;(&quot;ConcurrencyStamp&quot;) != role   .ConcurrencyStamp)
                 {
-                    return null;
+                    return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
                 }
+                transaction.Delete(userRef);
+                return IdentityResult.Success;
+            }, cancellationToken: cancellationToken);
+
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the ID for a role from the store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose ID should be returned.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the ID of the role.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.Id);
+
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the name of a role from the store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose name should be returned.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the name of the role.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.Name);
+        }
+
+        /// &lt;summary&gt;
+        /// Sets the name of a role in the store as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose name should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;roleName&quot;&gt;The name of the role.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            role.Name = roleName;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Finds the role who has the specified ID as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;id&quot;&gt;The role ID to look for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that result of the look up.&lt;/returns&gt;
+        public virtual async Task&lt;TRole&gt; FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            var snapShot = await _roles.Document(id).GetSnapshotAsync(cancellationToken);
+            if (snapShot != null)
+            {
+                return Map.FromDictionary&lt;TRole&gt;(snapShot.ToDictionary());
+            }
+
+            return null;
+        }
+
+        /// &lt;summary&gt;
+        /// Finds the role who has the specified normalized name as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;normalizedName&quot;&gt;The normalized role name to look for.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that result of the look up.&lt;/returns&gt;
+        public virtual async Task&lt;TRole&gt; FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+            {
+                throw new ArgumentNullException(nameof(normalizedName));
+            }
+
+            var snapShot = await _roles.WhereEqualTo(&quot;NormalizedName&quot;, normalizedName)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents
+                .FirstOrDefault();
+            if (document != null)
+            {
+                return Map.FromDictionary&lt;TRole&gt;(document.ToDictionary());
+            }
+            return null;
+
+        }
+
+        /// &lt;summary&gt;
+        /// Get a role&#39;s normalized name as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose normalized name should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the name of the role.&lt;/returns&gt;
+        public virtual Task&lt;string&gt; GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            return Task.FromResult(role.NormalizedName);
+
+        }
+
+        /// &lt;summary&gt;
+        /// Set a role&#39;s normalized name as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose normalized name should be set.&lt;/param&gt;
+        /// &lt;param name=&quot;normalizedName&quot;&gt;The normalized name to set&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            role.NormalizedName = normalizedName;
+            return Task.CompletedTask;
+        }
+
+        /// &lt;summary&gt;
+        /// Throws if this class has been disposed.
+        /// &lt;/summary&gt;
+        protected void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
             }
         }
 
         /// &lt;summary&gt;
-        /// Initialize a new instance of &lt;see cref=&quot;FirebaseException&quot;/&gt;
+        /// Dispose the stores
         /// &lt;/summary&gt;
-        /// &lt;param name=&quot;statusCode&quot;&gt;The HTTP status code&lt;/param&gt;
-        /// &lt;param name=&quot;reasonPhrase&quot;&gt;The reason phrase&lt;/param&gt;
-        /// &lt;param name=&quot;error&quot;&gt;The error content&lt;/param&gt;
-        /// &lt;param name=&quot;eTag&quot;&gt;The ETag value&lt;/param&gt;
-        public FirebaseException(HttpStatusCode statusCode, string reasonPhrase, string error, string eTag): base($&quot;HTTP Error {statusCode}: {reasonPhrase}&quot;)
+        public void Dispose() =&gt; _disposed = true;
+
+        /// &lt;summary&gt;
+        /// Get the claims associated with the specified &lt;paramref name=&quot;role&quot;/&gt; as an asynchronous operation.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role whose claims should be retrieved.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;A &lt;see cref=&quot;Task{TResult}&quot;/&gt; that contains the claims granted to a role.&lt;/returns&gt;
+        public async virtual Task&lt;IList&lt;Claim&gt;&gt; GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
         {
-            StatusCode = statusCode;
-            ReasonPhrase = reasonPhrase;
-            Etag = eTag;
-            Error = error;
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            var snapShot = await _roleClaims.WhereEqualTo(&quot;RoleId&quot;, role.Id)
+                .GetSnapshotAsync(cancellationToken);
+            return snapShot.Documents
+                .Select(d =&gt; new Claim(d.GetValue&lt;string&gt;(&quot;Type&quot;), d.GetValue&lt;string&gt;(&quot;Value&quot;)))
+                .ToList();
+
         }
+
+        /// &lt;summary&gt;
+        /// Adds the &lt;paramref name=&quot;claim&quot;/&gt; given to the specified &lt;paramref name=&quot;role&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role to add the claim to.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim to add to the role.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            Dictionary&lt;string, object&gt; dictionary = ClaimsToDictionary(role, claim);
+            await _roleClaims.AddAsync(dictionary, cancellationToken: cancellationToken);
+
+        }
+
+        /// &lt;summary&gt;
+        /// Removes the &lt;paramref name=&quot;claim&quot;/&gt; given from the specified &lt;paramref name=&quot;role&quot;/&gt;.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The role to remove the claim from.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The claim to remove from the role.&lt;/param&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;The &lt;see cref=&quot;CancellationToken&quot;/&gt; used to propagate notifications that the operation should be canceled.&lt;/param&gt;
+        /// &lt;returns&gt;The &lt;see cref=&quot;Task&quot;/&gt; that represents the asynchronous operation.&lt;/returns&gt;
+        public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ThrowIfDisposed();
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+            var snapShot = await _roleClaims.WhereEqualTo(&quot;RoleId&quot;, role.Id)
+                .WhereEqualTo(&quot;Type&quot;, claim.Type)
+                .GetSnapshotAsync(cancellationToken);
+            var document = snapShot.Documents.FirstOrDefault();
+            if (document != null)
+            {
+                await _roleClaims.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken);
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// Creates an entity representing a role claim.
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;role&quot;&gt;The associated role.&lt;/param&gt;
+        /// &lt;param name=&quot;claim&quot;&gt;The associated claim.&lt;/param&gt;
+        /// &lt;returns&gt;The role claim entity.&lt;/returns&gt;
+        protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
+            =&gt; new TRoleClaim { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
+
+        protected virtual Dictionary&lt;string, object&gt; ClaimsToDictionary(TRole role, Claim claim)
+        {
+            return new Dictionary&lt;string, object&gt;
+                {
+                    { &quot;RoleId&quot;,  role.Id },
+                    { &quot;Type&quot;, claim.Type },
+                    { &quot;Value&quot;, claim.Value }
+                };
+        }
+
     }
 }
 
     </pre>
     <script type="text/javascript">
-      highlightRanges([[17,44,17,48,0],[17,49,17,61,1],[22,38,22,42,0],[22,43,22,55,1],[27,30,27,34,0],[27,35,27,47,1],[33,31,33,35,1],[33,36,33,48,1],[40,13,40,14,1],[42,17,42,18,1],[43,21,43,80,1],[45,17,45,22,0],[46,17,46,18,0],[47,21,47,33,0],[49,13,49,14,1],[59,110,59,158,1],[60,9,60,10,1],[61,13,61,37,1],[62,13,62,41,1],[63,13,63,25,1],[64,13,64,27,1],[65,9,65,10,1]]);
+      highlightRanges([[25,85,25,104,1],[25,105,25,106,1],[25,107,25,108,1],[55,13,55,14,1],[56,17,56,84,1],[57,17,57,46,1],[57,46,57,89,1],[57,89,57,105,1],[57,17,57,105,1],[59,13,59,14,1],[68,9,68,82,1],[69,9,69,10,1],[70,13,70,69,1],[71,13,71,53,1],[72,13,72,63,1],[73,13,73,72,1],[74,9,74,10,1],[79,56,79,60,0],[79,61,79,65,1],[88,9,88,10,1],[89,13,89,62,1],[90,13,90,31,1],[91,13,91,30,1],[92,13,92,14,0],[93,17,93,63,0],[96,13,96,53,1],[97,13,97,118,1],[99,13,99,43,1],[101,9,101,10,1],[110,9,110,10,1],[111,13,111,62,1],[112,13,112,31,1],[113,13,113,30,1],[114,13,114,14,0],[115,17,115,63,0],[118,13,118,53,1],[119,13,120,13,1],[120,13,120,14,1],[120,14,121,17,1],[121,17,121,56,1],[121,56,122,17,1],[122,17,122,95,1],[122,95,123,17,1],[123,17,123,92,1],[123,92,124,17,1],[124,17,124,18,0],[124,18,125,21,1],[125,21,125,87,0],[125,87,127,17,1],[127,17,127,57,1],[127,57,128,17,1],[128,17,128,47,1],[128,47,129,13,1],[129,13,129,14,1],[129,14,129,54,1],[119,13,129,54,1],[130,9,130,10,1],[139,9,139,10,1],[140,13,140,62,1],[141,13,141,31,1],[142,13,142,30,1],[143,13,143,14,0],[144,17,144,63,0],[147,13,148,13,1],[148,13,148,14,1],[148,14,149,17,1],[149,17,149,56,1],[149,56,150,17,1],[150,17,150,95,1],[150,95,151,17,1],[151,17,151,95,1],[151,95,152,17,1],[152,17,152,18,0],[152,18,153,21,1],[153,21,153,87,0],[153,87,155,17,1],[155,17,155,45,1],[155,45,156,17,1],[156,17,156,47,1],[156,47,157,13,1],[157,13,157,14,1],[157,14,157,54,1],[147,13,157,54,1],[159,9,159,10,1],[168,9,168,10,1],[169,13,169,62,1],[170,13,170,31,1],[171,13,171,30,1],[172,13,172,14,0],[173,17,173,63,0],[175,13,175,45,1],[177,9,177,10,1],[186,9,186,10,1],[187,13,187,62,1],[188,13,188,31,1],[189,13,189,30,1],[190,13,190,14,0],[191,17,191,63,0],[193,13,193,47,1],[194,9,194,10,1],[204,9,204,10,1],[205,13,205,62,1],[206,13,206,31,1],[207,13,207,30,1],[208,13,208,14,0],[209,17,209,63,0],[211,13,211,34,1],[212,13,212,39,1],[213,9,213,10,1],[222,9,222,10,1],[223,13,223,62,1],[224,13,224,31,1],[225,13,225,47,1],[226,13,226,14,0],[227,17,227,61,0],[229,13,229,90,1],[230,13,230,34,1],[231,13,231,14,1],[232,17,232,75,1],[235,13,235,25,0],[236,9,236,10,1],[245,9,245,10,1],[246,13,246,31,1],[247,13,247,59,1],[248,13,248,14,0],[249,17,249,73,0],[252,13,253,54,1],[254,13,255,35,1],[256,13,256,34,1],[257,13,257,14,1],[258,17,258,75,1],[260,13,260,25,1],[262,9,262,10,1],[271,9,271,10,0],[272,13,272,62,0],[273,13,273,31,0],[274,13,274,30,0],[275,13,275,14,0],[276,17,276,63,0],[278,13,278,57,0],[280,9,280,10,0],[290,9,290,10,1],[291,13,291,62,1],[292,13,292,31,1],[293,13,293,30,1],[294,13,294,14,0],[295,17,295,63,0],[297,13,297,50,1],[298,13,298,39,1],[299,9,299,10,1],[305,9,305,10,1],[306,13,306,27,1],[307,13,307,14,0],[308,17,308,67,0],[310,9,310,10,1],[315,34,315,50,0],[324,9,324,10,1],[325,13,325,31,1],[326,13,326,30,1],[327,13,327,14,0],[328,17,328,63,0],[331,13,332,54,1],[333,13,334,30,1],[334,30,334,96,1],[334,96,335,27,1],[333,13,335,27,1],[337,9,337,10,1],[347,9,347,10,1],[348,13,348,31,1],[349,13,349,30,1],[350,13,350,14,0],[351,17,351,63,0],[353,13,353,31,1],[354,13,354,14,0],[355,17,355,64,0],[358,13,358,85,1],[359,13,359,90,1],[361,9,361,10,1],[371,9,371,10,1],[372,13,372,31,1],[373,13,373,30,1],[374,13,374,14,0],[375,17,375,63,0],[377,13,377,31,1],[378,13,378,14,0],[379,17,379,64,0],[381,13,383,54,1],[384,13,384,64,1],[385,13,385,34,1],[386,13,386,14,1],[387,17,387,107,1],[388,13,388,14,1],[389,9,389,10,1],[398,16,398,101,0],[401,9,401,10,1],[402,13,407,19,1],[408,9,408,10,1]]);
     </script>
   </body>
 </html>
