@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +21,7 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole}"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
@@ -79,7 +77,7 @@ namespace Aguacongas.Identity.Firebase
         /// <summary>
         /// Constructs a new instance of <see cref="RoleStore{TRole, TUserRole, TRoleClaim}"/>.
         /// </summary>
-        /// <param name="context">The <see cref="DbContext"/>.</param>
+        /// <param name="client">The <see cref="IFirebaseClient"/>.</param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
         public RoleStore(IFirebaseClient client, IdentityErrorDescriber describer = null)
         {

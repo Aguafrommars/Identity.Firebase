@@ -295,3 +295,4 @@ __pycache__/
 /JetBrains.dotCover.CommandLineTools/tools
 /ReportGenerator
 *.snapshot
+/test/identityfirestore.json
