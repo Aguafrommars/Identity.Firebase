@@ -1,12 +1,8 @@
-using Aguacongas.Firebase;
-using Aguacongas.Firebase.TokenManager;
-using Aguacongas.Identity.Firestore;
 using IdentitySample.Models;
 using IdentitySample.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -4,7 +4,7 @@
     <Description>Identity sample MVC application on ASP.NET Core</Description>
     <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.1</TargetFrameworks>
-    <UserSecretsId>Aguacongas.Identity.Firebase.IntegrationTest</UserSecretsId>
+    <UserSecretsId>Firestore.IdentitySample.Mvc</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,4 +32,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Aguacongas.Identity.Firestore\Aguacongas.Identity.Firestore.csproj" />
   </ItemGroup>
+
 </Project>

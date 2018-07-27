@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var services = builder.Services;
             services.Configure(configure)
-                .AddTransient(provider =>
+                .AddScoped(provider =>
                 {
                     var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
                     var json = JsonConvert.SerializeObject(authOptions.Value);
