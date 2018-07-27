@@ -19,10 +19,6 @@ namespace Aguacongas.Identity.Firestore.Test
 
             var services = new ServiceCollection();
             services
-                .Configure<FirestoreOptions>(options =>
-                {
-                    configuration.GetSection("FirestoreOptions").Bind(options);
-                })
                 .AddIdentity<IdentityUser, IdentityRole>()
                 .AddFirestoreStores(options =>
                 {

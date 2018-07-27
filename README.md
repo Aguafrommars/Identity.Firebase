@@ -1,15 +1,15 @@
 # Identity.Firebase
-[ASP.NET Identity](https://github.com/aspnet/identity) Firebase Provider
+[ASP.NET Identity](https://github.com/aspnet/identity) Firebase Providers
 
 [![Build status](https://ci.appveyor.com/api/projects/status/h3n8dna94b156o58/branch/develop?svg=true)](https://ci.appveyor.com/project/aguacongas/identity-firebase)
 [![Latest Code coveragre](https://aguacongas.github.io/Identity.Firebase/latest/badge_linecoverage.svg)](https://aguacongas.github.io/Identity.Firebase/latest)
 
 Nuget packages
 --------------
-|Aguacongas.Firebase|Aguacongas.Identity.Firebase|
-|:------:|:------:|
-[![][Aguacongas.Firebase-badge]][Aguacongas.Firebase-nuget]|[![][Aguacongas.Identity.Firebase-badge]][Aguacongas.Identity.Firebase-nuget]|
-[![][Aguacongas.Firebase-downloadbadge]][Aguacongas.Firebase-nuget]|[![][Aguacongas.Identity.Firebase-downloadbadge]][Aguacongas.Identity.Firebase-nuget]|
+|Aguacongas.Firebase|Aguacongas.Identity.Firebase|Aguacongas.Identity.Firestore|
+|:------:|:------:|:------:|
+[![][Aguacongas.Firebase-badge]][Aguacongas.Firebase-nuget]|[![][Aguacongas.Identity.Firebase-badge]][Aguacongas.Identity.Firebase-nuget]|[![][Aguacongas.Identity.Firestore-badge]][Aguacongas.Identity.Firestore-nuget]|
+[![][Aguacongas.Firebase-downloadbadge]][Aguacongas.Firebase-nuget]|[![][Aguacongas.Identity.Firebase-downloadbadge]][Aguacongas.Identity.Firebase-nuget]|[![][Aguacongas.Identity.Firestore-downloadbadge]][Aguacongas.Identity.Firestore-nuget]|
 
 
 [Aguacongas.Firebase-badge]: https://img.shields.io/nuget/v/Aguacongas.Firebase.svg
@@ -20,13 +20,15 @@ Nuget packages
 [Aguacongas.Identity.Firebase-downloadbadge]: https://img.shields.io/nuget/dt/Aguacongas.Identity.Firebase.svg
 [Aguacongas.Identity.Firebase-nuget]: https://www.nuget.org/packages/Aguacongas.Identity.Firebase/
 
-
+[Aguacongas.Identity.Firestore-badge]: https://img.shields.io/nuget/v/Aguacongas.Identity.Firestore.svg
+[Aguacongas.Identity.Firestore-downloadbadge]: https://img.shields.io/nuget/dt/Aguacongas.Identity.Firestore.svg
+[Aguacongas.Identity.Firestore-nuget]: https://www.nuget.org/packages/Aguacongas.Identity.Firestore/
 
 ## Setup
 
 Read [Authentication](https://github.com/aguacongas/Identity.Firebase/wiki/Authentication) wiki page to setup stores.
 
-## Sample
+## Samples
 
-The sample is a copy of [IdentitySample.Mvc](https://github.com/aspnet/Identity/tree/dev/samples/IdentitySample.Mvc) sample using a firebase database.  
+Samples are copies of [IdentitySample.Mvc](https://github.com/aspnet/Identity/tree/dev/samples/IdentitySample.Mvc) sample using a firebase database (Realtime or Firestore).  
 
