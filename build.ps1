@@ -23,7 +23,7 @@ if ($isLinux) {
 		$testArgs = "test " + $_.FullName
 		Write-Host "testargs" $testArgs
 		Write-Host "coveragefile" $coveragefile
-		JetBrains.dotCover.CommandLineTools\tools\dotCover.exe cover /TargetExecutable="C:\Program Files\dotnet\dotnet.exe" /TargetArguments="$testArgs" /Filters="-:*.Test;-:*.IntegrationTest;-:xunit.*;-:MSBuild;-:Moq;-:Google.*;-:NuGet.MSBuildSdkResolver" /Output="$_.snapshot"
+		JetBrains.dotCover.CommandLineTools\tools\dotCover.exe cover /TargetExecutable="C:\Program Files\dotnet\dotnet.exe" /TargetArguments="$testArgs" /Filters="-:*.Test;-:*.IntegrationTest;-:xunit.*;-:MSBuild;-:Moq;-:Google.*;-:Grpc.*;-:NuGet.MSBuildSdkResolver" /Output="$_.snapshot"
     
 		if ($LASTEXITCODE -ne 0) {
 			$result = $LASTEXITCODE
