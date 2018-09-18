@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Firebase.Authentication\TokenManager\OAuthTokenManager.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Google.Apis.Auth.OAuth2;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Aguacongas.Firebase.TokenManager
+{
+    /// &lt;summary&gt;
+    /// OAuth token manager to manage authentication by OAuth
+    /// &lt;/summary&gt;
+    public class OAuthTokenManager : IFirebaseTokenManager
+    {
+        private readonly ITokenAccess _credential;
+
+        /// &lt;summary&gt;
+        /// Gets the authentication param name
+        /// &lt;/summary&gt;
+        public string AuthParamName { get; } = &quot;access_token&quot;;
+
+        /// &lt;summary&gt;
+        /// Initialize a new instance of &lt;see cref=&quot;OAuthTokenManager&quot;/&gt;
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;credential&quot;&gt;A &lt;see cref=&quot;ITokenAccess&quot;/&gt;&lt;/param&gt;
+        public OAuthTokenManager(ITokenAccess credential)
+        {
+            _credential = credential ?? throw new ArgumentNullException(nameof(credential));
+        }
+
+        /// &lt;summary&gt;
+        /// Gets the authentication token
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;cancellationToken&quot;&gt;A &lt;see cref=&quot;CancellationToken&quot;/&gt;&lt;/param&gt;
+        /// &lt;returns&gt;The token&lt;/returns&gt;
+        public async Task&lt;string&gt; GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[18,39,18,43,1],[18,48,18,62,1],[24,9,24,58,1],[25,9,25,10,1],[26,13,26,93,1],[27,9,27,10,1],[35,9,35,10,1],[36,13,36,106,1],[37,9,37,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\projects\identity-firebase\src\Aguacongas.Identity.Firestore\Map.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Google.Cloud.Firestore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Aguacongas.Identity.Firestore
+{
+    static class Map
+    {
+        public static T FromDictionary&lt;T&gt;(Dictionary&lt;string, object&gt; dictionary) where T : new()
+        {
+            if (dictionary == null)
+            {
+                return default(T);
+            }
+            var user = new T();
+            var type = user.GetType();
+            foreach (var key in dictionary.Keys)
+            {
+                var property = type.GetProperty(key);
+                var value = dictionary[key];
+                var valueType = value?.GetType();
+                if (value != null &amp;&amp; valueType != property.PropertyType)
+                {
+                    if (valueType == typeof(Timestamp))
+                    {
+                        if (property.PropertyType == typeof(DateTimeOffset) || property.PropertyType == typeof(DateTimeOffset?))
+                        {
+                            value = ((Timestamp)value).ToDateTimeOffset();
+                        }
+                        else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                        {
+                            value = ((Timestamp)value).ToDateTime();
+                        }
+                    }
+                    else
+                    {
+                        value = Convert.ChangeType(value, property.PropertyType);
+                    }
+                }
+                property.SetValue(user, value);
+            }
+            return user;
+        }
+
+        public static Dictionary&lt;string, object&gt; ToDictionary&lt;T&gt;(T obj)
+        {
+            var type = obj.GetType();
+            var properties = type.GetProperties()
+                .Where(p =&gt; p.PropertyType.IsValueType || p.PropertyType == typeof(string));
+            var dictionary = new Dictionary&lt;string, object&gt;(properties.Count());
+            foreach (var property in properties)
+            {
+                dictionary.Add(property.Name, property.GetValue(obj));
+            }
+            return dictionary;
+        }
+
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,10,1],[13,13,13,36,1],[14,13,14,14,1],[15,17,15,35,1],[17,13,17,32,1],[18,13,18,39,1],[19,13,19,20,1],[19,22,19,29,1],[19,30,19,32,1],[19,33,19,48,1],[20,13,20,14,1],[21,17,21,54,1],[22,17,22,45,1],[23,17,23,50,1],[24,17,24,73,1],[25,17,25,18,1],[26,21,26,56,1],[27,21,27,22,1],[28,25,28,129,1],[29,25,29,26,1],[30,29,30,75,1],[31,25,31,26,1],[32,30,32,122,0],[33,25,33,26,0],[34,29,34,69,0],[35,25,35,26,0],[36,21,36,22,1],[38,21,38,22,1],[39,25,39,82,1],[40,21,40,22,1],[41,17,41,18,1],[42,17,42,48,1],[43,13,43,14,1],[44,13,44,25,1],[45,9,45,10,1],[48,9,48,10,1],[49,13,49,38,1],[50,13,51,29,1],[51,29,51,91,1],[51,91,51,93,1],[50,13,51,93,1],[52,13,52,81,1],[53,13,53,20,1],[53,22,53,34,1],[53,35,53,37,1],[53,38,53,48,1],[54,13,54,14,1],[55,17,55,71,1],[56,13,56,14,1],[57,13,57,31,1],[58,9,58,10,1]]);
+    </script>
+  </body>
+</html>
