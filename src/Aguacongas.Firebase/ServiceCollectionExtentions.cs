@@ -108,7 +108,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     return new FirebaseClient(httpClient, options);
                 })
-                .AddHttpClient(httpClientName)
+                .AddHttpClient(httpClientName, client => { })
                 .AddHttpMessageHandler<FirebaseAuthenticationHandler>();
 
             return services;
