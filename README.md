@@ -32,3 +32,6 @@ Read [Authentication](https://github.com/aguacongas/Identity.Firebase/wiki/Authe
 
 Samples are copies of [IdentitySample.Mvc](https://github.com/aspnet/Identity/tree/dev/samples/IdentitySample.Mvc) sample using a firebase database (Realtime or Firestore).  
 
+## Tests
+
+Thoses libraries are tested using [Microsoft.AspNetCore.Identity.Specification.Tests](https://www.nuget.org/packages/Microsoft.AspNetCore.Identity.Specification.Tests/), the shared test suite for Asp.Net Identity Core store implementations.  
