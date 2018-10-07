@@ -39,7 +39,6 @@ install:
     - sh: nuget install GitVersion.CommandLine -ExcludeVersion
     - sh: mono GitVersion.CommandLine/tools/GitVersion.exe /l console /output buildserver
     - cmd: gitversion /l console /output buildserver
-    - cmd: nuget install JetBrains.dotCover.CommandLineTools -ExcludeVersion
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
     - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
