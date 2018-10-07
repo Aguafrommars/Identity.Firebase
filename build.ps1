@@ -20,7 +20,7 @@ if ($isLinux) {
 		   -Or $_.Name -like "*.Test.csproj" `
 		 } `
 	| % { 
-        &('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '-c', 'Release', '/p:CollectCoverage=true', '/p:CoverletOutputFormat=cobertura', '/p:Exclude=\"[*.Web.Views]*,[*]Ch.Ne.Sien.DotNetAccess.Data.Migrations.*\"')    
+        &('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '-c', 'Release', '/p:CollectCoverage=true', '/p:CoverletOutputFormat=cobertura')    
 		if ($LASTEXITCODE -ne 0) {
 			$result = $LASTEXITCODE
 		}
