@@ -14,7 +14,6 @@ if ($isLinux) {
 		}
 	}
 } else {
-	$merge = ""
 	gci -rec `
 	| ? { $_.Name -like "*.IntegrationTest.csproj" `
 		   -Or $_.Name -like "*.Test.csproj" `
