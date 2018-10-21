@@ -38,13 +38,14 @@ th { text-align: left; }
 .overview th a { color: #000; }
 .overview tr.namespace a { margin-left: 15px; }
 .overview td { border: solid 1px #c1c1c1; border-collapse: collapse; padding: 2px 5px 2px 5px; }
+div.currenthistory { margin: -2px -5px 0 -5px; padding: 2px 5px 2px 5px; height: 16px; }
 .coverage { border: solid 1px #c1c1c1; border-collapse: collapse; font-size: 5px; height: 10px; }
 .coverage td { padding: 0; border: none; }
 .stripped tr:nth-child(2n+1) { background-color: #F3F3F3; }
 
 .customizebox { font-size: 0.75em; margin-bottom: 7px; }
-.customizebox div { width: 33.33%; display: inline-block; }
-.customizebox input { font-size: 0.8em; width: 150px; }
+.customizebox>div { width: 25%; display: inline-block; }
+.customizebox div.right input { font-size: 0.8em; width: 150px; }
 #namespaceslider { width: 200px; display: inline-block; margin-left: 8px; }
 
 .percentagebarundefined {
@@ -52,56 +53,56 @@ th { text-align: left; }
     padding-left: 3px;
 }
 .percentagebar0 {
-    border-left: 2px solid #f00;
+    border-left: 2px solid #c10909;
     padding-left: 3px;
 }
 .percentagebar10 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 90%, #00ff21 90%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 90%, #0aad0a 90%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar20 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 80%, #00ff21 80%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 80%, #0aad0a 80%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar30 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 70%, #00ff21 70%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 70%, #0aad0a 70%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar40 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 60%, #00ff21 60%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 60%, #0aad0a 60%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar50 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 50%, #00ff21 50%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 50%, #0aad0a 50%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar60 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 40%, #00ff21 40%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 40%, #0aad0a 40%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar70 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 30%, #00ff21 30%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 30%, #0aad0a 30%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar80 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 20%, #00ff21 20%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 20%, #0aad0a 20%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar90 {
     border-left: 2px solid;
-    border-image: linear-gradient(to bottom, #f00 10%, #00ff21 10%, #00ff21 100%) 1;
+    border-image: linear-gradient(to bottom, #c10909 10%, #0aad0a 10%, #0aad0a 100%) 1;
     padding-left: 3px;
 }
 .percentagebar100 {
-    border-left: 2px solid #00ff21;
+    border-left: 2px solid #0aad0a;
     padding-left: 3px;
 }
 
@@ -110,14 +111,15 @@ th { text-align: left; }
 .center { text-align: center; }
 .rightmargin  { padding-right: 8px; }
 .leftmargin { padding-left: 5px; }
-.green { background-color: #00ff21; }
+.green { background-color: #0aad0a; }
 .lightgreen { background-color: #dcf4dc; }
-.red { background-color: #f00; }
+.red { background-color: #c10909; }
 .lightred { background-color: #f7dede; }
 .orange { background-color: #FFA500; }
 .lightorange { background-color: #FFEFD5; }
 .gray { background-color: #dcdcdc; }
 .lightgray { color: #888888; }
+.lightgraybg { background-color: #dadada; }
 
 .toggleZoom { text-align:right; }
 
@@ -129,6 +131,7 @@ th { text-align: left; }
 .ct-chart .ct-series.ct-series-b .ct-line, .ct-chart .ct-series.ct-series-b .ct-point { stroke: #1c2298 !important;}
 
 .tinylinecoveragechart, .tinybranchcoveragechart { background-color: #fff; margin-left: -3px; float: left; border: solid 1px #c1c1c1; width: 30px; height: 18px; }
+.historiccoverageoffset { margin-top: 7px; }
 
 .tinylinecoveragechart .ct-line, .tinybranchcoveragechart .ct-line { stroke-width: 1px !important; }
 .tinybranchcoveragechart .ct-series.ct-series-a .ct-line { stroke: #1c2298 !important; }
@@ -263,7 +266,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
     position: relative;
     top: 3px;
@@ -273,7 +276,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
     position: relative;
     top: 3px;
@@ -283,7 +286,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
     position: relative;
     top: 3px;
@@ -293,7 +296,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 .icon-plus {
@@ -301,7 +304,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
     position: relative;
     top: 3px;
@@ -311,7 +314,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 15px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
     position: relative;
     top: 3px;
@@ -321,7 +324,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 20px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 .icon-fork {
@@ -329,7 +332,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 20px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 .icon-cube {
@@ -337,7 +340,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 20px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 .icon-search-plus {
@@ -345,7 +348,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 20px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 .icon-search-minus {
@@ -353,7 +356,7 @@ th { text-align: left; }
     background-repeat: no-repeat;
     background-size: contain;
     padding-left: 20px;
-    height: 1em;
+    height: 0.9em;
     display: inline-block;
 }
 
@@ -369,41 +372,49 @@ th { text-align: left; }
 <tr><th>Class:</th><td>Aguacongas.Identity.Firestore.UserStore`7</td></tr>
 <tr><th>Assembly:</th><td>Aguacongas.Identity.Firestore</td></tr>
 <tr><th>File(s):</th><td><a href="#CprojectsidentityfirebasesrcAguacongasIdentityFirestoreUserStorecs" data-ng-click="navigateToHash('#CprojectsidentityfirebasesrcAguacongasIdentityFirestoreUserStorecs')">C:\projects\identity-firebase\src\Aguacongas.Identity.Firestore\UserStore.cs</a></td></tr>
-<tr><th>Covered lines:</th><td>27</td></tr>
-<tr><th>Uncovered lines:</th><td>3</td></tr>
-<tr><th>Coverable lines:</th><td>30</td></tr>
+<tr><th>Covered lines:</th><td>114</td></tr>
+<tr><th>Uncovered lines:</th><td>22</td></tr>
+<tr><th>Coverable lines:</th><td>136</td></tr>
 <tr><th>Total lines:</th><td>543</td></tr>
-<tr><th>Line coverage:</th><td>90%</td></tr>
-<tr><th>Branch coverage:</th><td>100%</td></tr>
+<tr><th>Line coverage:</th><td>83.8%</td></tr>
+<tr><th>Branch coverage:</th><td>86.9%</td></tr>
 </tbody>
 </table>
 <h1>Metrics</h1>
 <table class="overview table-fixed">
 <thead><tr><th>Method</th><th>Line coverage <a href="https://en.wikipedia.org/wiki/Code_coverage"><i class="icon-info-circled"></i></a></th><th>Branch coverage <a href="https://en.wikipedia.org/wiki/Code_coverage"><i class="icon-info-circled"></i></a></th></tr></thead>
 <tbody>
-<tr><td title="get_Users()">get_Users()</td><td>1</td><td>0</td></tr>
-<tr><td title="CreateAsync(TUser,System.Threading.CancellationToken)">CreateAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="UpdateAsync(TUser,System.Threading.CancellationToken)">UpdateAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="DeleteAsync(TUser,System.Threading.CancellationToken)">DeleteAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="FindByIdAsync(System.String,System.Threading.CancellationToken)">FindByIdAsync(System.String,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="FindByNameAsync(System.String,System.Threading.CancellationToken)">FindByNameAsync(System.String,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="GetClaimsAsync(TUser,System.Threading.CancellationToken)">GetClaimsAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="AddClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)">AddClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="ReplaceClaimAsync(TUser,System.Security.Claims.Claim,System.Security.Claims.Claim,System.Threading.CancellationToken)">ReplaceClaimAsync(TUser,System.Security.Claims.Claim,System.Security.Claims.Claim,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="RemoveClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)">RemoveClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="AddLoginAsync(TUser,Microsoft.AspNetCore.Identity.UserLoginInfo,System.Threading.CancellationToken)">AddLoginAsync(TUser,Microsoft.AspNetCore.Identity.UserLoginInfo,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="RemoveLoginAsync(TUser,System.String,System.String,System.Threading.CancellationToken)">RemoveLoginAsync(TUser,System.String,System.String,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="GetLoginsAsync(TUser,System.Threading.CancellationToken)">GetLoginsAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="FindByLoginAsync(System.String,System.String,System.Threading.CancellationToken)">FindByLoginAsync(System.String,System.String,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="FindByEmailAsync(System.String,System.Threading.CancellationToken)">FindByEmailAsync(System.String,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="GetUsersForClaimAsync(System.Security.Claims.Claim,System.Threading.CancellationToken)">GetUsersForClaimAsync(System.Security.Claims.Claim,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="FindUserAsync(System.String,System.Threading.CancellationToken)">FindUserAsync(System.String,System.Threading.CancellationToken)</td><td>0</td><td>0</td></tr>
-<tr><td title="FindUserLoginAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">FindUserLoginAsync(System.String,System.String,System.String,System.Threading.CancellationToken)</td><td>0</td><td>0</td></tr>
-<tr><td title="FindUserLoginAsync(System.String,System.String,System.Threading.CancellationToken)">FindUserLoginAsync(System.String,System.String,System.Threading.CancellationToken)</td><td>0</td><td>0</td></tr>
-<tr><td title="GetUserTokensAsync(TUser,System.Threading.CancellationToken)">GetUserTokensAsync(TUser,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="SaveUserTokensAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;TUserToken&gt;,System.Threading.CancellationToken)">SaveUserTokensAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;TUserToken&gt;,System.Threading.CancellationToken)</td><td>1</td><td>0</td></tr>
-<tr><td title="Dispose(System.Boolean)">Dispose(System.Boolean)</td><td>1</td><td>0</td></tr>
-<tr><td title=".ctor(Google.Cloud.Firestore.FirestoreDb,Aguacongas.Identity.Firestore.UserOnlyStore`4&lt;TUser,TUserClaim,TUserLogin,TUserToken&gt;,Microsoft.AspNetCore.Identity.IdentityErrorDescriber)">.ctor(Google.Cloud.Firestore.FirestoreDb,Aguacongas.Identity.Firestore.UserOnlyStore`4&lt;TUser,TUserClaim,TUserLogin,TUserToken&gt;,Microsoft.AspNetCore.Identity.IdentityErrorDescriber)</td><td>1</td><td>1</td></tr>
+<tr><td title="get_Users()"><a href="#file0_line91" data-ng-click="navigateToHash('#file0_line91')">get_Users()</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title=".ctor(Google.Cloud.Firestore.FirestoreDb,Aguacongas.Identity.Firestore.UserOnlyStore`4&lt;TUser,TUserClaim,TUserLogin,TUserToken&gt;,Microsoft.AspNetCore.Identity.IdentityErrorDescriber)"><a href="#file0_line98" data-ng-click="navigateToHash('#file0_line98')">.ctor(...)</a></td><td>100%</td><td>100%</td></tr>
+<tr><td title="CreateAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line113" data-ng-click="navigateToHash('#file0_line113')">CreateAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="UpdateAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line122" data-ng-click="navigateToHash('#file0_line122')">UpdateAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="DeleteAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line131" data-ng-click="navigateToHash('#file0_line131')">DeleteAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="FindByIdAsync(System.String,System.Threading.CancellationToken)"><a href="#file0_line142" data-ng-click="navigateToHash('#file0_line142')">FindByIdAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="FindByNameAsync(System.String,System.Threading.CancellationToken)"><a href="#file0_line153" data-ng-click="navigateToHash('#file0_line153')">FindByNameAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="AddToRoleAsync()"><a href="#file0_line164" data-ng-click="navigateToHash('#file0_line164')">AddToRoleAsync()</a></td><td>81.20%</td><td>100%</td></tr>
+<tr><td title="RemoveFromRoleAsync()"><a href="#file0_line197" data-ng-click="navigateToHash('#file0_line197')">RemoveFromRoleAsync()</a></td><td>86.70%</td><td>100%</td></tr>
+<tr><td title="GetRolesAsync()"><a href="#file0_line229" data-ng-click="navigateToHash('#file0_line229')">GetRolesAsync()</a></td><td>92.90%</td><td>100%</td></tr>
+<tr><td title="IsInRoleAsync()"><a href="#file0_line261" data-ng-click="navigateToHash('#file0_line261')">IsInRoleAsync()</a></td><td>78.60%</td><td>100%</td></tr>
+<tr><td title="GetClaimsAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line288" data-ng-click="navigateToHash('#file0_line288')">GetClaimsAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="AddClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)"><a href="#file0_line298" data-ng-click="navigateToHash('#file0_line298')">AddClaimsAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="ReplaceClaimAsync(TUser,System.Security.Claims.Claim,System.Security.Claims.Claim,System.Threading.CancellationToken)"><a href="#file0_line309" data-ng-click="navigateToHash('#file0_line309')">ReplaceClaimAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="RemoveClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)"><a href="#file0_line319" data-ng-click="navigateToHash('#file0_line319')">RemoveClaimsAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="AddLoginAsync(TUser,Microsoft.AspNetCore.Identity.UserLoginInfo,System.Threading.CancellationToken)"><a href="#file0_line330" data-ng-click="navigateToHash('#file0_line330')">AddLoginAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="RemoveLoginAsync(TUser,System.String,System.String,System.Threading.CancellationToken)"><a href="#file0_line342" data-ng-click="navigateToHash('#file0_line342')">RemoveLoginAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="GetLoginsAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line353" data-ng-click="navigateToHash('#file0_line353')">GetLoginsAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="FindByLoginAsync(System.String,System.String,System.Threading.CancellationToken)"><a href="#file0_line366" data-ng-click="navigateToHash('#file0_line366')">FindByLoginAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="FindByEmailAsync(System.String,System.Threading.CancellationToken)"><a href="#file0_line377" data-ng-click="navigateToHash('#file0_line377')">FindByEmailAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="GetUsersForClaimAsync(System.Security.Claims.Claim,System.Threading.CancellationToken)"><a href="#file0_line388" data-ng-click="navigateToHash('#file0_line388')">GetUsersForClaimAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="GetUsersInRoleAsync()"><a href="#file0_line400" data-ng-click="navigateToHash('#file0_line400')">GetUsersInRoleAsync()</a></td><td>93.80%</td><td>100%</td></tr>
+<tr><td title="FindRoleAsync()"><a href="#file0_line431" data-ng-click="navigateToHash('#file0_line431')">FindRoleAsync()</a></td><td>90.90%</td><td>100%</td></tr>
+<tr><td title="FindUserRoleAsync()"><a href="#file0_line456" data-ng-click="navigateToHash('#file0_line456')">FindUserRoleAsync()</a></td><td>0%</td><td>0%</td></tr>
+<tr><td title="FindUserAsync(System.String,System.Threading.CancellationToken)"><a href="#file0_line484" data-ng-click="navigateToHash('#file0_line484')">FindUserAsync(...)</a></td><td>0%</td><td>0%</td></tr>
+<tr><td title="FindUserLoginAsync(System.String,System.String,System.String,System.Threading.CancellationToken)"><a href="#file0_line495" data-ng-click="navigateToHash('#file0_line495')">FindUserLoginAsync(...)</a></td><td>0%</td><td>0%</td></tr>
+<tr><td title="FindUserLoginAsync(System.String,System.String,System.Threading.CancellationToken)"><a href="#file0_line505" data-ng-click="navigateToHash('#file0_line505')">FindUserLoginAsync(...)</a></td><td>0%</td><td>0%</td></tr>
+<tr><td title="GetUserTokensAsync(TUser,System.Threading.CancellationToken)"><a href="#file0_line514" data-ng-click="navigateToHash('#file0_line514')">GetUserTokensAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="SaveUserTokensAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;TUserToken&gt;,System.Threading.CancellationToken)"><a href="#file0_line524" data-ng-click="navigateToHash('#file0_line524')">SaveUserTokensAsync(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="Dispose(System.Boolean)"><a href="#file0_line528" data-ng-click="navigateToHash('#file0_line528')">Dispose(...)</a></td><td>100%</td><td>0%</td></tr>
+<tr><td title="FindRoleByIdAsync()"><a href="#file0_line534" data-ng-click="navigateToHash('#file0_line534')">FindRoleByIdAsync()</a></td><td>83.30%</td><td>100%</td></tr>
 </tbody>
 </table>
 <h1>File(s)</h1>
@@ -508,10 +519,10 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line95"></a><code>95</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line96"></a><code>96</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;param&nbsp;name=&quot;db&quot;&gt;The&nbsp;&lt;see&nbsp;cref=&quot;FirestoreDb&quot;/&gt;.&lt;/param&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line97"></a><code>97</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;param&nbsp;name=&quot;describer&quot;&gt;The&nbsp;&lt;see&nbsp;cref=&quot;IdentityErrorDescriber&quot;/&gt;&nbsp;used&nbsp;to&nbsp;describe&nbsp;store&nbsp;errors.&lt;/param&gt;</code></td></tr>
-<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '96', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">96</td><td class="rightmargin right"><a id="file0_line98"></a><code>98</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;UserStore(FirestoreDb&nbsp;db,&nbsp;UserOnlyStore&lt;TUser,&nbsp;TUserClaim,&nbsp;TUserLogin,&nbsp;TUserToken&gt;&nbsp;userOnlyStore,&nbsp;Identit</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '96', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">96</td><td class="rightmargin right"><a id="file0_line98"></a><code>98</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;UserStore(FirestoreDb&nbsp;db,&nbsp;UserOnlyStore&lt;TUser,&nbsp;TUserClaim,&nbsp;TUserLogin,&nbsp;TUserToken&gt;&nbsp;userOnlyStore,&nbsp;Identit</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line99"></a><code>99</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '96', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">96</td><td class="rightmargin right"><a id="file0_line100"></a><code>100</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_db&nbsp;=&nbsp;db&nbsp;??&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(db));</code></td></tr>
-<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '95', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">95</td><td class="rightmargin right"><a id="file0_line101"></a><code>101</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_userOnlyStore&nbsp;=&nbsp;userOnlyStore&nbsp;??&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(userOnlyStore));</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '96', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">96</td><td class="rightmargin right"><a id="file0_line100"></a><code>100</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_db&nbsp;=&nbsp;db&nbsp;??&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(db));</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '95', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">95</td><td class="rightmargin right"><a id="file0_line101"></a><code>101</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_userOnlyStore&nbsp;=&nbsp;userOnlyStore&nbsp;??&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(userOnlyStore));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '94', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">94</td><td class="rightmargin right"><a id="file0_line102"></a><code>102</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_userRoles&nbsp;=&nbsp;_db.Collection(UserRolesTableName);</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '94', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">94</td><td class="rightmargin right"><a id="file0_line103"></a><code>103</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_roles&nbsp;=&nbsp;_db.Collection(RolesTableName);</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '94', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">94</td><td class="rightmargin right"><a id="file0_line104"></a><code>104</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
@@ -574,29 +585,29 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line161"></a><code>161</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;The&nbsp;&lt;see&nbsp;cref=&quot;Task&quot;/&gt;&nbsp;that&nbsp;represents&nbsp;the&nbsp;asynchronous&nbsp;operation.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line162"></a><code>162</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;async&nbsp;override&nbsp;Task&nbsp;AddToRoleAsync(TUser&nbsp;user,&nbsp;string&nbsp;normalizedRoleName,&nbsp;CancellationToken&nbsp;cancellationT</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line163"></a><code>163</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line164"></a><code>164</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line165"></a><code>165</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line166"></a><code>166</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '46', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">46</td><td class="rightmargin right"><a id="file0_line164"></a><code>164</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '46', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">46</td><td class="rightmargin right"><a id="file0_line165"></a><code>165</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '45', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">45</td><td class="rightmargin right"><a id="file0_line166"></a><code>166</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line167"></a><code>167</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line168"></a><code>168</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line168"></a><code>168</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line169"></a><code>169</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line170"></a><code>170</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '44', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">44</td><td class="rightmargin right"><a id="file0_line170"></a><code>170</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line171"></a><code>171</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line172"></a><code>172</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '2', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">2</td><td class="rightmargin right"><a id="file0_line172"></a><code>172</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line173"></a><code>173</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line174"></a><code>174</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line175"></a><code>175</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;==&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line174"></a><code>174</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line175"></a><code>175</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;==&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line176"></a><code>176</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line177"></a><code>177</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;InvalidOperationException(string.Format(CultureInfo.CurrentCulture,&nbsp;&quot;RoleNotFound&nbsp;{0}&quot;,&nbsp;normal</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line177"></a><code>177</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;InvalidOperationException(string.Format(CultureInfo.CurrentCulture,&nbsp;&quot;RoleNotFound&nbsp;{0}&quot;,&nbsp;normal</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line178"></a><code>178</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line179"></a><code>179</code></td><td></td><td class="lightgray"><code></code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line180"></a><code>180</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;dictionary&nbsp;=&nbsp;new&nbsp;Dictionary&lt;string,&nbsp;object&gt;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line181"></a><code>181</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line182"></a><code>182</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&quot;UserId&quot;,&nbsp;user.Id&nbsp;},</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line183"></a><code>183</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&quot;RoleId&quot;,&nbsp;role.Id&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line184"></a><code>184</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line185"></a><code>185</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;_userRoles.AddAsync(dictionary,&nbsp;cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line186"></a><code>186</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line180"></a><code>180</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;dictionary&nbsp;=&nbsp;new&nbsp;Dictionary&lt;string,&nbsp;object&gt;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line181"></a><code>181</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line182"></a><code>182</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&quot;UserId&quot;,&nbsp;user.Id&nbsp;},</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line183"></a><code>183</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&quot;RoleId&quot;,&nbsp;role.Id&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line184"></a><code>184</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line185"></a><code>185</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;_userRoles.AddAsync(dictionary,&nbsp;cancellationToken);</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '42', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">42</td><td class="rightmargin right"><a id="file0_line186"></a><code>186</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line187"></a><code>187</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line188"></a><code>188</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line189"></a><code>189</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Removes&nbsp;the&nbsp;given&nbsp;&lt;paramref&nbsp;name=&quot;normalizedRoleName&quot;/&gt;&nbsp;from&nbsp;the&nbsp;specified&nbsp;&lt;paramref&nbsp;name=&quot;user&quot;/&gt;.</code></td></tr>
@@ -607,29 +618,29 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line194"></a><code>194</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;The&nbsp;&lt;see&nbsp;cref=&quot;Task&quot;/&gt;&nbsp;that&nbsp;represents&nbsp;the&nbsp;asynchronous&nbsp;operation.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line195"></a><code>195</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;async&nbsp;override&nbsp;Task&nbsp;RemoveFromRoleAsync(TUser&nbsp;user,&nbsp;string&nbsp;normalizedRoleName,&nbsp;CancellationToken&nbsp;cancella</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line196"></a><code>196</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line197"></a><code>197</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line198"></a><code>198</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line199"></a><code>199</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '9', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">9</td><td class="rightmargin right"><a id="file0_line197"></a><code>197</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '9', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">9</td><td class="rightmargin right"><a id="file0_line198"></a><code>198</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '8', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">8</td><td class="rightmargin right"><a id="file0_line199"></a><code>199</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line200"></a><code>200</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line201"></a><code>201</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line201"></a><code>201</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line202"></a><code>202</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line203"></a><code>203</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '7', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">7</td><td class="rightmargin right"><a id="file0_line203"></a><code>203</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line204"></a><code>204</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line205"></a><code>205</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '2', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">2</td><td class="rightmargin right"><a id="file0_line205"></a><code>205</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line206"></a><code>206</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line207"></a><code>207</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line208"></a><code>208</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line207"></a><code>207</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line208"></a><code>208</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line209"></a><code>209</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line210"></a><code>210</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line211"></a><code>211</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line212"></a><code>212</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line213"></a><code>213</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line214"></a><code>214</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line210"></a><code>210</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line211"></a><code>211</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line212"></a><code>212</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line213"></a><code>213</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line214"></a><code>214</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line215"></a><code>215</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line216"></a><code>216</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;_userRoles.Document(document.Id).DeleteAsync();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line216"></a><code>216</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;_userRoles.Document(document.Id).DeleteAsync();</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line217"></a><code>217</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line218"></a><code>218</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line219"></a><code>219</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line219"></a><code>219</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line220"></a><code>220</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line221"></a><code>221</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line222"></a><code>222</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Retrieves&nbsp;the&nbsp;roles&nbsp;the&nbsp;specified&nbsp;&lt;paramref&nbsp;name=&quot;user&quot;/&gt;&nbsp;is&nbsp;a&nbsp;member&nbsp;of.</code></td></tr>
@@ -639,27 +650,27 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line226"></a><code>226</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;A&nbsp;&lt;see&nbsp;cref=&quot;Task{TResult}&quot;/&gt;&nbsp;that&nbsp;contains&nbsp;the&nbsp;roles&nbsp;the&nbsp;user&nbsp;is&nbsp;a&nbsp;member&nbsp;of.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line227"></a><code>227</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;async&nbsp;Task&lt;IList&lt;string&gt;&gt;&nbsp;GetRolesAsync(TUser&nbsp;user,&nbsp;CancellationToken&nbsp;cancellationToken&nbsp;=&nbsp;defaul</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line228"></a><code>228</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line229"></a><code>229</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line230"></a><code>230</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line231"></a><code>231</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '6', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">6</td><td class="rightmargin right"><a id="file0_line229"></a><code>229</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '6', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">6</td><td class="rightmargin right"><a id="file0_line230"></a><code>230</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line231"></a><code>231</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line232"></a><code>232</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line233"></a><code>233</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line233"></a><code>233</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line234"></a><code>234</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line235"></a><code>235</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line236"></a><code>236</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line235"></a><code>235</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line236"></a><code>236</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line237"></a><code>237</code></td><td></td><td class="lightgray"><code></code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line238"></a><code>238</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;documents&nbsp;=&nbsp;snapShot.Documents;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line239"></a><code>239</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;list&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;(documents.Count);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line240"></a><code>240</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach(var&nbsp;document&nbsp;in&nbsp;documents)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line238"></a><code>238</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;documents&nbsp;=&nbsp;snapShot.Documents;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line239"></a><code>239</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;list&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;(documents.Count);</code></td></tr>
+<tr title="4 of 4 branches are covered" data-coverage="{'AllTestMethods': {'VC': '40', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">40</td><td class="rightmargin right"><a id="file0_line240"></a><code>240</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach(var&nbsp;document&nbsp;in&nbsp;documents)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line241"></a><code>241</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line242"></a><code>242</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleByIdAsync(document.GetValue&lt;string&gt;(&quot;RoleId&quot;));</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line243"></a><code>243</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line242"></a><code>242</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleByIdAsync(document.GetValue&lt;string&gt;(&quot;RoleId&quot;));</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line243"></a><code>243</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line244"></a><code>244</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line245"></a><code>245</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list.Add(role.Name);</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line245"></a><code>245</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list.Add(role.Name);</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line246"></a><code>246</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line247"></a><code>247</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line248"></a><code>248</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;list;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line249"></a><code>249</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line248"></a><code>248</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;list;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line249"></a><code>249</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line250"></a><code>250</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line251"></a><code>251</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line252"></a><code>252</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Returns&nbsp;a&nbsp;flag&nbsp;indicating&nbsp;if&nbsp;the&nbsp;specified&nbsp;user&nbsp;is&nbsp;a&nbsp;member&nbsp;of&nbsp;the&nbsp;give&nbsp;&lt;paramref&nbsp;name=&quot;normalizedRoleName&quot;/</code></td></tr>
@@ -671,26 +682,26 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line258"></a><code>258</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;user&nbsp;is&nbsp;a&nbsp;member&nbsp;of&nbsp;the&nbsp;group&nbsp;the&nbsp;returned&nbsp;value&nbsp;with&nbsp;be&nbsp;true,&nbsp;otherwise&nbsp;it&nbsp;will&nbsp;be&nbsp;false.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line259"></a><code>259</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;async&nbsp;Task&lt;bool&gt;&nbsp;IsInRoleAsync(TUser&nbsp;user,&nbsp;string&nbsp;normalizedRoleName,&nbsp;CancellationToken&nbsp;cancella</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line260"></a><code>260</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line261"></a><code>261</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line262"></a><code>262</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line263"></a><code>263</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '89', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">89</td><td class="rightmargin right"><a id="file0_line261"></a><code>261</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '89', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">89</td><td class="rightmargin right"><a id="file0_line262"></a><code>262</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '88', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">88</td><td class="rightmargin right"><a id="file0_line263"></a><code>263</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line264"></a><code>264</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line265"></a><code>265</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line265"></a><code>265</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(user));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line266"></a><code>266</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line267"></a><code>267</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '87', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">87</td><td class="rightmargin right"><a id="file0_line267"></a><code>267</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line268"></a><code>268</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line269"></a><code>269</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '2', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">2</td><td class="rightmargin right"><a id="file0_line269"></a><code>269</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line270"></a><code>270</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line271"></a><code>271</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line272"></a><code>272</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line271"></a><code>271</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
+<tr title="1 of 1 branches are covered" data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line272"></a><code>272</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line273"></a><code>273</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line274"></a><code>274</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line275"></a><code>275</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line276"></a><code>276</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line277"></a><code>277</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;snapShot.Documents.Any();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line274"></a><code>274</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles.WhereEqualTo(&quot;UserId&quot;,&nbsp;user.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line275"></a><code>275</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line276"></a><code>276</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line277"></a><code>277</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;snapShot.Documents.Any();</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line278"></a><code>278</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line279"></a><code>279</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line280"></a><code>280</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line279"></a><code>279</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '85', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">85</td><td class="rightmargin right"><a id="file0_line280"></a><code>280</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line281"></a><code>281</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line282"></a><code>282</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Get&nbsp;the&nbsp;claims&nbsp;associated&nbsp;with&nbsp;the&nbsp;specified&nbsp;&lt;paramref&nbsp;name=&quot;user&quot;/&gt;&nbsp;as&nbsp;an&nbsp;asynchronous&nbsp;operation.</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line283"></a><code>283</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/summary&gt;</code></td></tr>
@@ -810,28 +821,28 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line397"></a><code>397</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line398"></a><code>398</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;async&nbsp;override&nbsp;Task&lt;IList&lt;TUser&gt;&gt;&nbsp;GetUsersInRoleAsync(string&nbsp;normalizedRoleName,&nbsp;CancellationToken&nbsp;cancel</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line399"></a><code>399</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line400"></a><code>400</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line401"></a><code>401</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line402"></a><code>402</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line400"></a><code>400</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line401"></a><code>401</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="1 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line402"></a><code>402</code></td><td class="percentagebar50"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line403"></a><code>403</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line404"></a><code>404</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line404"></a><code>404</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line405"></a><code>405</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line406"></a><code>406</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line407"></a><code>407</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line406"></a><code>406</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;role&nbsp;=&nbsp;await&nbsp;FindRoleAsync(normalizedRoleName,&nbsp;cancellationToken);</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line407"></a><code>407</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(role&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line408"></a><code>408</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line409"></a><code>409</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line410"></a><code>410</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line411"></a><code>411</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line412"></a><code>412</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;documents&nbsp;=&nbsp;snapShot.Documents;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line413"></a><code>413</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;list&nbsp;=&nbsp;new&nbsp;List&lt;TUser&gt;(documents.Count);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line414"></a><code>414</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach(var&nbsp;document&nbsp;in&nbsp;documents)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line409"></a><code>409</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_userRoles</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line410"></a><code>410</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;role.Id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line411"></a><code>411</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line412"></a><code>412</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;documents&nbsp;=&nbsp;snapShot.Documents;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line413"></a><code>413</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;list&nbsp;=&nbsp;new&nbsp;List&lt;TUser&gt;(documents.Count);</code></td></tr>
+<tr title="4 of 4 branches are covered" data-coverage="{'AllTestMethods': {'VC': '32', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">32</td><td class="rightmargin right"><a id="file0_line414"></a><code>414</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach(var&nbsp;document&nbsp;in&nbsp;documents)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line415"></a><code>415</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line416"></a><code>416</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list.Add(await&nbsp;FindByIdAsync(document.GetValue&lt;string&gt;(&quot;UserId&quot;)));</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '12', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">12</td><td class="rightmargin right"><a id="file0_line416"></a><code>416</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list.Add(await&nbsp;FindByIdAsync(document.GetValue&lt;string&gt;(&quot;UserId&quot;)));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line417"></a><code>417</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line418"></a><code>418</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;list;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '4', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">4</td><td class="rightmargin right"><a id="file0_line418"></a><code>418</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;list;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line419"></a><code>419</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line420"></a><code>420</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;List&lt;TUser&gt;(0);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line421"></a><code>421</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line420"></a><code>420</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;List&lt;TUser&gt;(0);</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '5', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">5</td><td class="rightmargin right"><a id="file0_line421"></a><code>421</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line422"></a><code>422</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line423"></a><code>423</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line424"></a><code>424</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Return&nbsp;a&nbsp;role&nbsp;with&nbsp;the&nbsp;normalized&nbsp;name&nbsp;if&nbsp;it&nbsp;exists.</code></td></tr>
@@ -841,21 +852,21 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line428"></a><code>428</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;The&nbsp;role&nbsp;if&nbsp;it&nbsp;exists.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line429"></a><code>429</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;override&nbsp;async&nbsp;Task&lt;TRole&gt;&nbsp;FindRoleAsync(string&nbsp;normalizedRoleName,&nbsp;CancellationToken&nbsp;cancellationToke</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line430"></a><code>430</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line431"></a><code>431</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line432"></a><code>432</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line433"></a><code>433</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line431"></a><code>431</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line432"></a><code>432</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="1 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line433"></a><code>433</code></td><td class="percentagebar50"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(normalizedRoleName))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line434"></a><code>434</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line435"></a><code>435</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line435"></a><code>435</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(normalizedRoleName));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line436"></a><code>436</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line437"></a><code>437</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.WhereEqualTo(&quot;NormalizedName&quot;,&nbsp;normalizedRoleName)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line438"></a><code>438</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line439"></a><code>439</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line440"></a><code>440</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line437"></a><code>437</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.WhereEqualTo(&quot;NormalizedName&quot;,&nbsp;normalizedRoleName)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line438"></a><code>438</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line439"></a><code>439</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line440"></a><code>440</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line441"></a><code>441</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line442"></a><code>442</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TRole&gt;(document.ToDictionary());</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '136', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">136</td><td class="rightmargin right"><a id="file0_line442"></a><code>442</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TRole&gt;(document.ToDictionary());</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line443"></a><code>443</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line444"></a><code>444</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line445"></a><code>445</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '1', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">1</td><td class="rightmargin right"><a id="file0_line444"></a><code>444</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '137', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">137</td><td class="rightmargin right"><a id="file0_line445"></a><code>445</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line446"></a><code>446</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line447"></a><code>447</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line448"></a><code>448</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Return&nbsp;a&nbsp;user&nbsp;role&nbsp;for&nbsp;the&nbsp;userId&nbsp;and&nbsp;roleId&nbsp;if&nbsp;it&nbsp;exists.</code></td></tr>
@@ -866,26 +877,26 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line453"></a><code>453</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;returns&gt;The&nbsp;user&nbsp;role&nbsp;if&nbsp;it&nbsp;exists.&lt;/returns&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line454"></a><code>454</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;override&nbsp;async&nbsp;Task&lt;TUserRole&gt;&nbsp;FindUserRoleAsync(string&nbsp;userId,&nbsp;string&nbsp;roleId,&nbsp;CancellationToken&nbsp;cance</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line455"></a><code>455</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line456"></a><code>456</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line457"></a><code>457</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line458"></a><code>458</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(userId))</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line456"></a><code>456</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancellationToken.ThrowIfCancellationRequested();</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line457"></a><code>457</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ThrowIfDisposed();</code></td></tr>
+<tr title="0 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line458"></a><code>458</code></td><td class="percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(userId))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line459"></a><code>459</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line460"></a><code>460</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(userId));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line460"></a><code>460</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(userId));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line461"></a><code>461</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line462"></a><code>462</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(roleId))</code></td></tr>
+<tr title="0 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line462"></a><code>462</code></td><td class="percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(string.IsNullOrWhiteSpace(roleId))</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line463"></a><code>463</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line464"></a><code>464</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(roleId));</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line464"></a><code>464</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentNullException(nameof(roleId));</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line465"></a><code>465</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line466"></a><code>466</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.WhereEqualTo(&quot;UserId&quot;,&nbsp;userId)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line467"></a><code>467</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;roleId)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line468"></a><code>468</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line469"></a><code>469</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line470"></a><code>470</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="0 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line466"></a><code>466</code></td><td class="percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.WhereEqualTo(&quot;UserId&quot;,&nbsp;userId)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line467"></a><code>467</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.WhereEqualTo(&quot;RoleId&quot;,&nbsp;roleId)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line468"></a><code>468</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line469"></a><code>469</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;document&nbsp;=&nbsp;snapShot.Documents.FirstOrDefault();</code></td></tr>
+<tr title="0 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line470"></a><code>470</code></td><td class="percentagebar0"><i class="icon-fork"></i></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(document&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line471"></a><code>471</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line472"></a><code>472</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TUserRole&gt;(document.ToDictionary());</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line472"></a><code>472</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TUserRole&gt;(document.ToDictionary());</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line473"></a><code>473</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line474"></a><code>474</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line475"></a><code>475</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line474"></a><code>474</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line475"></a><code>475</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line476"></a><code>476</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line477"></a><code>477</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;&lt;summary&gt;</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line478"></a><code>478</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;///&nbsp;Return&nbsp;a&nbsp;user&nbsp;with&nbsp;the&nbsp;matching&nbsp;userId&nbsp;if&nbsp;it&nbsp;exists.</code></td></tr>
@@ -944,19 +955,19 @@ th { text-align: left; }
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line531"></a><code>531</code></td><td></td><td class="lightgray"><code></code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line532"></a><code>532</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;virtual&nbsp;async&nbsp;Task&lt;TRole&gt;&nbsp;FindRoleByIdAsync(string&nbsp;id,&nbsp;CancellationToken&nbsp;cancellationToken&nbsp;=&nbsp;default(C</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line533"></a><code>533</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line534"></a><code>534</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.Document(id)</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line535"></a><code>535</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line536"></a><code>536</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(snapShot&nbsp;!=&nbsp;null)</code></td></tr>
+<tr title="2 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line534"></a><code>534</code></td><td class="percentagebar100"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;snapShot&nbsp;=&nbsp;await&nbsp;_roles.Document(id)</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line535"></a><code>535</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetSnapshotAsync(cancellationToken);</code></td></tr>
+<tr title="1 of 2 branches are covered" data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line536"></a><code>536</code></td><td class="percentagebar50"><i class="icon-fork"></i></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(snapShot&nbsp;!=&nbsp;null)</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line537"></a><code>537</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line538"></a><code>538</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TRole&gt;(snapShot.ToDictionary());</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line538"></a><code>538</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Map.FromDictionary&lt;TRole&gt;(snapShot.ToDictionary());</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line539"></a><code>539</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line540"></a><code>540</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
-<tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line541"></a><code>541</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '0', 'LVS': 'red'}}"><td class="red">&nbsp;</td><td class="leftmargin rightmargin right">0</td><td class="rightmargin right"><a id="file0_line540"></a><code>540</code></td><td></td><td class="lightred"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;</code></td></tr>
+<tr data-coverage="{'AllTestMethods': {'VC': '16', 'LVS': 'green'}}"><td class="green">&nbsp;</td><td class="leftmargin rightmargin right">16</td><td class="rightmargin right"><a id="file0_line541"></a><code>541</code></td><td></td><td class="lightgreen"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line542"></a><code>542</code></td><td></td><td class="lightgray"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
 <tr data-coverage="{'AllTestMethods': {'VC': '', 'LVS': 'gray'}}"><td class="gray">&nbsp;</td><td class="leftmargin rightmargin right"></td><td class="rightmargin right"><a id="file0_line543"></a><code>543</code></td><td></td><td class="lightgray"><code>}</code></td></tr>
 </tbody>
 </table>
-<div class="footer">Generated by: ReportGenerator 3.1.2.0<br />10/7/2018 - 11:26:27 AM<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="http://www.palmmedia.de">www.palmmedia.de</a></div></div>
+<div class="footer">Generated by: ReportGenerator 4.0.0.0<br />10/21/2018 - 9:23:32 AM<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="http://www.palmmedia.de">www.palmmedia.de</a></div></div>
 <div class="containerright">
 <div class="containerrightfixed">
 <h1>Methods/Properties</h1>
@@ -967,6 +978,10 @@ th { text-align: left; }
 <a href="#file0_line131" data-ng-click="navigateToHash('#file0_line131')" title="DeleteAsync(TUser,System.Threading.CancellationToken)"><i class="icon-cube"></i>DeleteAsync(TUser,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line142" data-ng-click="navigateToHash('#file0_line142')" title="FindByIdAsync(System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindByIdAsync(System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line153" data-ng-click="navigateToHash('#file0_line153')" title="FindByNameAsync(System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindByNameAsync(System.String,System.Threading.CancellationToken)</a><br />
+<a href="#file0_line164" data-ng-click="navigateToHash('#file0_line164')" title="AddToRoleAsync()"><i class="icon-cube"></i>AddToRoleAsync()</a><br />
+<a href="#file0_line197" data-ng-click="navigateToHash('#file0_line197')" title="RemoveFromRoleAsync()"><i class="icon-cube"></i>RemoveFromRoleAsync()</a><br />
+<a href="#file0_line229" data-ng-click="navigateToHash('#file0_line229')" title="GetRolesAsync()"><i class="icon-cube"></i>GetRolesAsync()</a><br />
+<a href="#file0_line261" data-ng-click="navigateToHash('#file0_line261')" title="IsInRoleAsync()"><i class="icon-cube"></i>IsInRoleAsync()</a><br />
 <a href="#file0_line288" data-ng-click="navigateToHash('#file0_line288')" title="GetClaimsAsync(TUser,System.Threading.CancellationToken)"><i class="icon-cube"></i>GetClaimsAsync(TUser,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line298" data-ng-click="navigateToHash('#file0_line298')" title="AddClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)"><i class="icon-cube"></i>AddClaimsAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;System.Security.Claims.Claim&gt;,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line309" data-ng-click="navigateToHash('#file0_line309')" title="ReplaceClaimAsync(TUser,System.Security.Claims.Claim,System.Security.Claims.Claim,System.Threading.CancellationToken)"><i class="icon-cube"></i>ReplaceClaimAsync(TUser,System.Security.Claims.Claim,System.Security.Claims.Claim,System.Threading.CancellationToken)</a><br />
@@ -977,12 +992,16 @@ th { text-align: left; }
 <a href="#file0_line366" data-ng-click="navigateToHash('#file0_line366')" title="FindByLoginAsync(System.String,System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindByLoginAsync(System.String,System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line377" data-ng-click="navigateToHash('#file0_line377')" title="FindByEmailAsync(System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindByEmailAsync(System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line388" data-ng-click="navigateToHash('#file0_line388')" title="GetUsersForClaimAsync(System.Security.Claims.Claim,System.Threading.CancellationToken)"><i class="icon-cube"></i>GetUsersForClaimAsync(System.Security.Claims.Claim,System.Threading.CancellationToken)</a><br />
+<a href="#file0_line400" data-ng-click="navigateToHash('#file0_line400')" title="GetUsersInRoleAsync()"><i class="icon-cube"></i>GetUsersInRoleAsync()</a><br />
+<a href="#file0_line431" data-ng-click="navigateToHash('#file0_line431')" title="FindRoleAsync()"><i class="icon-cube"></i>FindRoleAsync()</a><br />
+<a href="#file0_line456" data-ng-click="navigateToHash('#file0_line456')" title="FindUserRoleAsync()"><i class="icon-cube"></i>FindUserRoleAsync()</a><br />
 <a href="#file0_line484" data-ng-click="navigateToHash('#file0_line484')" title="FindUserAsync(System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindUserAsync(System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line495" data-ng-click="navigateToHash('#file0_line495')" title="FindUserLoginAsync(System.String,System.String,System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindUserLoginAsync(System.String,System.String,System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line505" data-ng-click="navigateToHash('#file0_line505')" title="FindUserLoginAsync(System.String,System.String,System.Threading.CancellationToken)"><i class="icon-cube"></i>FindUserLoginAsync(System.String,System.String,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line514" data-ng-click="navigateToHash('#file0_line514')" title="GetUserTokensAsync(TUser,System.Threading.CancellationToken)"><i class="icon-cube"></i>GetUserTokensAsync(TUser,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line524" data-ng-click="navigateToHash('#file0_line524')" title="SaveUserTokensAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;TUserToken&gt;,System.Threading.CancellationToken)"><i class="icon-cube"></i>SaveUserTokensAsync(TUser,System.Collections.Generic.IEnumerable`1&lt;TUserToken&gt;,System.Threading.CancellationToken)</a><br />
 <a href="#file0_line528" data-ng-click="navigateToHash('#file0_line528')" title="Dispose(System.Boolean)"><i class="icon-cube"></i>Dispose(System.Boolean)</a><br />
+<a href="#file0_line534" data-ng-click="navigateToHash('#file0_line534')" title="FindRoleByIdAsync()"><i class="icon-cube"></i>FindRoleByIdAsync()</a><br />
 <br/></div>
 </div></div>
 <script type="text/javascript">/* <![CDATA[ */ /*! jQuery v1.11.2 | (c) 2005, 2014 jQuery Foundation, Inc. | jquery.org/license */
@@ -1331,7 +1350,10 @@ var translations = {
 'total': 'Total',
 'coverage': 'Line coverage',
 'branchCoverage': 'Branch coverage',
-'history': 'Coverage History'
+'history': 'Coverage History',
+'compareHistory': 'Compare with:',
+'date': 'Date',
+'changesOnly': 'Changes only'
 };
 
 
@@ -1617,7 +1639,7 @@ var RiskHotspotsTableHeader = React.createClass({
 
         for (i = 0, l = this.props.riskHotspotMetrics.length; i < l; i++) {
             metricClass = this.props.sortby !== '' &&this.props.sortby == i ? (this.props.sortorder === 'desc' ? 'icon-up-dir_active' : 'icon-down-dir_active') : 'icon-down-dir';
-            ths.push(React.DOM.th({ className: 'right' },
+            ths.push(React.DOM.th(null,
                 React.DOM.a(
                     { href: '', 'data-metric': i, onClick: function (event) { this.sortingChangedHandler(event, $(event.nativeEvent.target).closest('a')[0].getAttribute('data-metric')); }.bind(this) },
                     React.DOM.i({ className: metricClass }),
@@ -1634,23 +1656,30 @@ var RiskHotspotsTableHeader = React.createClass({
 
 var RiskHotspotRow = React.createClass({
     render: function () {
-        var tds, nameElement, metrics;
+        var tds, nameElement, methodElement;
 
         if (this.props.riskHotspot.reportPath === '') {
             nameElement = React.DOM.span(null, this.props.riskHotspot.class);
+            methodElement = this.props.riskHotspot.methodShortName;
         } else {
             nameElement = React.DOM.a({ href: this.props.riskHotspot.reportPath }, this.props.riskHotspot.class);
+
+            if (this.props.riskHotspot.line !== null) {
+                methodElement = React.DOM.a({ href: this.props.riskHotspot.reportPath + '#file' + this.props.riskHotspot.fileIndex + '_line' + this.props.riskHotspot.line }, this.props.riskHotspot.methodShortName)
+            } else {
+                methodElement = this.props.riskHotspot.methodShortName;
+            }
         }
 
         tds = [
             React.DOM.td(null, this.props.riskHotspot.assembly),
             React.DOM.td(null, nameElement),
-            React.DOM.td(null, this.props.riskHotspot.method)
+            React.DOM.td({ title: this.props.riskHotspot.methodName }, methodElement)
         ];
 
         for (i = 0, l = this.props.riskHotspot.metrics.length; i < l; i++) {
-            tds.push(React.DOM.td({ className: this.props.riskHotspot.metrics[i].exceeded ? 'lightred' : 'lightgreen' },
-                this.props.riskHotspot.metrics[i].value));
+            tds.push(React.DOM.td({ className: this.props.riskHotspot.metrics[i].exceeded ? 'lightred right' : 'lightgreen right' },
+                this.props.riskHotspot.metrics[i].value === null ? '-' : this.props.riskHotspot.metrics[i].value));
         }
 
         return (
@@ -1708,6 +1737,8 @@ function ClassViewModel(serializedClass) {
     self.totalBranches = serializedClass.totalBranches;
     self.lineCoverageHistory = serializedClass.lineCoverageHistory;
     self.branchCoverageHistory = serializedClass.branchCoverageHistory;
+    self.historicCoverages = serializedClass.historicCoverages;
+    self.currentHistoricCoverageData = null;
 
     if (serializedClass.coverableLines === 0) {
         if (isNaN(serializedClass.methodCoverage)) {
@@ -1733,8 +1764,40 @@ function ClassViewModel(serializedClass) {
         self.branchCoveragePercent = self.branchCoverage + '%';
     }
 
-    self.visible = function (filter) {
-        return filter === '' || self.name.toLowerCase().indexOf(filter) > -1;
+    self.updateCurrentHistoricCoverageData = function (historicCoverageExecutionTime) {
+        var i, l;
+
+        self.currentHistoricCoverageData = null;
+
+        if (historicCoverageExecutionTime !== '') {
+            for (i = 0, l = self.historicCoverages.length; i < l; i++) {
+
+                if (self.historicCoverages[i].executionTime === historicCoverageExecutionTime) {
+                    self.currentHistoricCoverageData = self.historicCoverages[i];
+                    break;
+                }
+            }
+        }
+    };
+
+    self.visible = function (filter, historicCoverageChangesOnly) {
+        if (filter !== '' && self.name.toLowerCase().indexOf(filter) === -1) {
+            return false;
+        }
+
+        if (historicCoverageChangesOnly && self.currentHistoricCoverageData !== null) {
+            if (self.coveredLines === self.currentHistoricCoverageData.coveredLines
+                && self.coveredLines === self.currentHistoricCoverageData.coveredLines
+                && self.uncoveredLines === self.currentHistoricCoverageData.uncoveredLines
+                && self.coverableLines === self.currentHistoricCoverageData.coverableLines
+                && self.totalLines === self.currentHistoricCoverageData.totalLines
+                && self.coveredBranches === self.currentHistoricCoverageData.coveredBranches
+                && self.totalBranches === self.currentHistoricCoverageData.totalBranches) {
+                return false;
+            }
+        }
+
+        return true;
     };
 }
 
@@ -1771,7 +1834,7 @@ function CodeElementViewModel(name, parent) {
         return roundNumber(100 * self.coveredBranches / self.totalBranches, 1);
     };
 
-    self.visible = function (filter) {
+    self.visible = function (filter, historicCoverageChangesOnly) {
         var i, l;
         for (i = 0, l = self.subelements.length; i < l; i++) {
             if (self.subelements[i].visible(filter)) {
@@ -1839,6 +1902,14 @@ function CodeElementViewModel(name, parent) {
             if (element.isNamespace) {
                 element.expand();
             }
+        }
+    };
+
+    self.updateCurrentHistoricCoverageData = function (historicCoverageExecutionTime) {
+        var i, l;
+
+        for (i = 0, l = self.subelements.length; i < l; i++) {
+            self.subelements[i].updateCurrentHistoricCoverageData(historicCoverageExecutionTime);
         }
     };
 
@@ -2007,6 +2078,8 @@ var AssemblyComponent = React.createClass({
             state = {
                 grouping: '0',
                 groupingMaximum: this.getGroupingMaximum(this.props.assemblies),
+                historicCoverageExecutionTime: '',
+                historicCoverageChangesOnly: false,
                 filter: '',
                 sortby: 'name',
                 sortorder: 'asc',
@@ -2016,6 +2089,11 @@ var AssemblyComponent = React.createClass({
         }
 
         state.assemblies = this.getAssemblies(this.props.assemblies, state.grouping, state.sortby, state.sortorder);
+
+        var i, l;
+        for (i = 0, l = state.assemblies.length; i < l; i++) {
+            state.assemblies[i].updateCurrentHistoricCoverageData(state.historicCoverageExecutionTime);
+        }
 
         if (collapseState !== undefined) {
             this.restoreCollapseState(collapseState, state.assemblies);
@@ -2052,6 +2130,23 @@ var AssemblyComponent = React.createClass({
         var assemblies = this.getAssemblies(this.props.assemblies, grouping, this.state.sortby, this.state.sortorder);
         this.setState({ grouping: grouping, assemblies: assemblies });
     },
+    updateHistoricCoverageExecutionTime: function (historicCoverageExecutionTime) {
+        console.log("Updating historic coverage execution time: " + historicCoverageExecutionTime);
+        var i, l;
+        for (i = 0, l = this.state.assemblies.length; i < l; i++) {
+            this.state.assemblies[i].updateCurrentHistoricCoverageData(historicCoverageExecutionTime);
+        }
+
+        this.setState({
+            historicCoverageExecutionTime: historicCoverageExecutionTime,
+            assemblies: this.state.assemblies
+        });
+    },
+    updateHistoricCoverageChangesOnly: function (historicCoverageChangesOnly) {
+        console.log("Updating historic coverage changes only: " + historicCoverageChangesOnly);
+
+        this.setState({ historicCoverageChangesOnly: historicCoverageChangesOnly });
+    },
     updateFilter: function (filter) {
         filter = filter.toLowerCase();
 
@@ -2085,7 +2180,7 @@ var AssemblyComponent = React.createClass({
             }
         } catch (e) {
             // This can only happen if assembly structure was changed.
-            // That means the complete report was updated in the background and the reloaded in the same tab/window.
+            // That means the complete report was updated in the background and was reloaded in the same tab/window.
             console.log("Restoring of collapse state failed.");
         }
     },
@@ -2127,13 +2222,20 @@ var AssemblyComponent = React.createClass({
                 SearchBar({
                     groupingMaximum: this.state.groupingMaximum,
                     grouping: this.state.grouping,
+                    historicCoverageExecutionTime: this.state.historicCoverageExecutionTime,
+                    historicCoverageChangesOnly: this.state.historicCoverageChangesOnly,
                     filter: this.state.filter,
                     collapseAll: this.collapseAll,
                     expandAll: this.expandAll,
                     updateGrouping: this.updateGrouping,
-                    updateFilter: this.updateFilter
+                    updateHistoricCoverageExecutionTime: this.updateHistoricCoverageExecutionTime,
+                    updateHistoricCoverageChangesOnly: this.updateHistoricCoverageChangesOnly,
+                    updateFilter: this.updateFilter,
+                    historicCoverageExecutionTimes: this.props.historicCoverageExecutionTimes
                 }),
                 AssemblyTable({
+                    historicCoverageExecutionTime: this.state.historicCoverageExecutionTime,
+                    historicCoverageChangesOnly: this.state.historicCoverageChangesOnly,
                     filter: this.state.filter,
                     assemblies: this.state.assemblies,
                     sortby: this.state.sortby,
@@ -2158,6 +2260,12 @@ var SearchBar = React.createClass({
     groupingChangedHandler: function () {
         this.props.updateGrouping(this.refs.groupingInput.getDOMNode().value);
     },
+    historicCoverageExecutionTimeChanged: function () {
+        this.props.updateHistoricCoverageExecutionTime(this.refs.historicCoverageExecutionTimesSelect.getDOMNode().value);
+    },
+    historicCoverageChangesOnlyChanged: function () {
+        this.props.updateHistoricCoverageChangesOnly(this.refs.historicCoverageChangesOnlyCheckbox.getDOMNode().checked);
+    },
     filterChangedHandler: function () {
         this.props.updateFilter(this.refs.filterInput.getDOMNode().value);
     },
@@ -2168,6 +2276,36 @@ var SearchBar = React.createClass({
             groupingDescription = translations.noGrouping;
         } else if (this.props.grouping === '0') {
             groupingDescription = translations.byAssembly;
+        }
+
+        var historicCoverageExecutionTimesSelectContainer;
+
+        if (this.props.historicCoverageExecutionTimes.length > 0) {
+            var historicCoverageExecutionTimeOptions = [React.DOM.option({ value: '' }, translations.date)], i, l;
+            for (i = 0, l = this.props.historicCoverageExecutionTimes.length; i < l; i++) {
+                historicCoverageExecutionTimeOptions.push(React.DOM.option({
+                    value: this.props.historicCoverageExecutionTimes[i]
+                }, this.props.historicCoverageExecutionTimes[i]));
+            }
+
+            historicCoverageExecutionTimesSelectContainer = React.DOM.div({ className: 'center' },
+                React.DOM.div({ className: 'center' },
+                    React.DOM.span(null, translations.compareHistory + ' '),
+                    React.DOM.select({
+                        ref: 'historicCoverageExecutionTimesSelect',
+                        value: this.props.historicCoverageExecutionTime,
+                        onChange: this.historicCoverageExecutionTimeChanged
+                    }, historicCoverageExecutionTimeOptions)),
+                React.DOM.div(null,
+                    this.props.historicCoverageExecutionTime ? React.DOM.label(null, 
+                        React.DOM.input({
+                            type: 'checkbox',
+                            ref: 'historicCoverageChangesOnlyCheckbox',
+                            defaultChecked: this.props.historicCoverageChangesOnly,
+                            onChange: this.historicCoverageChangesOnlyChanged
+                        }), translations.changesOnly) : null));
+        } else {
+            historicCoverageExecutionTimesSelectContainer = React.DOM.div({ className: 'center' });
         }
 
         return (
@@ -2189,6 +2327,7 @@ var SearchBar = React.createClass({
                         value: this.props.grouping,
                         onChange: this.groupingChangedHandler
                     })),
+                historicCoverageExecutionTimesSelectContainer,
                 React.DOM.div({ className: 'right' },
                     React.DOM.span(null, translations.filter + ' '),
                     React.DOM.input({
@@ -2206,7 +2345,7 @@ var AssemblyTable = React.createClass({
     renderAllChilds: function (result, currentElement) {
         var i, l;
 
-        if (currentElement.visible(this.props.filter)) {
+        if (currentElement.visible(this.props.filter, this.props.historicCoverageChangesOnly, this.props.historicCoverageExecutionTime)) {
             if (currentElement.isNamespace) {
                 result.push(AssemblyRow({ assembly: currentElement,
                     branchCoverageAvailable: this.props.branchCoverageAvailable,
@@ -2221,6 +2360,7 @@ var AssemblyTable = React.createClass({
             } else {
                 result.push(ClassRow({
                     clazz: currentElement,
+                    historicCoverageExecutionTime: this.props.historicCoverageExecutionTime,
                     branchCoverageAvailable: this.props.branchCoverageAvailable
                 }));
             }
@@ -2379,8 +2519,17 @@ var AssemblyRow = React.createClass({
 });
 
 var ClassRow = React.createClass({
+    getClassName: function (current, history) {
+        if (current > history) {
+            return 'lightgreen';
+        } else if (current < history) {
+            return 'lightred';
+        } else {
+            return 'lightgraybg';
+        }
+    },
     render: function () {
-        var nameElement, greenHidden, redHidden, grayHidden, coverageTable, branchGreenHidden, branchRedHidden, branchGrayHidden, branchCoverageTable;
+        var nameElement, greenHidden, redHidden, grayHidden, i, l, coverageTable, branchGreenHidden, branchRedHidden, branchGrayHidden, branchCoverageTable;
 
         if (this.props.clazz.reportPath === '') {
             nameElement = React.DOM.span(null, this.props.clazz.name);
@@ -2415,27 +2564,37 @@ var ClassRow = React.createClass({
         return (
             React.DOM.tr({ className: this.props.clazz.parent.parent !== null ? 'namespace' : null },
                 React.DOM.td(null, nameElement),
-                React.DOM.td({ className: 'right' }, this.props.clazz.coveredLines),
-                React.DOM.td({ className: 'right' }, this.props.clazz.uncoveredLines),
-                React.DOM.td({ className: 'right' }, this.props.clazz.coverableLines),
-                React.DOM.td({ className: 'right' }, this.props.clazz.totalLines),
+                React.DOM.td({ className: 'right' },
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory ' + this.getClassName(this.props.clazz.coveredLines, this.props.clazz.currentHistoricCoverageData.coveredLines) }, this.props.clazz.coveredLines) : this.props.clazz.coveredLines,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.coveredLines) : null),
+                React.DOM.td({ className: 'right' },
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory ' + this.getClassName(this.props.clazz.currentHistoricCoverageData.uncoveredLines, this.props.clazz.uncoveredLines) }, this.props.clazz.uncoveredLines) : this.props.clazz.uncoveredLines,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.uncoveredLines) : null),
+                React.DOM.td({ className: 'right' },
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory' }, this.props.clazz.coverableLines) : this.props.clazz.coverableLines,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.coverableLines) : null),
+                React.DOM.td({ className: 'right' },
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory' }, this.props.clazz.totalLines) : this.props.clazz.totalLines,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.totalLines) : null),
                 React.DOM.td({ className: 'right', title: this.props.clazz.coverageTitle },
                     CoverageHistoryChart({
                         historicCoverage: this.props.clazz.lineCoverageHistory,
-                        cssClass: 'tinylinecoveragechart',
+                        cssClass: 'tinylinecoveragechart' + (this.props.clazz.currentHistoricCoverageData ? ' historiccoverageoffset' : ''),
                         title: translations.history + ": " + translations.coverage,
                         id: 'chart' + createRandomId(8)
                     }),
-                    this.props.clazz.coveragePercent),
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory ' + this.getClassName(this.props.clazz.coverage, this.props.clazz.currentHistoricCoverageData.coverageQuota) }, this.props.clazz.coveragePercent) : this.props.clazz.coveragePercent,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.coverageQuota + '%') : null),
                 React.DOM.td(null, coverageTable),
                 this.props.branchCoverageAvailable ? React.DOM.td({ className: 'right' },
                     CoverageHistoryChart({
                         historicCoverage: this.props.clazz.branchCoverageHistory,
-                        cssClass: 'tinybranchcoveragechart',
+                        cssClass: 'tinybranchcoveragechart' + (this.props.clazz.currentHistoricCoverageData ? ' historiccoverageoffset' : ''),
                         title: translations.history + ": " + translations.branchCoverage,
                         id: 'chart' + createRandomId(8)
                     }),
-                    this.props.clazz.branchCoveragePercent) : null,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ className: 'currenthistory ' + this.getClassName(this.props.clazz.branchCoverage, this.props.clazz.currentHistoricCoverageData.branchCoverageQuota) }, this.props.clazz.branchCoveragePercent) : this.props.clazz.branchCoveragePercent,
+                    this.props.clazz.currentHistoricCoverageData ? React.DOM.div({ title: this.props.historicCoverageExecutionTime }, this.props.clazz.currentHistoricCoverageData.branchCoverageQuota + '%') : null) : null,
                 this.props.branchCoverageAvailable ? React.DOM.td(null, branchCoverageTable) : null)
         );
     }
@@ -2504,6 +2663,7 @@ function SummaryViewCtrl($scope, $window) {
 
     $scope.coverageTableFilteringEnabled = false;
     $scope.assemblies = [];
+    $scope.historicCoverageExecutionTimes = [];
     $scope.branchCoverageAvailable = branchCoverageAvailable;
 
     $scope.riskHotspots = riskHotspots;
@@ -2513,6 +2673,7 @@ function SummaryViewCtrl($scope, $window) {
         console.log("Enabling filtering");
 
         $scope.assemblies = assemblies;
+        $scope.historicCoverageExecutionTimes = historicCoverageExecutionTimes;
         $scope.coverageTableFilteringEnabled = true;
     };
 
@@ -2607,12 +2768,13 @@ coverageApp.directive('reactiveCoverageTable', function () {
         restrict: 'A',
         scope: {
             assemblies: '=',
+            historicCoverageExecutionTimes: '=',
             branchCoverageAvailable: '='
         },
         link: function (scope, el, attrs) {
             scope.$watchCollection('assemblies', function (newValue, oldValue) {
                 React.renderComponent(
-                    AssemblyComponent({ assemblies: newValue, branchCoverageAvailable: scope.branchCoverageAvailable }),
+                    AssemblyComponent({ assemblies: newValue, historicCoverageExecutionTimes: scope.historicCoverageExecutionTimes, branchCoverageAvailable: scope.branchCoverageAvailable }),
                     el[0]);
             });
         }
@@ -2634,13 +2796,14 @@ coverageApp.directive('historyChart', function ($window) {
                 high: 100,
                 scaleMinSpace: 20,
                 onlyInteger: true,
+                fullWidth: true
             };
             var lineChart = new Chartist.Line('#' + el[0].id, {
                 labels: [],
                 series: chartData.series
             }, options);
 
-            var chart = $(el[0]);
+            var chart = $(el[0]).empty();
 
             var toggleZoomButton = chart
                 .append('<div class="toggleZoom"><a href=""><i class="icon-search-plus" /></a></div>')
