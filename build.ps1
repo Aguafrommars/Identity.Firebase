@@ -33,7 +33,7 @@ if ($isLinux) {
         $merge = "$merge;$path"
     }
     Write-Host $merge
-    ReportGenerator\tools\ReportGenerator.exe "-reports:$merge" "-targetdir:coverage\docs" "-reporttypes:HtmlInline;Badges"
+    ReportGenerator\tools\net47\ReportGenerator.exe "-reports:$merge" "-targetdir:coverage\docs" "-reporttypes:HtmlInline;Badges"
 }
 exit $result
   
