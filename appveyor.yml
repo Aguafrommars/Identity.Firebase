@@ -7,6 +7,7 @@ image:
 - Ubuntu
 - Visual Studio 2017
 environment:
+  CLI_VERSION: 2.2.100-preview3-009430
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
