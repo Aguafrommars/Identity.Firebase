@@ -31,8 +31,8 @@ environment:
 init:
     - cmd: git config --global core.autocrlf true
 install:
-    - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-    - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+    - ps: $env:DOTNET_INSTALL_DIR = "./.dotnetsdk"
+    - ps: mkdir $env:DOTNET_INSTALL_DIR
     - ps: Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1"
     - ps: '& "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1" -Version $env:CLI_VERSION -InstallDir $env:DOTNET_INSTALL_DIR'
     - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
