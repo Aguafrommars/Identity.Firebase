@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Identity sample MVC application on ASP.NET Core</Description>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.1</TargetFrameworks>
     <UserSecretsId>Firestore.IdentitySample.Mvc</UserSecretsId>
   </PropertyGroup>
