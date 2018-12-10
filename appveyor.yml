@@ -46,6 +46,7 @@ install:
     - cmd: secure-file\tools\secure-file -decrypt test\identityfirestore.json.enc -secret %decrypt_secret%
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
+    - npm install semantic-release
     - dotnet restore
 build_script:
 - ps: ./build.ps1
@@ -55,6 +56,8 @@ artifacts:
     - path: artifacts/**/*.nupkg
       name: nuget    
 on_success:
+    - ps: $env:GH_TOKEN=$env:access_token
+    - ps: semantic-release -b $env:APPVEYOR_REPO_BRANCH
     - cmd: git config --global credential.helper store
     - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
     - cmd: git config --global user.email "aguacongas@gmail.com"
