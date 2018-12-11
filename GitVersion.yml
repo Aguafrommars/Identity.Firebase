@@ -2,9 +2,15 @@ mode: ContinuousDelivery
 branches:
   master:
     tag: ci
-  releases?[/-]:
+    is-mainline: false
+  release:
+    regex: release?[/-]
     tag: ''
-  preview/:
+    is-mainline: true
+  preview:
+    regex: preview?[/-] 
     tag: 'preview'
+    is-mainline: true
+    source-branches: ['main']
 ignore:
   sha: []
