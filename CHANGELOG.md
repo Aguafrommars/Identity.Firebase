@@ -1,17 +1,14 @@
-# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-11)
+## 2.1.1(09/19/2018)
 
+## Bug fixes
 
-### Features
+* #3 HttpMessageFilter should apply to named httpclient only
 
-* .net 2.2 ([2cc92b9](https://github.com/aguacongas/Identity.Firebase/commit/2cc92b9))
-* .net core 2.2 update ([7cfa88c](https://github.com/aguacongas/Identity.Firebase/commit/7cfa88c))
+# 2.1.0 (Jul. 28 2018)
 
-# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-11)
+# Feature
 
-
-### Features
-
-* .net core 2.2 update ([7cfa88c](https://github.com/aguacongas/Identity.Firebase/commit/7cfa88c))
+* ASP.Net Core 2.1 update
 
 # 2.0.0 (Jun. 6 2018)
 
