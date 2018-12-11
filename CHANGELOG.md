@@ -1,3 +1,11 @@
+# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-11)
+
+
+### Features
+
+* .net 2.2 ([2cc92b9](https://github.com/aguacongas/Identity.Firebase/commit/2cc92b9))
+* .net core 2.2 update ([7cfa88c](https://github.com/aguacongas/Identity.Firebase/commit/7cfa88c))
+
 # 2.0.0 (Jun. 6 2018)
 
 Takes advantage of new [HttpClientFactory](https://github.com/aspnet/HttpClientFactory)
