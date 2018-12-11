@@ -1,14 +1,10 @@
-mode: ContinuousDeployment
+mode: ContinuousDelivery
 branches:
   master:
     tag: ci
-    is-mainline: false
-  release:
-    regex: releases?[/-]
+  releases?[/-]:
     tag: ''
-    is-mainline: true
-  preview:
-    regex: preview?[/-]
+  preview/:
     tag: 'preview'
 ignore:
   sha: []
