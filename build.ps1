@@ -14,30 +14,26 @@ if ($isLinux) {
 		}
 	}
 } else {
-	$merge = ""
 	gci -rec `
 	| ? { $_.Name -like "*.IntegrationTest.csproj" `
 		   -Or $_.Name -like "*.Test.csproj" `
 		 } `
 	| % { 
-		$testArgs = "test " + $_.FullName
-		Write-Host "testargs" $testArgs
-		Write-Host "coveragefile" $coveragefile
-		JetBrains.dotCover.CommandLineTools\tools\dotCover.exe cover /TargetExecutable="C:\Program Files\dotnet\dotnet.exe" /TargetArguments="$testArgs" /Filters="-:*.Test;-:*.IntegrationTest;-:xunit.*;-:MSBuild;-:Moq;-:Google.*;-:Grpc.*;-:NuGet.MSBuildSdkResolver" /Output="$_.snapshot"
-    
+        &('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '-c', 'Release', '/p:CollectCoverage=true', '/p:CoverletOutputFormat=cobertura')    
 		if ($LASTEXITCODE -ne 0) {
 			$result = $LASTEXITCODE
 		}
-
-		$merge = $merge + $_.Name + ".snapshot;"
 	  }
 
-	  Write-Host "merge " $merge
-	  JetBrains.dotCover.CommandLineTools\tools\dotCover.exe merge /Source="$merge" /Output="coverage\coverage.snapshot"
-	  JetBrains.dotCover.CommandLineTools\tools\dotCover.exe report /Source="coverage\coverage.snapshot" /Output="coverage\docs\index.html" /ReportType="HTML"
-	  JetBrains.dotCover.CommandLineTools\tools\dotCover.exe report /Source="coverage\coverage.snapshot" /Output="coverage\coverage.xml" /ReportType="DetailedXML"
-
-	  ReportGenerator\tools\ReportGenerator.exe "-reports:coverage\coverage.xml" "-targetdir:coverage\docs" "-reporttypes:Badges"
+    $merge = ""
+    gci -rec `
+    | ? { $_.Name -like "coverage.cobertura.xml" } `
+    | % { 
+        $path = $_.FullName
+        $merge = "$merge;$path"
+    }
+    Write-Host $merge
+    ReportGenerator\tools\net47\ReportGenerator.exe "-reports:$merge" "-targetdir:coverage\docs" "-reporttypes:HtmlInline;Badges"
 }
 exit $result
   

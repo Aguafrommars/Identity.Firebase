@@ -1,8 +1,12 @@
 version: 1.0.{build}
 skip_tags: true
+skip_commits:
+  message: /\[chore\]/
 branches:
-  except:
-  - gh-pages
+  only:
+  - master
+  - /preview*/             
+  - /release*/
 image: 
 - Ubuntu
 - Visual Studio 2017
@@ -34,18 +38,19 @@ install:
     - sh: sudo dpkg -i packages-microsoft-prod.deb
     - sh: sudo apt-get -y install apt-transport-https
     - sh: sudo apt-get update
-    - sh: sudo apt-get -y install dotnet-sdk-2.1
+    - sh: sudo apt-get -y install dotnet-sdk-2.2
     - sh: sudo apt -y install nuget
     - sh: nuget install GitVersion.CommandLine -ExcludeVersion
     - sh: mono GitVersion.CommandLine/tools/GitVersion.exe /l console /output buildserver
+    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version 2.2.100 }
     - cmd: gitversion /l console /output buildserver
-    - cmd: nuget install JetBrains.dotCover.CommandLineTools -ExcludeVersion
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
     - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
     - cmd: secure-file\tools\secure-file -decrypt test\identityfirestore.json.enc -secret %decrypt_secret%
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
+    - npm i -g @commitlint/cli @commitlint/config-angular
     - dotnet restore
 build_script:
 - ps: ./build.ps1
@@ -58,7 +63,7 @@ on_success:
     - cmd: git config --global credential.helper store
     - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
     - cmd: git config --global user.email "aguacongas@gmail.com"
-    - cmd: git config --global user.name "Aguacongas"
+    - cmd: git config --global user.name "Olivier Lefebvre"
     - cmd: git stash
     - cmd: git checkout gh-pages
     - cmd: IF EXIST latest ( rmdir /S /Q latest )
@@ -71,18 +76,8 @@ deploy:
       api_key:
         secure: 23wPDdRicGt2vZuJ8vd9TRBKmqjHkx5WjzZmKvyxd5j0fNPedjUScRTj/rT0ObJa
       on:
-        branch: 
-            - master
-            - /release*/
-        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    - provider: GitHub
-      auth_token:
-        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
-      draft: true
-      prerelease: true
-      release: $(GitVersion_SemVer)
-      on:
-        branch: 
+        branch:
+            - /preview*/ 
             - /release*/
         APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - provider: GitHub
@@ -92,19 +87,23 @@ deploy:
       prerelease: false
       release: $(GitVersion_SemVer)
       on:
-        branch:             
-            - master
+        branch: 
+            - /preview*/ 
+            - /release*/
         APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 for:
 -
   branches:
     only:
-      - master
+      - /release*/
   on_success:
+      - cmd: npm i -g semantic-release    
+      - cmd: set GH_TOKEN=%access_token%
+      - cmd: semantic-release -b %APPVEYOR_REPO_BRANCH%
       - cmd: git config --global credential.helper store
       - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
       - cmd: git config --global user.email "aguacongas@gmail.com"
-      - cmd: git config --global user.name "Aguacongas"
+      - cmd: git config --global user.name "Olivier Lefebvre"
       - cmd: git checkout gh-pages
       - cmd: git stash
       - cmd: mkdir %GITVERSION_NuGetVersion%
@@ -115,4 +114,4 @@ for:
 -
   branches:
     except:
-      - master
+      - /release*/

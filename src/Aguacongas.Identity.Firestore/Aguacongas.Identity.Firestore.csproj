@@ -13,9 +13,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.0" />
-        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.1.0" />
-        <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta05" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.2.0" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta14" />
     </ItemGroup>
 
     <ItemGroup>

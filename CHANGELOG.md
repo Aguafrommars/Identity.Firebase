@@ -1,3 +1,15 @@
+## 2.1.1(09/19/2018)
+
+## Bug fixes
+
+* #3 HttpMessageFilter should apply to named httpclient only
+
+# 2.1.0 (Jul. 28 2018)
+
+# Feature
+
+* ASP.Net Core 2.1 update
+
 # 2.0.0 (Jun. 6 2018)
 
 Takes advantage of new [HttpClientFactory](https://github.com/aspnet/HttpClientFactory)
