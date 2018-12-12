@@ -52,11 +52,11 @@ install:
     - cmd: secure-file\tools\secure-file -decrypt test\identityfirestore.json.enc -secret %decrypt_secret%
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
-    - ps: ./appveyorini.ps1
+    - ps: ./appveyorinit.ps1
 build_script:
 - ps: ./build.ps1
 test_script:
-- cmd: publish.cmd
+- ps: ./publish.ps1
 artifacts:
     - path: artifacts/**/*.nupkg
       name: nuget    
