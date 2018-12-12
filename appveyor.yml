@@ -11,8 +11,8 @@ image:
 - Ubuntu
 - Visual Studio 2017
 environment:
-  GH_TOKEN: 
-    secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+  GH_TOKEN:
+    secure: vB7ia6iBOFXcop2UppAP1Zmgn0C5Ms8uVGe3XdVQ8ztkUqMMr8Wm7DA4Elyj//I0
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
@@ -52,8 +52,7 @@ install:
     - cmd: secure-file\tools\secure-file -decrypt test\identityfirestore.json.enc -secret %decrypt_secret%
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
-    - npm i -g @commitlint/cli @commitlint/config-angular
-    - dotnet restore
+    - ps: ./appveyorini.ps1
 build_script:
 - ps: ./build.ps1
 test_script:
@@ -99,8 +98,6 @@ for:
     only:
       - /release*/
   on_success:
-      - cmd: npm i -g semantic-release    
-      - cmd: semantic-release -b %APPVEYOR_REPO_BRANCH%
       - cmd: git config --global credential.helper store
       - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
       - cmd: git config --global user.email "aguacongas@gmail.com"
