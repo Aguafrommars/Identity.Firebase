@@ -1,4 +1,3 @@
-Install-Product node ''
 npm i -g semantic-release @semantic-release/exec
 if (test-path ./nextversion.txt)
 {
@@ -15,5 +14,5 @@ else
 {
     $builnumber = "$nextversion$tag"
 }
-Update-AppveyorBuild -version $builnumber
+$env:buildnumber=$builnumber
 dotnet restore
