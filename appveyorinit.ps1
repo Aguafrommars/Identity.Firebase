@@ -1,4 +1,4 @@
-npm i -g semantic-release @semantic-release/exec
+npm i -g semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/git @semantic-release/release-notes-generator @semantic-release/commit-analyzer 
 if (test-path ./nextversion.txt)
 {
     Remove-Item ./nextversion.txt

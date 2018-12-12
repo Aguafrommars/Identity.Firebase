@@ -33,6 +33,7 @@ environment:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
+stack: node 9
 init:
     - cmd: git config --global core.autocrlf true
 install:
@@ -54,7 +55,6 @@ install:
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
     - ps: Install-Product node ''
     - ps: ./appveyorinit.ps1
-    - ps: Update-AppveyorBuild -version $env:builnumber
 build_script:
 - ps: ./build.ps1
 test_script:
