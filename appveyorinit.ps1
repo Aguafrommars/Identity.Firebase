@@ -1,3 +1,4 @@
+Install-Product node ''
 npm i -g semantic-release @semantic-release/exec
 if (test-path ./nextversion.txt)
 {
