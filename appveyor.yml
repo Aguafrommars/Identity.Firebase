@@ -53,7 +53,6 @@ install:
     - cmd: secure-file\tools\secure-file -decrypt test\identityfirestore.json.enc -secret %decrypt_secret%
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/testsettings.json.enc -secret $decrypt_secret
     - sh: mono secure-file/tools/secure-file.exe -decrypt test/identityfirestore.json.enc -secret $decrypt_secret
-    - ps: Install-Product node ''
     - ps: ./appveyorinit.ps1
 build_script:
 - ps: ./build.ps1
