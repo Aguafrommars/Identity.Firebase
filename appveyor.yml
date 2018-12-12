@@ -11,6 +11,8 @@ image:
 - Ubuntu
 - Visual Studio 2017
 environment:
+  GH_TOKEN: 
+    secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
@@ -98,7 +100,6 @@ for:
       - /release*/
   on_success:
       - cmd: npm i -g semantic-release    
-      - cmd: set GH_TOKEN=%access_token%
       - cmd: semantic-release -b %APPVEYOR_REPO_BRANCH%
       - cmd: git config --global credential.helper store
       - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
