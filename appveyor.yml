@@ -13,7 +13,7 @@ image:
 - Visual Studio 2017
 environment:
   GH_TOKEN:
-    secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+    secure: vB7ia6iBOFXcop2UppAP1Zmgn0C5Ms8uVGe3XdVQ8ztkUqMMr8Wm7DA4Elyj//I0
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
