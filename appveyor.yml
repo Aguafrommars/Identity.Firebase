@@ -13,7 +13,7 @@ image:
 - Visual Studio 2017
 environment:
   GH_TOKEN:
-    secure: vB7ia6iBOFXcop2UppAP1Zmgn0C5Ms8uVGe3XdVQ8ztkUqMMr8Wm7DA4Elyj//I0
+    secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
@@ -63,7 +63,7 @@ artifacts:
       name: nuget    
 on_success:
     - cmd: git config --global credential.helper store
-    - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
+    - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GH_TOKEN):x-oauth-basic@github.com`n" }
     - cmd: git config --global user.email "aguacongas@gmail.com"
     - cmd: git config --global user.name "Olivier Lefebvre"
     - cmd: git stash
@@ -98,7 +98,7 @@ for:
       - /release*/
   on_success:
       - cmd: git config --global credential.helper store
-      - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" }
+      - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GH_TOKEN):x-oauth-basic@github.com`n" }
       - cmd: git config --global user.email "aguacongas@gmail.com"
       - cmd: git config --global user.name "Olivier Lefebvre"
       - cmd: git checkout gh-pages
