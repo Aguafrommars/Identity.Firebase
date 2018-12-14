@@ -4,15 +4,22 @@ if (test-path ./nextversion.txt)
     Remove-Item ./nextversion.txt
 }
 semantic-release -b $env:APPVEYOR_REPO_BRANCH -d
-$nextversion = Get-Content ./nextversion.txt
-$tag = $env:GitVersion_PreReleaseTagWithDash
-if (![string]::IsNullOrEmpty($env:GitVersion_BuildMetaData))
+if (test-path ./nextversion.txt)
 {
-    $builnumber = "$nextversion$tag+$env:GitVersion_BuildMetaData"
+    $nextversion = Get-Content ./nextversion.txt
 }
 else 
 {
-    $builnumber = "$nextversion$tag"
+    $nextversion = $env:GitVersion_MajorMinorPatch
 }
-$env:buildnumber=$builnumber
+
+if (![string]::IsNullOrEmpty($env:GitVersion_PreReleaseLabel))
+{
+    $nextversion = "$nextversion-$env:GitVersion_PreReleaseLabel$env:GitVersion_CommitsSinceVersionSourcePadded"
+}
+
 dotnet restore
+appveyor UpdateBuild -Version $nextversion
+$builnumbersuffix = Get-Date -Format "mmddyyyy-HHmm"
+$builnumber = "$builnumber-$builnumbersuffix"
+appveyor SetVariable -Name APPVEYOR_BUILD_NUMBER -Value $builnumber

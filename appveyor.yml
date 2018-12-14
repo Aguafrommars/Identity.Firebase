@@ -1,5 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
+stack: node 9
 skip_commits:
   message: /\[chore\]/
 branches:
@@ -12,7 +13,7 @@ image:
 - Visual Studio 2017
 environment:
   GH_TOKEN:
-    secure: vB7ia6iBOFXcop2UppAP1Zmgn0C5Ms8uVGe3XdVQ8ztkUqMMr8Wm7DA4Elyj//I0
+    secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   FirebaseOptions:DatabaseUrl:
@@ -33,7 +34,6 @@ environment:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-stack: node 9
 init:
     - cmd: git config --global core.autocrlf true
 install:
@@ -81,18 +81,16 @@ deploy:
         branch:
             - /preview*/ 
             - /release*/
-        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - provider: GitHub
-      auth_token:
-        secure: u7qaOQsrkLqq44yS24C0eM2vRCzp1A8gZTWNmlA58TIDJGmrDXguHL9H/vww7Fg/
+      auth_token: $(GH_TOKEN)
       draft: true
       prerelease: false
-      release: $(GitVersion_SemVer)
+      release: $(APPVEYOR_BUILD_VERSION)
       on:
         branch: 
             - /preview*/ 
             - /release*/
-        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        CI_WINDOWS: true
 for:
 -
   branches:
@@ -105,10 +103,10 @@ for:
       - cmd: git config --global user.name "Olivier Lefebvre"
       - cmd: git checkout gh-pages
       - cmd: git stash
-      - cmd: mkdir %GITVERSION_NuGetVersion%
-      - cmd: move coverage\docs %GITVERSION_NuGetVersion%
-      - cmd: git add %GITVERSION_NuGetVersion%
-      - cmd: git commit %GITVERSION_NuGetVersion% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+      - cmd: mkdir %APPVEYOR_BUILD_VERSION%
+      - cmd: move coverage\docs %APPVEYOR_BUILD_VERSION%
+      - cmd: git add %APPVEYOR_BUILD_VERSION%
+      - cmd: git commit %APPVEYOR_BUILD_VERSION% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
       - cmd: git push
 -
   branches:
