@@ -1,4 +1,4 @@
-$fileversion = "$env:APPVEYOR_BUILD_VERSION.0" 
+$fileversion = "$env:SemVer.0" 
 Get-ChildItem -Path src -rec `
 | Where-Object { $_.Name -like "*.csproj"
      } `
