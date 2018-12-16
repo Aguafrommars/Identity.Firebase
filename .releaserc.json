@@ -8,6 +8,10 @@
       "noteKeywords": [ "BREAKING CHANGE", "BREAKING CHANGES", "BREAKING" ]
     }
   },
+  "verifyRelease": {
+    "path": "@semantic-release/exec",
+    "verifyReleaseCmd": "echo ${nextRelease.version} > nextversion.txt"
+  },
   "prepare": [
     "@semantic-release/changelog",
     {
