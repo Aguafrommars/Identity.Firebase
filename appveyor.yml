@@ -2,7 +2,7 @@ version: 1.0.{build}
 skip_tags: true
 stack: node 9
 skip_commits:
-  message: /\[chore\]/
+  message: /chore/
 branches:
   only:
   - master
