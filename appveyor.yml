@@ -3,37 +3,9 @@ skip_tags: true
 stack: node 9
 skip_commits:
   message: /chore/
-branches:
-  only:
-  - master
-  - /preview\/*/
-  - /release\/*/
 image: 
 - Ubuntu
 - Visual Studio 2017
-environment:
-  GH_TOKEN:
-    secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
-  access_token:
-    secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
-  FirebaseOptions:DatabaseUrl:
-    secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
-  EmailPasswordOptions:ApiKey:
-    secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
-  EmailPasswordOptions:Email:
-    secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
-  EmailPasswordOptions:Password:
-    secure: h7zhWIG5sQBVM6loU77ClQ==
-  AuthTokenOptions:project_id:
-    secure: gE6/37a4VG4TdhewmnfFTIZHTzue+4h4fe/3s4YfdLo=
-  AuthTokenOptions:private_key_id:
-    secure: heNPEQDaV8Zztg/9IdO8uftdRig8wf72Up33RgTzQFcZRw29Kh6WgaIwKP52DypD
-  AuthTokenOptions:client_email:
-    secure: kTyppzJ2/ZxaGTdrdYTHXMMRJgOJ82mJvPS6YzV2xB2s4bPC3nSQ1YUA1mfkb5zmJTkBRWlTMniJDmx8pRTmwtNJOF64UIf+wnVH0CnpQC8=
-  AuthTokenOptions:client_id:
-    secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
-  decrypt_secret:
-    secure: BDKOW5teXcJUwLqekbf6VQ==
 init:
     - cmd: git config --global core.autocrlf true
 install:
