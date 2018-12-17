@@ -2,7 +2,7 @@ version: 1.0.{build}
 skip_tags: true
 stack: node 9
 skip_commits:
-  message: /chore/
+  message: /chore(release)/
 branches:
   only:
   - master
@@ -112,7 +112,3 @@ for:
       - cmd: git add %APPVEYOR_BUILD_VERSION%
       - cmd: git commit %APPVEYOR_BUILD_VERSION% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
       - cmd: git push
--
-  branches:
-    except:
-      - /release\/*/
