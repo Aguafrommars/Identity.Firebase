@@ -73,7 +73,7 @@ deploy:
       auth_token: $(GH_TOKEN)
       draft: true
       prerelease: false
-      release: $(APPVEYOR_BUILD_VERSION)
+      release: $(NextVersion)
       on:
         branch: 
             - /preview\/*/ 
@@ -93,7 +93,7 @@ for:
     - cmd: IF EXIST latest ( rmdir /S /Q latest )
     - cmd: IF EXIST coverage\docs ( move coverage\docs latest )
     - cmd: IF EXIST latest ( git add latest )
-    - cmd: IF EXIST latest ( git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%" )
+    - cmd: IF EXIST latest ( git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_VERSION%" )
     - cmd: IF EXIST latest ( git push )
 -
   branches:
@@ -107,8 +107,8 @@ for:
       - cmd: git config --global user.name "Olivier Lefebvre"
       - cmd: git checkout gh-pages
       - cmd: git stash
-      - cmd: mkdir %APPVEYOR_BUILD_VERSION%
-      - cmd: move coverage\docs %APPVEYOR_BUILD_VERSION%
-      - cmd: git add %APPVEYOR_BUILD_VERSION%
-      - cmd: git commit %APPVEYOR_BUILD_VERSION% -m "Appveyor build succed %APPVEYOR_BUILD_NUMBER%"
+      - cmd: mkdir %NextVersion%
+      - cmd: move coverage\docs %NextVersion%
+      - cmd: git add %NextVersion%
+      - cmd: git commit %NextVersion% -m "Appveyor build succed %APPVEYOR_BUILD_VERSION%"
       - cmd: git push
