@@ -1,3 +1,12 @@
+# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-18)
+
+
+### Features
+
+* .net 2.2 ([2cc92b9](https://github.com/aguacongas/Identity.Firebase/commit/2cc92b9))
+* .net core 2.2 update ([7cfa88c](https://github.com/aguacongas/Identity.Firebase/commit/7cfa88c))
+* **ci:** use githubflow and semantic-release ([79b0537](https://github.com/aguacongas/Identity.Firebase/commit/79b0537))
+
 # [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-17)
 
 
