@@ -1,17 +1,16 @@
-# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-16)
+## [2.2.1](https://github.com/aguacongas/Identity.Firebase/compare/2.2.0...2.2.1) (2018-12-19)
 
+
+### Bug Fixes
+
+* nugets packages version ([bb948bb](https://github.com/aguacongas/Identity.Firebase/commit/bb948bb))
+
+# [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-16)
 
 ### Features
 
 * .net 2.2 ([2cc92b9](https://github.com/aguacongas/Identity.Firebase/commit/2cc92b9))
-* .net core 2.2 update ([7cfa88c](https://github.com/aguacongas/Identity.Firebase/commit/7cfa88c))
 * **ci:** use githubflow and semantic-release ([79b0537](https://github.com/aguacongas/Identity.Firebase/commit/79b0537))
-
-## 2.1.1(09/19/2018)
-
-## Bug fixes
-
-* #3 HttpMessageFilter should apply to named httpclient only
 
 # 2.1.0 (Jul. 28 2018)
 
