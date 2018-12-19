@@ -20,8 +20,7 @@ if (![string]::IsNullOrEmpty($env:GitVersion_PreReleaseLabel))
     $nextversion = "$nextversion-$env:GitVersion_PreReleaseLabel$env:GitVersion_CommitsSinceVersionSourcePadded"
 }
 
+appveyor SetVariable -Name NextVersion -Value $nextversion
 appveyor UpdateBuild -Version $nextversion
-$builnumbersuffix = Get-Date -Format "mmddyyyy-HHmm"
-$builnumber = "$builnumber-$builnumbersuffix"
 
 dotnet restore
