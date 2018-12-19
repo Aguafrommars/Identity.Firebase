@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/aguacongas/Identity.Firebase/compare/2.2.0...2.2.1) (2018-12-19)
+
+
+### Bug Fixes
+
+* nugets packages version ([bb948bb](https://github.com/aguacongas/Identity.Firebase/commit/bb948bb))
+
 # [2.2.0](https://github.com/aguacongas/Identity.Firebase/compare/2.1.1...2.2.0) (2018-12-18)
 
 
