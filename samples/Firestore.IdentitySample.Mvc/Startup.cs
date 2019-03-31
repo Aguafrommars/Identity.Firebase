@@ -69,6 +69,10 @@ namespace IdentitySample
             app.UseStaticFiles();
 
             app.UseAuthentication();
+            app.Use(async (context, next) =>
+            {
+                await next();
+            });
 
             app.UseMvc(routes =>
             {
