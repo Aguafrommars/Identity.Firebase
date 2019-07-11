@@ -2,32 +2,22 @@
 
   <PropertyGroup>
     <Description>Identity sample MVC application on ASP.NET Core</Description>
-    <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.2</TargetFrameworks>
     <UserSecretsId>Aguacongas.Identity.Firebase.IntegrationTest</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aguacongas.Identity.Firebase" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.3" PrivateAssets="all">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview6.19304.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0-preview6.19304.6" />
   </ItemGroup>
 </Project>
