@@ -1,7 +1,7 @@
 ﻿using Aguacongas.Firebase.TokenManager;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
-using Google.Cloud.Firestore.V1Beta1;
+using Google.Cloud.Firestore.V1;
 using Grpc.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
