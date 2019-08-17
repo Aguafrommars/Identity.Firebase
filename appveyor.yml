@@ -34,7 +34,7 @@ environment:
     secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 3.0.100-preview7-012821
+  donetsdk: 3.0.100-preview8-013656
 init:
     - cmd: git config --global core.autocrlf true
 install:
@@ -48,7 +48,7 @@ install:
     - sh: sudo apt -y install nuget
     - sh: nuget install GitVersion.CommandLine -ExcludeVersion
     - sh: mono GitVersion.CommandLine/tools/GitVersion.exe /l console /output buildserver
-    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version 3.0.100-preview7-012821 }
+    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version 3.0.100-preview8-013656 }
     - cmd: gitversion /l console /output buildserver
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
