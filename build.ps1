@@ -46,7 +46,7 @@ if (-not($envar -contains 'APPVEYOR_PULL_REQUEST_NUMBER'))
 	| Where-Object { $_.Name -like "*.Test.csproj" } `
 	| ForEach-Object { 
 		Set-Location $_.DirectoryName
-		&('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '-c', 'Release', '/p:CollectCoverage=true', '/p:CoverletOutputFormat=cobertura')    
+		&('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '-c', 'Release', '/p:CollectCoverage=true', '/p:CoverletOutputFormat=cobertura', '/p:Include=[Aguacongas.*]*')    
 	
 		if ($LASTEXITCODE -ne 0) {
 			$result = $LASTEXITCODE
