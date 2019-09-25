@@ -10,7 +10,7 @@ branches:
   - /release\/*/
 image: 
 - Ubuntu
-- Visual Studio 2017
+- Visual Studio 2019
 environment:
   GH_TOKEN:
     secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
