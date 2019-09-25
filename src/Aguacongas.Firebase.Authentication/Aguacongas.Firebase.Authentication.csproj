@@ -15,8 +15,8 @@
     <ItemGroup>
         <PackageReference Include="Google.Apis.Auth" Version="1.41.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0-rc1.19456.10" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0-rc1.19456.10" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
