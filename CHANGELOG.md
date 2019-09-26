@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/aguacongas/Identity.Firebase/compare/2.2.1...3.0.0) (2019-09-26)
+
+
+### Build System
+
+* update packages ([b1d2a00](https://github.com/aguacongas/Identity.Firebase/commit/b1d2a00))
+
+
+### BREAKING CHANGES
+
+* APS.Net Core 3.0
+
 ## [2.2.1](https://github.com/aguacongas/Identity.Firebase/compare/2.2.0...2.2.1) (2018-12-19)
 
 
