@@ -1,8 +1,8 @@
 # Identity.Firebase
 [ASP.NET Identity](https://github.com/aspnet/AspNetCore/tree/master/src/Identity) Firebase Providers
 
-[![Build status](https://ci.appveyor.com/api/projects/status/h3n8dna94b156o58/branch/develop?svg=true)](https://ci.appveyor.com/project/aguacongas/identity-firebase)
-[![Latest Code coveragre](https://aguacongas.github.io/Identity.Firebase/latest/badge_linecoverage.svg)](https://aguacongas.github.io/Identity.Firebase/latest)
+[![Build status](https://ci.appveyor.com/api/projects/status/h3n8dna94b156o58/branch/develop?svg=true)](https://ci.appveyor.com/project/aguacongas/identity-firebase) 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=aguacongas_Identity.Firebase&metric=alert_status)](https://sonarcloud.io/dashboard?id=aguacongas_Identity.Firebase)
 
 Nuget packages
 --------------
