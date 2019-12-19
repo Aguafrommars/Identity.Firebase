@@ -4,6 +4,15 @@
     <Description>Identity sample MVC application on ASP.NET Core</Description>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>Firestore.IdentitySample.Mvc</UserSecretsId>
+    <SonarQubeExclude>true</SonarQubeExclude>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CodeAnalysisRuleSet>Firestore.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>Firestore.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

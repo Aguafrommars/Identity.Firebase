@@ -16,25 +16,15 @@ environment:
     secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
-  FirebaseOptions:DatabaseUrl:
-    secure: 2qGe9esmMdZbcKA/cWYZ8vbQpX8P1FbS4bynR0m6gBS4APskJ+a8rnleo/8UgfPC
   EmailPasswordOptions:ApiKey:
     secure: CgnX5RPcI4Wq1hyLKIh+5DaEl6wfV/Mdo6J8u3mW0A4iVBBXpPblFpp5vh0DUauI
   EmailPasswordOptions:Email:
     secure: M+wRwy+l/01DvVvmy0Th96FLiwzNnwK3Sp1YMvMnUns=
   EmailPasswordOptions:Password:
     secure: h7zhWIG5sQBVM6loU77ClQ==
-  AuthTokenOptions:project_id:
-    secure: gE6/37a4VG4TdhewmnfFTIZHTzue+4h4fe/3s4YfdLo=
-  AuthTokenOptions:private_key_id:
-    secure: heNPEQDaV8Zztg/9IdO8uftdRig8wf72Up33RgTzQFcZRw29Kh6WgaIwKP52DypD
-  AuthTokenOptions:client_email:
-    secure: kTyppzJ2/ZxaGTdrdYTHXMMRJgOJ82mJvPS6YzV2xB2s4bPC3nSQ1YUA1mfkb5zmJTkBRWlTMniJDmx8pRTmwtNJOF64UIf+wnVH0CnpQC8=
-  AuthTokenOptions:client_id:
-    secure: PMLy88L3M2YQyiYbIPN6z0imAgOXFMzqbZZPaRNAc/w=
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 3.0.100
+  donetsdk: 3.1.100
 init:
     - cmd: git config --global core.autocrlf true
 install:
@@ -46,10 +36,10 @@ install:
     - sh: sudo ./dotnet-install.sh -Channel Current -Version $donetsdk -InstallDir ./dotnetsdk -NoPath
     - sh: export PATH=/home/appveyor/projects/identity-firebase/dotnetsdk:$PATH
     - sh: sudo apt -y install nuget
-    - ps: nuget install GitVersion.CommandLine -ExcludeVersion
-    - sh: mono GitVersion.CommandLine/tools/GitVersion.exe /l console /output buildserver
-    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version 3.0.100 }
-    - cmd: GitVersion.CommandLine\tools\GitVersion.exe /l console /output buildserver
+    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version $env:donetsdk }
+    - ps: dotnet tool install --global GitVersion.Tool
+    - ps: dotnet gitversion /l console /output buildserver
+    - ps: dotnet tool install --global dotnet-sonarscanner
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
     - cmd: secure-file\tools\secure-file -decrypt test\testsettings.json.enc -secret %decrypt_secret%
@@ -67,51 +57,33 @@ artifacts:
 deploy:
     - provider: NuGet
       api_key:
-        secure: yX9LRQv/o6UvkMikS4MyQtOAo51uJXUH+/P5jukIXdt9kbE7fMmSpr6RGhFWwcbC
+        secure: S57o0WbfRlTkoQL26JackFN9GHt3L21yJWMgjRGMPuVMzdujY45mVehIHOs+arHH
       on:
         branch:
-            - /preview\/*/ 
-            - /release\/*/
+        - /preview\/*/ 
+        - /release\/*/
+        CI_WINDOWS: true
     - provider: GitHub
       auth_token: $(GH_TOKEN)
       draft: true
-      prerelease: false
+      prerelease: true
       release: $(NextVersion)
       on:
         branch: 
             - /preview\/*/ 
         CI_WINDOWS: true
+    - provider: GitHub
+      auth_token: $(GH_TOKEN)
+      draft: true
+      release: $(NextVersion)
+      on:
+        branch: 
+          - /release\/*/
+        CI_WINDOWS: true
 for:
--
-  branches:
-    only:
-      - master
-  on_success:
-    - cmd: git config --global credential.helper store 
-    - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GH_TOKEN):x-oauth-basic@github.com`n" }
-    - cmd: IF EXIST coverage\docs ( git config --global user.email "aguacongas@gmail.com" )
-    - cmd: IF EXIST coverage\docs ( git config --global user.name "Olivier Lefebvre" )
-    - cmd: IF EXIST coverage\docs ( git stash )
-    - cmd: IF EXIST coverage\docs ( git checkout gh-pages )
-    - cmd: IF EXIST latest ( rmdir /S /Q latest )
-    - cmd: IF EXIST coverage\docs ( move coverage\docs latest )
-    - cmd: IF EXIST latest ( git add latest )
-    - cmd: IF EXIST latest ( git commit latest -m "Appveyor build succed %APPVEYOR_BUILD_VERSION%" )
-    - cmd: IF EXIST latest ( git push )
 -
   branches:
     only:
       - /release\/*/
   on_success:
       - cmd: semantic-release -b %APPVEYOR_REPO_BRANCH%
-      - cmd: git config --global credential.helper store
-      - ps: if ($isWindows) { Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GH_TOKEN):x-oauth-basic@github.com`n" }
-      - cmd: git config --global user.email "aguacongas@gmail.com"
-      - cmd: git config --global user.name "Olivier Lefebvre"
-      - cmd: git checkout gh-pages
-      - cmd: git stash
-      - cmd: mkdir %NextVersion%
-      - cmd: move coverage\docs %NextVersion%
-      - cmd: git add %NextVersion%
-      - cmd: git commit %NextVersion% -m "Appveyor build succed %APPVEYOR_BUILD_VERSION%"
-      - cmd: git push

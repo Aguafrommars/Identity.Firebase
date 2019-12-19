@@ -34,7 +34,7 @@ namespace Aguacongas.Firebase
         {
             if (requestEtag)
             {
-                var result = headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
+                headers.TryAddWithoutValidation("X-Firebase-ETag", "true");
             }
         }
 
@@ -47,7 +47,7 @@ namespace Aguacongas.Firebase
         {
             if (!string.IsNullOrEmpty(etag))
             {
-                var result = headers.TryAddWithoutValidation("if-match", etag);
+                headers.TryAddWithoutValidation("if-match", etag);
             }
         }
 
@@ -62,7 +62,8 @@ namespace Aguacongas.Firebase
         {
             await response.EnsureIsSuccess();
             
-            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var jsonResponse = await response.Content.ReadAsStringAsync()
+                .ConfigureAwait(false);
             return new FirebaseResponse<T>
             {
                 Data = JsonConvert.DeserializeObject<T>(jsonResponse, jsonSerializerSettings),
@@ -81,7 +82,7 @@ namespace Aguacongas.Firebase
         {
             if (!response.IsSuccessStatusCode)
             {
-                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, await response.Content.ReadAsStringAsync(), response.Headers.ETag?.Tag);
+                throw new FirebaseException(response.StatusCode, response.ReasonPhrase, await response.Content.ReadAsStringAsync().ConfigureAwait(false), response.Headers.ETag?.Tag);
             }
         }
     }

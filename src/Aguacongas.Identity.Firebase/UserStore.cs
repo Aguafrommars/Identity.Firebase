@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -57,6 +58,7 @@ namespace Aguacongas.Identity.Firebase
         public UserStore(IFirebaseClient client, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(client, userOnlyStore, describer) { }
     }
 
+
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
@@ -67,6 +69,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Folow EF implementation")]
     public class UserStore<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
         FirebaseUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>
         where TUser : IdentityUser<string>
@@ -105,7 +108,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
             => _userOnlyStore.CreateAsync(user, cancellationToken);
 
         /// <summary>
@@ -114,7 +117,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
             => _userOnlyStore.UpdateAsync(user, cancellationToken);
 
         /// <summary>
@@ -123,7 +126,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
             => _userOnlyStore.DeleteAsync(user, cancellationToken);
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
-        public override Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
             => _userOnlyStore.FindByIdAsync(userId, cancellationToken);
 
         /// <summary>
@@ -145,73 +148,73 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public override Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
             => _userOnlyStore.FindByNameAsync(normalizedUserName, cancellationToken);
 
         /// <summary>
-        /// Adds the given <paramref name="normalizedRoleName"/> to the specified <paramref name="user"/>.
+        /// Adds the given <paramref name="roleName"/> to the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to add the role to.</param>
-        /// <param name="normalizedRoleName">The role to add.</param>
+        /// <param name="roleName">The role to add.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            AssertNotNull(user, nameof(user));
+            AssertNotNullOrEmpty(roleName, nameof(roleName));
+
+            var roleEntity = await FindRoleAsync(roleName, cancellationToken)
+                .ConfigureAwait(false);
+
             if (roleEntity == null)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "RoleNotFound {0}", normalizedRoleName));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "RoleNotFound {0}", roleName));
             }
 
             var userRole = CreateUserRole(user, roleEntity);
 
-            await _client.PostAsync(GetFirebasePath(UserRolesTableName), userRole, cancellationToken);
+            await _client.PostAsync(GetFirebasePath(UserRolesTableName), userRole, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Removes the given <paramref name="normalizedRoleName"/> from the specified <paramref name="user"/>.
+        /// Removes the given <paramref name="roleName"/> from the specified <paramref name="user"/>.
         /// </summary>
         /// <param name="user">The user to remove the role from.</param>
-        /// <param name="normalizedRoleName">The role to remove.</param>
+        /// <param name="roleName">The role to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var roleEntity = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            AssertNotNull(user, nameof(user));
+            AssertNotNullOrEmpty(roleName, nameof(roleName));
+
+            var roleEntity = await FindRoleAsync(roleName, cancellationToken)
+                .ConfigureAwait(false);
+
             if (roleEntity != null)
             {
                 Dictionary<string, TUserRole> roles;
                 try
                 {
-                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                        .ConfigureAwait(false);
+
                     roles = response.Data;
                 }
                 catch (FirebaseException e)
                     when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
                 {
-                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken)
+                        .ConfigureAwait(false);
 
-                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                        .ConfigureAwait(false);
+
                     roles = response.Data;
                 }
 
@@ -221,7 +224,8 @@ namespace Aguacongas.Identity.Firebase
                     {
                         if (kv.Value.RoleId == roleEntity.Id)
                         {
-                            await _client.DeleteAsync(GetFirebasePath(UserRolesTableName, kv.Key), cancellationToken);
+                            await _client.DeleteAsync(GetFirebasePath(UserRolesTableName, kv.Key), cancellationToken)
+                                .ConfigureAwait(false);
                             return;
                         }
                     }
@@ -235,27 +239,27 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user whose roles should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the roles the user is a member of.</returns>
-        public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             Dictionary<string, TUserRole> userRoles;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
                 userRoles = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
                 userRoles = response.Data;
             }
 
@@ -263,14 +267,15 @@ namespace Aguacongas.Identity.Firebase
             if (userRoles != null)
             {
                 var concurrentBag = new ConcurrentBag<string>();
-                var taskList = new List<Task>(userRoles.Count());
+                var taskList = new List<Task>(userRoles.Count);
 
                 foreach(var userRole in userRoles.Values)
                 {
                     taskList.Add(GetUserRoleAsync(userRole, concurrentBag, cancellationToken));
                 }
 
-                Task.WaitAll(taskList.ToArray());
+                await Task.WhenAll(taskList.ToArray())
+                    .ConfigureAwait(false);
 
                 return concurrentBag.ToList();
             }
@@ -278,29 +283,26 @@ namespace Aguacongas.Identity.Firebase
         }
 
         /// <summary>
-        /// Returns a flag indicating if the specified user is a member of the give <paramref name="normalizedRoleName"/>.
+        /// Returns a flag indicating if the specified user is a member of the give <paramref name="roleName"/>.
         /// </summary>
         /// <param name="user">The user whose role membership should be checked.</param>
-        /// <param name="normalizedRoleName">The role to check membership of</param>
+        /// <param name="roleName">The role to check membership of</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> containing a flag indicating if the specified user is a member of the given group. If the 
         /// user is a member of the group the returned value with be true, otherwise it will be false.</returns>
-        public override async Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            AssertNotNull(user, nameof(user));
+            AssertNotNullOrEmpty(roleName, nameof(roleName));
+
+            var role = await FindRoleAsync(roleName, cancellationToken)
+                .ConfigureAwait(false);
             if (role != null)
             {                
-                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken);
+                var userRole = await FindUserRoleAsync(user.Id, role.Id, cancellationToken)
+                    .ConfigureAwait(false);
                 return userRole != null;
             }
             return false;
@@ -312,7 +314,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user whose claims should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
-        public override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
             => _userOnlyStore.GetClaimsAsync(user, cancellationToken);
 
         /// <summary>
@@ -322,7 +324,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="claims">The claim to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
             => _userOnlyStore.AddClaimsAsync(user, claims, cancellationToken);
 
         /// <summary>
@@ -333,7 +335,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
             => _userOnlyStore.ReplaceClaimAsync(user, claim, newClaim, cancellationToken);
 
         /// <summary>
@@ -343,7 +345,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="claims">The claim to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
             => _userOnlyStore.RemoveClaimsAsync(user, claims, cancellationToken);
 
         /// <summary>
@@ -354,7 +356,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task AddLoginAsync(TUser user, UserLoginInfo login,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => _userOnlyStore.AddLoginAsync(user, login, cancellationToken);
 
         /// <summary>
@@ -366,7 +368,7 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => _userOnlyStore.RemoveLoginAsync(user, loginProvider, providerKey, cancellationToken);
 
         /// <summary>
@@ -377,7 +379,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
         /// </returns>
-        public override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
             => _userOnlyStore.GetLoginsAsync(user, cancellationToken);
 
         /// <summary>
@@ -390,7 +392,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
         /// </returns>
         public override Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => _userOnlyStore.FindByLoginAsync(loginProvider, providerKey, cancellationToken);
 
         /// <summary>
@@ -401,7 +403,7 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
-        public override Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
             => _userOnlyStore.FindByEmailAsync(normalizedEmail, cancellationToken);
 
         /// <summary>
@@ -412,41 +414,43 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
         /// </returns>
-        public override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
             => _userOnlyStore.GetUsersForClaimAsync(claim, cancellationToken);
 
         /// <summary>
         /// Retrieves all users in the specified role.
         /// </summary>
-        /// <param name="normalizedRoleName">The role whose users should be retrieved.</param>
+        /// <param name="roleName">The role whose users should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that are in the specified role. 
         /// </returns>
-        public async override Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (string.IsNullOrEmpty(normalizedRoleName))
-            {
-                throw new ArgumentNullException(nameof(normalizedRoleName));
-            }
+            AssertNotNullOrEmpty(roleName, nameof(roleName));
 
-            var role = await FindRoleAsync(normalizedRoleName, cancellationToken);
+            var role = await FindRoleAsync(roleName, cancellationToken)
+                .ConfigureAwait(false);
+                
             if (role != null)
             {
                 Dictionary<string, TUserRole> userRoles;
                 try
                 {
-                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"")
+                        .ConfigureAwait(false);
                     userRoles = response.Data;
                 }
                 catch (FirebaseException e)
                     when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
                 {
-                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+                    await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken)
+                        .ConfigureAwait(false);
 
-                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"");
+                    var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"RoleId\"&equalTo=\"{role.Id}\"")
+                        .ConfigureAwait(false);
                     userRoles = response.Data;
                 }
 
@@ -459,7 +463,8 @@ namespace Aguacongas.Identity.Firebase
                     {
                         taskList.Add(Task.Run(async () =>
                         {
-                            var user = await FindByIdAsync(ur.UserId, cancellationToken);
+                            var user = await FindByIdAsync(ur.UserId, cancellationToken)
+                                .ConfigureAwait(false);
                             if (user != null)
                             {
                                 concurrencyBag.Add(user);
@@ -467,7 +472,9 @@ namespace Aguacongas.Identity.Firebase
                         }));
                     }
 
-                    Task.WaitAll(taskList.ToArray());
+                    await Task.WhenAll(taskList.ToArray())
+                        .ConfigureAwait(false);
+
                     return concurrencyBag.ToList();
                 }
             }
@@ -487,19 +494,24 @@ namespace Aguacongas.Identity.Firebase
 
             try
             {
-                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"");
+                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"")
+                    .ConfigureAwait(false);
             }
             catch (FirebaseException e)
                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await _userOnlyStore.SetIndex(RolesTableName, new RoleIndex(), cancellationToken);
+                await _userOnlyStore.SetIndex(RolesTableName, new RoleIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"");
+                response = await _client.GetAsync<Dictionary<string, TRole>>(GetFirebasePath(RolesTableName), cancellationToken, false, $"orderBy=\"NormalizedName\"&equalTo=\"{normalizedRoleName}\"")
+                    .ConfigureAwait(false);
             }
 
-            foreach (var kv in response.Data)
+            var data = response.Data;
+            if (data.Any())
             {
-                return await FindRoleByIdAsync(kv.Key, cancellationToken);
+                return await FindRoleByIdAsync(data.First().Key, cancellationToken)
+                    .ConfigureAwait(false);
             }
             return null;
         }
@@ -516,15 +528,18 @@ namespace Aguacongas.Identity.Firebase
             Dictionary<string, TUserRole> userRoles;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"")
+                    .ConfigureAwait(false);
                 userRoles = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken);
+                await _userOnlyStore.SetIndex(UserRolesTableName, new UseRoleIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserRole>>(GetFirebasePath(UserRolesTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"")
+                    .ConfigureAwait(false);
                 userRoles = response.Data;
             }
 
@@ -586,11 +601,12 @@ namespace Aguacongas.Identity.Firebase
             _userOnlyStore.Dispose();
         }
 
-        protected virtual async Task<TRole> FindRoleByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual async Task<TRole> FindRoleByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var response = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, id), cancellationToken, true);
+            var response = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, id), cancellationToken, true)
+                .ConfigureAwait(false);
             var role = response.Data;
             if (role != null)
             {
@@ -603,13 +619,21 @@ namespace Aguacongas.Identity.Firebase
 
         private async Task GetUserRoleAsync(TUserRole r, ConcurrentBag<string> concurrentBag, CancellationToken cancellationToken)
         {
-            var roleResponse = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, r.RoleId), cancellationToken);
+            var roleResponse = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, r.RoleId), cancellationToken)
+                .ConfigureAwait(false);
             var role = roleResponse.Data;
             if (role != null)
             {
                 concurrentBag.Add(role.Name);
             }
         }
-    }
 
+        private void AssertNotNullOrEmpty(string p, string pName)
+        {
+            if (string.IsNullOrWhiteSpace(p))
+            {
+                throw new ArgumentNullException(pName);
+            }
+        }
+    }
 }

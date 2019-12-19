@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -15,6 +16,10 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
+    [SuppressMessage("Critical Code Smell", "S1006:Method overrides should not change parameter defaults", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S3881:\"IDisposable\" should be implemented correctly", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2326:Unused type parameters should be removed", Justification = "Follow EF implementation")]
     public abstract class FirestoreUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken> :
         IQueryableUserStore<TUser>,
         IUserLoginStore<TUser>,
@@ -54,14 +59,9 @@ namespace Aguacongas.Identity.Firestore
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public FirestoreUserStoreBase(IdentityErrorDescriber describer)
+        protected FirestoreUserStoreBase(IdentityErrorDescriber describer)
         {
-            if (describer == null)
-            {
-                throw new ArgumentNullException(nameof(describer));
-            }
-
-            ErrorDescriber = describer;
+            ErrorDescriber = describer ?? throw new ArgumentNullException(nameof(describer));
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        public abstract Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Updates the specified <paramref name="user"/> in the user store.
@@ -78,7 +78,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public abstract Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes the specified <paramref name="user"/> from the user store.
@@ -86,7 +86,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public abstract Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
@@ -96,7 +96,7 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
-        public abstract Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get the claims associated with the specified <paramref name="user"/> as an asynchronous operation.
@@ -104,7 +104,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose claims should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
-        public abstract Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds the <paramref name="claims"/> given to the specified <paramref name="user"/>.
@@ -113,7 +113,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claims">The claim to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Replaces the <paramref name="claim"/> on the specified <paramref name="user"/>, with the <paramref name="newClaim"/>.
@@ -123,7 +123,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes the <paramref name="claims"/> given from the specified <paramref name="user"/>.
@@ -132,7 +132,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claims">The claim to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds the <paramref name="login"/> given to the specified <paramref name="user"/>.
@@ -141,7 +141,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="login">The login to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes the <paramref name="loginProvider"/> given from the specified <paramref name="user"/>.
@@ -151,7 +151,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves the associated logins for the specified <param ref="user"/>.
@@ -161,7 +161,7 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
         /// </returns>
-        public abstract Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds and returns a user, if any, who has the specified normalized user name.
@@ -171,7 +171,7 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public abstract Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves all users with the specified claim.
@@ -181,7 +181,7 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
         /// </returns>
-        public abstract Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the user, if any, associated with the specified, normalized email address.
@@ -191,7 +191,7 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
-        public abstract Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the user identifier for the specified <paramref name="user"/>.
@@ -199,14 +199,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose identifier should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the identifier for the specified <paramref name="user"/>.</returns>
-        public virtual Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             return Task.FromResult(user.Id);
         }
 
@@ -216,14 +214,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose name should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the name for the specified <paramref name="user"/>.</returns>
-        public virtual Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             return Task.FromResult(user.UserName);
         }
 
@@ -234,14 +230,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="userName">The user name to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             user.UserName = userName;
             return Task.CompletedTask;
         }
@@ -252,14 +246,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose normalized name should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the normalized user name for the specified <paramref name="user"/>.</returns>
-        public virtual Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             return Task.FromResult(user.NormalizedUserName);
         }
 
@@ -270,14 +262,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="normalizedName">The normalized name to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             user.NormalizedUserName = normalizedName;
             return Task.CompletedTask;
         }
@@ -289,14 +279,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="passwordHash">The password hash to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             user.PasswordHash = passwordHash;
             return Task.CompletedTask;
         }
@@ -307,14 +295,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to retrieve the password hash for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the password hash for the user.</returns>
-        public virtual Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
+
             return Task.FromResult(user.PasswordHash);
         }
 
@@ -325,7 +311,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> containing a flag indicating if the specified user has a password. If the 
         /// user has a password the returned value with be true, otherwise it will be false.</returns>
-        public virtual Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return Task.FromResult(user.PasswordHash != null);
@@ -341,14 +327,16 @@ namespace Aguacongas.Identity.Firestore
         /// The <see cref="Task"/> for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
         /// </returns>
         public async virtual Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken)
+                .ConfigureAwait(false);
             if (userLogin != null)
             {
-                return await FindUserAsync(userLogin.UserId, cancellationToken);
+                return await FindUserAsync(userLogin.UserId, cancellationToken)
+                    .ConfigureAwait(false);
             }
             return null;
         }
@@ -363,14 +351,11 @@ namespace Aguacongas.Identity.Firestore
         /// The task object containing the results of the asynchronous operation, a flag indicating whether the email address for the specified <paramref name="user"/>
         /// has been confirmed or not.
         /// </returns>
-        public virtual Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.EmailConfirmed);
         }
 
@@ -381,14 +366,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="confirmed">A flag indicating if the email address has been confirmed, true if the address is confirmed otherwise false.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.EmailConfirmed = confirmed;
             return Task.CompletedTask;
         }
@@ -400,14 +382,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="email">The email to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public virtual Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.Email = email;
             return Task.CompletedTask;
         }
@@ -418,14 +397,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose email should be returned.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object containing the results of the asynchronous operation, the email address for the specified <paramref name="user"/>.</returns>
-        public virtual Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.Email);
         }
 
@@ -437,14 +413,11 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the normalized email address if any associated with the specified user.
         /// </returns>
-        public virtual Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.NormalizedEmail);
         }
 
@@ -455,14 +428,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="normalizedEmail">The normalized email to set for the specified <paramref name="user"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public virtual Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.NormalizedEmail = normalizedEmail;
             return Task.CompletedTask;
         }
@@ -477,14 +447,11 @@ namespace Aguacongas.Identity.Firestore
         /// A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a <see cref="DateTimeOffset"/> containing the last time
         /// a user's lockout expired, if any.
         /// </returns>
-        public virtual Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.LockoutEnd);
         }
 
@@ -495,14 +462,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="lockoutEnd">The <see cref="DateTimeOffset"/> after which the <paramref name="user"/>'s lockout should end.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.LockoutEnd = lockoutEnd;
             return Task.CompletedTask;
         }
@@ -513,14 +477,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose cancellation count should be incremented.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the incremented failed access count.</returns>
-        public virtual Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.AccessFailedCount++;
             return Task.FromResult(user.AccessFailedCount);
         }
@@ -532,14 +493,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         /// <remarks>This is typically called after the account is successfully accessed.</remarks>
-        public virtual Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.AccessFailedCount = 0;
             return Task.CompletedTask;
         }
@@ -550,14 +508,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose failed access count should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the failed access count.</returns>
-        public virtual Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.AccessFailedCount);
         }
 
@@ -569,14 +524,11 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, true if a user can be locked out, otherwise false.
         /// </returns>
-        public virtual Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.LockoutEnabled);
         }
 
@@ -587,14 +539,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="enabled">A flag indicating if lock out can be enabled for the specified <paramref name="user"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.LockoutEnabled = enabled;
             return Task.CompletedTask;
         }
@@ -606,14 +555,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="phoneNumber">The telephone number to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.PhoneNumber = phoneNumber;
             return Task.CompletedTask;
         }
@@ -624,14 +570,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose telephone number should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user's telephone number, if any.</returns>
-        public virtual Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.PhoneNumber);
         }
 
@@ -644,14 +587,11 @@ namespace Aguacongas.Identity.Firestore
         /// The <see cref="Task"/> that represents the asynchronous operation, returning true if the specified <paramref name="user"/> has a confirmed
         /// telephone number otherwise false.
         /// </returns>
-        public virtual Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.PhoneNumberConfirmed);
         }
 
@@ -662,14 +602,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="confirmed">A flag indicating whether the user's telephone number has been confirmed.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.PhoneNumberConfirmed = confirmed;
             return Task.CompletedTask;
         }
@@ -681,18 +618,13 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="stamp">The security stamp to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (stamp == null)
-            {
-                throw new ArgumentNullException(nameof(stamp));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(stamp, nameof(stamp));
+            
             user.SecurityStamp = stamp;
             return Task.CompletedTask;
         }
@@ -703,14 +635,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose security stamp should be set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the security stamp for the specified <paramref name="user"/>.</returns>
-        public virtual Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.SecurityStamp);
         }
 
@@ -722,14 +651,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="enabled">A flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             user.TwoFactorEnabled = enabled;
             return Task.CompletedTask;
         }
@@ -744,14 +670,11 @@ namespace Aguacongas.Identity.Firestore
         /// The <see cref="Task"/> that represents the asynchronous operation, containing a flag indicating whether the specified 
         /// <paramref name="user"/> has two factor authentication enabled or not.
         /// </returns>
-        public virtual Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
             return Task.FromResult(user.TwoFactorEnabled);
         }
 
@@ -769,12 +692,10 @@ namespace Aguacongas.Identity.Firestore
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
-            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var tokens = await GetUserTokensAsync(user, cancellationToken)
+                .ConfigureAwait(false);
             var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);
             if (token == null)
             {
@@ -785,7 +706,8 @@ namespace Aguacongas.Identity.Firestore
                 token.Value = value;
             }
 
-            await SaveUserTokensAsync(user, tokens, cancellationToken);
+            await SaveUserTokensAsync(user, tokens, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -801,14 +723,14 @@ namespace Aguacongas.Identity.Firestore
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            AssertNotNull(user, nameof(user));
+
+            var tokens = await GetUserTokensAsync(user, cancellationToken)
+                .ConfigureAwait(false);
             tokens.RemoveAll(t => t.LoginProvider == loginProvider && t.Name == name);
 
-            await SaveUserTokensAsync(user, tokens, cancellationToken);
+            await SaveUserTokensAsync(user, tokens, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -824,12 +746,11 @@ namespace Aguacongas.Identity.Firestore
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
-            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var tokens = await GetUserTokensAsync(user, cancellationToken)
+                .ConfigureAwait(false);
+
             var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);
 
             return token?.Value;
@@ -865,11 +786,11 @@ namespace Aguacongas.Identity.Firestore
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? "";
+            AssertNotNull(user, nameof(user));
+
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken)
+                .ConfigureAwait(false) ?? "";
+
             if (mergedCodes.Length > 0)
             {
                 return mergedCodes.Split(';').Length;
@@ -903,21 +824,17 @@ namespace Aguacongas.Identity.Firestore
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (code == null)
-            {
-                throw new ArgumentNullException(nameof(code));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(code, nameof(code));
 
-            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? "";
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken)
+                .ConfigureAwait(false) ?? "";
             var splitCodes = mergedCodes.Split(';');
             if (splitCodes.Contains(code))
             {
                 var updatedCodes = new List<string>(splitCodes.Where(s => s != code));
-                await ReplaceCodesAsync(user, updatedCodes, cancellationToken);
+                await ReplaceCodesAsync(user, updatedCodes, cancellationToken)
+                    .ConfigureAwait(false);
                 return true;
             }
             return false;
@@ -1009,6 +926,22 @@ namespace Aguacongas.Identity.Firestore
         {
             _disposed = true;
         }
+
+        protected static void AssertNotNull(object p, string pName)
+        {
+            if (p == null)
+            {
+                throw new ArgumentNullException(pName);
+            }
+        }
+
+        protected static void AssertNotNullOrEmpty(string p, string pName)
+        {
+            if (string.IsNullOrWhiteSpace(p))
+            {
+                throw new ArgumentNullException(pName);
+            }
+        }
     }
 
     /// <summary>
@@ -1021,6 +954,9 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     /// <typeparam name="TRoleClaim">The type representing a role claim.</typeparam>
+    [SuppressMessage("Critical Code Smell", "S1006:Method overrides should not change parameter defaults", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2326:Unused type parameters should be removed", Justification = "Follow EF implementation")]
     public abstract class FirestoreUserStoreBase<TUser, TRole, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim> :
         FirestoreUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
         IUserRoleStore<TUser>
@@ -1036,7 +972,7 @@ namespace Aguacongas.Identity.Firestore
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public FirestoreUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
+        protected FirestoreUserStoreBase(IdentityErrorDescriber describer) : base(describer) { }
 
         /// <summary>
         /// Retrieves all users in the specified role.
@@ -1046,7 +982,8 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that are in the specified role. 
         /// </returns>
-        public abstract Task<IList<TUser>> GetUsersInRoleAsync(string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default);
+
 
         /// <summary>
         /// Adds the given <paramref name="normalizedRoleName"/> to the specified <paramref name="user"/>.
@@ -1055,7 +992,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="normalizedRoleName">The role to add.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task AddToRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes the given <paramref name="normalizedRoleName"/> from the specified <paramref name="user"/>.
@@ -1064,7 +1001,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="normalizedRoleName">The role to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public abstract Task RemoveFromRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves the roles the specified <paramref name="user"/> is a member of.
@@ -1072,7 +1009,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose roles should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the roles the user is a member of.</returns>
-        public abstract Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns a flag indicating if the specified user is a member of the give <paramref name="normalizedRoleName"/>.
@@ -1082,7 +1019,7 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> containing a flag indicating if the specified user is a member of the given group. If the 
         /// user is a member of the group the returned value with be true, otherwise it will be false.</returns>
-        public abstract Task<bool> IsInRoleAsync(TUser user, string normalizedRoleName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Return a role with the normalized name if it exists.

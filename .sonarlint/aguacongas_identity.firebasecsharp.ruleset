@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="SonarQube - Identity.Firebase Sonar way" Description="This rule set was automatically generated from SonarQube.&#xD;&#xA;https://sonarcloud.io/profiles/show?key=AW8POwb8PHYyZX2yhorc" ToolsVersion="16.0">
+  <Rules AnalyzerId="SonarAnalyzer.CSharp" RuleNamespace="SonarAnalyzer.CSharp">
+    <Rule Id="S107" Action="Warning" />
+    <Rule Id="S110" Action="Warning" />
+    <Rule Id="S1144" Action="Warning" />
+    <Rule Id="S1313" Action="Warning" />
+    <Rule Id="S1479" Action="Warning" />
+    <Rule Id="S2068" Action="Warning" />
+    <Rule Id="S2077" Action="Warning" />
+    <Rule Id="S2092" Action="Warning" />
+    <Rule Id="S2245" Action="Warning" />
+    <Rule Id="S2255" Action="Warning" />
+    <Rule Id="S2278" Action="None" />
+    <Rule Id="S2342" Action="Warning" />
+    <Rule Id="S2436" Action="Warning" />
+    <Rule Id="S2437" Action="Warning" />
+    <Rule Id="S3011" Action="Warning" />
+    <Rule Id="S3216" Action="Warning" />
+    <Rule Id="S3330" Action="Warning" />
+    <Rule Id="S3776" Action="Warning" />
+    <Rule Id="S4487" Action="Warning" />
+    <Rule Id="S4507" Action="Warning" />
+    <Rule Id="S4784" Action="Warning" />
+    <Rule Id="S4787" Action="Warning" />
+    <Rule Id="S4790" Action="Warning" />
+    <Rule Id="S4792" Action="Warning" />
+    <Rule Id="S4818" Action="Warning" />
+    <Rule Id="S4823" Action="Warning" />
+    <Rule Id="S4829" Action="Warning" />
+    <Rule Id="S4830" Action="Warning" />
+    <Rule Id="S4834" Action="Warning" />
+    <Rule Id="S5042" Action="Warning" />
+    <Rule Id="S5542" Action="Warning" />
+    <Rule Id="S5547" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="SonarAnalyzer.Security" RuleNamespace="SonarAnalyzer.Security">
+    <Rule Id="S2076" Action="Warning" />
+    <Rule Id="S2078" Action="Warning" />
+    <Rule Id="S2083" Action="Warning" />
+    <Rule Id="S2091" Action="Warning" />
+    <Rule Id="S2631" Action="Warning" />
+    <Rule Id="S3649" Action="Warning" />
+    <Rule Id="S5131" Action="Warning" />
+    <Rule Id="S5144" Action="Warning" />
+    <Rule Id="S5145" Action="Warning" />
+    <Rule Id="S5146" Action="Warning" />
+    <Rule Id="S5167" Action="Warning" />
+  </Rules>
+</RuleSet>

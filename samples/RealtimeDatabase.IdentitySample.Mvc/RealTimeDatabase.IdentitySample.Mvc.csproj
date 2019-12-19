@@ -4,6 +4,15 @@
     <Description>Identity sample MVC application on ASP.NET Core</Description>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>Aguacongas.Identity.Firebase.IntegrationTest</UserSecretsId>
+    <SonarQubeExclude>true</SonarQubeExclude>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CodeAnalysisRuleSet>RealTimeDatabase.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>RealTimeDatabase.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

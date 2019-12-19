@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace Aguacongas.Firebase
 {
     /// <summary>
     /// Firebase exception
     /// </summary>
+    [Serializable]
     public class FirebaseException: Exception
     {
         /// <summary>
@@ -62,6 +62,10 @@ namespace Aguacongas.Firebase
             ReasonPhrase = reasonPhrase;
             Etag = eTag;
             Error = error;
+        }
+
+        protected FirebaseException(SerializationInfo serializationInfo, StreamingContext streamingContext):base(serializationInfo, streamingContext)
+        {
         }
     }
 }

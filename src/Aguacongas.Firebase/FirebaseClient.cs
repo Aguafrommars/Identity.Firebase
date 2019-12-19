@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,14 +36,12 @@ namespace Aguacongas.Firebase
         /// <param name="cancellationToken">A <see cref="CancellationToken"/></param>
         /// <param name="requestEtag">True to request ETag</param>
         /// <returns>The data id</returns>
-        public async Task<FirebaseResponse<string>> PostAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false)
+        public async Task<FirebaseResponse<string>> PostAsync<T>(string url, T data, CancellationToken cancellationToken = default, bool requestEtag = false)
         {
-            if(data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            CheckIsNotNull(data);
 
-            var response = await SendFirebaseRequest<PostResponse>(url, "POST", _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null);
+            var response = await SendFirebaseRequest<PostResponse>(url, "POST", _httpClient.CreateJsonContent(data, _jsonSerializerSettings), cancellationToken, requestEtag, null)
+                .ConfigureAwait(false);
             return new FirebaseResponse<string>
             {
                 Data = response.Data.Name,
@@ -61,7 +59,7 @@ namespace Aguacongas.Firebase
         /// <param name="requestEtag">True to request ETag</param>
         /// <param name="etag">ETag value</param>
         /// <returns>A <see cref="FirebaseResponse{T}"/></returns>
-        public Task<FirebaseResponse<T>> PutAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
+        public Task<FirebaseResponse<T>> PutAsync<T>(string url, T data, CancellationToken cancellationToken = default, bool requestEtag = false, string etag = null)
         {
             if (data == null)
             {
@@ -79,7 +77,7 @@ namespace Aguacongas.Firebase
         /// <param name="data">Data</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/></param>
         /// <returns>A <see cref="FirebaseResponse{T}"/></returns>
-        public Task<FirebaseResponse<T>> PatchAsync<T>(string url, T data, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<FirebaseResponse<T>> PatchAsync<T>(string url, T data, CancellationToken cancellationToken = default)
         {
             if (data == null)
             {
@@ -97,17 +95,20 @@ namespace Aguacongas.Firebase
         /// <param name="requestEtag">True to request ETag</param>
         /// <param name="etag">Etag value</param>
         /// <returns></returns>
-        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string etag = null)
+        public async Task DeleteAsync(string url, CancellationToken cancellationToken = default, bool requestEtag = false, string etag = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod("DELETE"), GetFirebaseUrl(url, cancellationToken));
-            message.Headers.SetIfMath(etag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            using (var response =
-                await _httpClient.SendAsync(message, cancellationToken))
+            using (var message = new HttpRequestMessage(new HttpMethod("DELETE"), GetFirebaseUrl(url)))
             {
-                await response.EnsureIsSuccess();
-            }                
+                message.Headers.SetIfMath(etag);
+                message.Headers.SetRequestEtag(requestEtag);
+
+                using (var response =
+                    await _httpClient.SendAsync(message, cancellationToken)
+                    .ConfigureAwait(false))
+                {
+                    await response.EnsureIsSuccess();
+                }
+            }
         }
 
         /// <summary>
@@ -119,33 +120,37 @@ namespace Aguacongas.Firebase
         /// <param name="requestEtag">True to request ETag</param>
         /// <param name="queryString">A query string</param>
         /// <returns>A <see cref="FirebaseResponse{T}"/></returns>
-        public Task<FirebaseResponse<T>> GetAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken), bool requestEtag = false, string queryString = null)
+        public Task<FirebaseResponse<T>> GetAsync<T>(string url, CancellationToken cancellationToken = default, bool requestEtag = false, string queryString = null)
         {
             return SendFirebaseRequest<T>(url, "GET", null, cancellationToken, requestEtag, null, queryString);
         }
 
         private async Task<FirebaseResponse<T>> SendFirebaseRequest<T>(string url, string method, HttpContent content, CancellationToken cancellationToken, bool requestEtag, string eTag, string queryString = null)
         {
-            var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, cancellationToken, queryString))
+            using (var message = new HttpRequestMessage(new HttpMethod(method), GetFirebaseUrl(url, queryString))
             {
                 Content = content
-            };
-            message.Headers.SetIfMath(eTag);
-            message.Headers.SetRequestEtag(requestEtag);
-
-            var response = await _httpClient.SendAsync(message, cancellationToken);
-            return await GetFirebaseResponse<T>(response);
-        }
-
-        private async Task<FirebaseResponse<T>> GetFirebaseResponse<T>(HttpResponseMessage response)
-        {
-            using (response)
+            })
             {
-                return await response.DeserializeResponseAsync<T>(_jsonSerializerSettings);
+                message.Headers.SetIfMath(eTag);
+                message.Headers.SetRequestEtag(requestEtag);
+
+                var response = await _httpClient.SendAsync(message, cancellationToken)
+                    .ConfigureAwait(false);
+                return await GetFirebaseResponse<T>(response)
+                    .ConfigureAwait(false);
             }
         }
 
-        private Uri GetFirebaseUrl(string url, CancellationToken cancellationToken, string queryString = null)
+        private Task<FirebaseResponse<T>> GetFirebaseResponse<T>(HttpResponseMessage response)
+        {
+            using (response)
+            {
+                return response.DeserializeResponseAsync<T>(_jsonSerializerSettings);
+            }
+        }
+
+        private Uri GetFirebaseUrl(string url , string queryString = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -168,8 +173,17 @@ namespace Aguacongas.Firebase
             return builder.Uri;
         }
 
+        private static void CheckIsNotNull<T>(T data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+        }
+
         class PostResponse
         {
+            [SuppressMessage("Major Code Smell", "S1144:Unused private types or members should be removed", Justification = "Firebase service response we don't want to expose")]
             public string Name { get; set; }
         }
     }

@@ -64,7 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddFirebaseStores(url, provider =>
                 {
                     var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                    var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
+                    var json = JsonConvert.SerializeObject(options?.Value ?? throw new NotSupportedException($"{nameof(options)} is null"));
                     return GoogleCredential.FromJson(json)
                         .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
                         .UnderlyingCredential;
