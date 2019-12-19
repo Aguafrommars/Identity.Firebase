@@ -60,8 +60,9 @@ deploy:
         secure: S57o0WbfRlTkoQL26JackFN9GHt3L21yJWMgjRGMPuVMzdujY45mVehIHOs+arHH
       on:
         branch:
-            - /preview\/*/ 
-            - /release\/*/
+        - /preview\/*/ 
+        - /release\/*/
+        CI_WINDOWS: true
     - provider: GitHub
       auth_token: $(GH_TOKEN)
       draft: true
@@ -71,14 +72,14 @@ deploy:
         branch: 
             - /preview\/*/ 
         CI_WINDOWS: true
-  - provider: GitHub
-    auth_token: $(GH_TOKEN)
-    draft: true
-    release: $(NextVersion)
-    on:
-      branch: 
-      - /release\/*/
-      CI_WINDOWS: true
+    - provider: GitHub
+      auth_token: $(GH_TOKEN)
+      draft: true
+      release: $(NextVersion)
+      on:
+        branch: 
+          - /release\/*/
+        CI_WINDOWS: true
 for:
 -
   branches:
