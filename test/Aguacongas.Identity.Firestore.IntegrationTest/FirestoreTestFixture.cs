@@ -52,7 +52,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
             }
         }
 
-        public FirestoreDb CreateFirestoreDb(IServiceProvider provider)
+        public static FirestoreDb CreateFirestoreDb(IServiceProvider provider)
         {
             var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
             var json = JsonConvert.SerializeObject(authOptions.Value);

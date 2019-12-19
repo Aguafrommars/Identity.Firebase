@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,7 +37,8 @@ namespace Aguacongas.Firebase.Http
         {
             var currentUri = request.RequestUri;
             var queryString = new QueryString(currentUri.Query);
-            var token = await _tokenManager.GetTokenAsync();
+            var token = await _tokenManager.GetTokenAsync()
+                .ConfigureAwait(false);
             queryString = queryString.Add(_tokenManager.AuthParamName, token);
             var uriBuilder = new UriBuilder(currentUri)
             {
@@ -47,7 +46,8 @@ namespace Aguacongas.Firebase.Http
             };
             request.RequestUri = uriBuilder.Uri;
 
-            return await base.SendAsync(request, cancellationToken);
+            return await base.SendAsync(request, cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

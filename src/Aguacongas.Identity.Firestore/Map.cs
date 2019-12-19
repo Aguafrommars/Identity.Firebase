@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 
 namespace Aguacongas.Identity.Firestore
 {
@@ -12,8 +12,9 @@ namespace Aguacongas.Identity.Firestore
         {
             if (dictionary == null)
             {
-                return default(T);
+                return default;
             }
+
             var user = new T();
             var type = user.GetType();
             foreach (var key in dictionary.Keys)
@@ -25,14 +26,7 @@ namespace Aguacongas.Identity.Firestore
                 {
                     if (valueType == typeof(Timestamp))
                     {
-                        if (property.PropertyType == typeof(DateTimeOffset) || property.PropertyType == typeof(DateTimeOffset?))
-                        {
-                            value = ((Timestamp)value).ToDateTimeOffset();
-                        }
-                        else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
-                        {
-                            value = ((Timestamp)value).ToDateTime();
-                        }
+                        value = ConvertFromDate(property, value);
                     }
                     else
                     {
@@ -43,7 +37,6 @@ namespace Aguacongas.Identity.Firestore
             }
             return user;
         }
-
         public static Dictionary<string, object> ToDictionary<T>(T obj)
         {
             var type = obj.GetType();
@@ -55,6 +48,20 @@ namespace Aguacongas.Identity.Firestore
                 dictionary.Add(property.Name, property.GetValue(obj));
             }
             return dictionary;
+        }
+
+        private static object ConvertFromDate(PropertyInfo property, object value)
+        {
+            if (property.PropertyType == typeof(DateTimeOffset) || property.PropertyType == typeof(DateTimeOffset?))
+            {
+                value = ((Timestamp)value).ToDateTimeOffset();
+            }
+            else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+            {
+                value = ((Timestamp)value).ToDateTime();
+            }
+
+            return value;
         }
 
     }

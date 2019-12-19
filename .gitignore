@@ -297,3 +297,5 @@ __pycache__/
 *.snapshot
 /test/identityfirestore.json
 coverage.cobertura.xml
+.sonarqube/
+secure-file/

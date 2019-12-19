@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -39,6 +40,7 @@ namespace Aguacongas.Identity.Firebase
         public UserOnlyStore(IFirebaseClient client, IdentityErrorDescriber describer = null) : base(client, describer) { }
     }
 
+
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
@@ -46,6 +48,7 @@ namespace Aguacongas.Identity.Firebase
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
     public class UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> :
         FirebaseUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
         IUserLoginStore<TUser>,
@@ -116,15 +119,15 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        public async override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var response = await _client.PostAsync(GetFirebasePath(UsersTableName), user, cancellationToken);
+            AssertNotNull(user, nameof(user));
+
+            var response = await _client.PostAsync(GetFirebasePath(UsersTableName), user, cancellationToken)
+                .ConfigureAwait(false);
+
             user.Id = response.Data;
             user.ConcurrencyStamp = response.Etag;
             
@@ -137,18 +140,16 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             try
             {
-                var response = await _client.PutAsync(GetFirebasePath(UsersTableName, user.Id), user, cancellationToken, true, user.ConcurrencyStamp);
+                var response = await _client.PutAsync(GetFirebasePath(UsersTableName, user.Id), user, cancellationToken, true, user.ConcurrencyStamp)
+                    .ConfigureAwait(false);
                 user.ConcurrencyStamp = response.Etag;
             }
             catch (FirebaseException e)
@@ -166,18 +167,16 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             try
             {
-                await _client.DeleteAsync(GetFirebasePath(UsersTableName, user.Id), cancellationToken, true, user.ConcurrencyStamp);
+                await _client.DeleteAsync(GetFirebasePath(UsersTableName, user.Id), cancellationToken, true, user.ConcurrencyStamp)
+                    .ConfigureAwait(false);
             }
             catch (FirebaseException e)
                 when (e.StatusCode == HttpStatusCode.PreconditionFailed)
@@ -195,11 +194,13 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
-        public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var response = await _client.GetAsync<TUser>(GetFirebasePath(UsersTableName, userId), cancellationToken, true);
+            var response = await _client.GetAsync<TUser>(GetFirebasePath(UsersTableName, userId), cancellationToken, true)
+                .ConfigureAwait(false);
+
             var user = response.Data;
             if (user != null)
             {
@@ -217,16 +218,20 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedUserName\"&equalTo=\"{normalizedUserName}\"");
-                foreach(var kv in response.Data)
+                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedUserName\"&equalTo=\"{normalizedUserName}\"")
+                    .ConfigureAwait(false);
+
+                var data = response.Data;
+                if (data.Any())
                 {
-                    return await FindByIdAsync(kv.Key, cancellationToken);
+                    return await FindByIdAsync(data.First().Key, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 return null;
                 
@@ -234,12 +239,16 @@ namespace Aguacongas.Identity.Firebase
             catch(FirebaseException e)
                when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UsersTableName, new UserIndex(), cancellationToken);
+                await SetIndex(UsersTableName, new UserIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedUserName\"&equalTo=\"{normalizedUserName}\"");
-                foreach (var kv in response.Data)
+                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedUserName\"&equalTo=\"{normalizedUserName}\"")
+                    .ConfigureAwait(false);
+                var data = response.Data;
+                if (data.Any())
                 {
-                    return await FindByIdAsync(kv.Key, cancellationToken);
+                    return await FindByIdAsync(data.First().Key, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 return null;
             }
@@ -251,27 +260,28 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="user">The user whose claims should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
-        public async override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             Dictionary<string, TUserClaim> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken);
+                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
+
                 data = response.Data;
             }
             
@@ -289,18 +299,12 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="claims">The claim to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claims == null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claims, nameof(claims));
 
             List<TUserClaim> userClaims = claims.Select(c => CreateUserClaim(user, c)).ToList();
             var taskList = new List<Task>(userClaims.Count);
@@ -320,35 +324,30 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-            if (newClaim == null)
-            {
-                throw new ArgumentNullException(nameof(newClaim));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claim, nameof(claim));
+            AssertNotNull(newClaim, nameof(newClaim));
 
             Dictionary<string, TUserClaim> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken);
+                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
+
                 data = response.Data;
             }
 
@@ -361,7 +360,8 @@ namespace Aguacongas.Identity.Firebase
                     uc.ClaimType = newClaim.Type;
                     uc.ClaimValue = newClaim.Value;
 
-                    await _client.PutAsync(GetFirebasePath(UserClaimsTableName, kv.Key), uc, cancellationToken);
+                    await _client.PutAsync(GetFirebasePath(UserClaimsTableName, kv.Key), uc, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }
@@ -373,30 +373,29 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="claims">The claim to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claims == null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claims, nameof(claims));
 
             Dictionary<string, TUserClaim> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
+
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken);
+                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
+
                 data = response.Data;
             }
 
@@ -412,7 +411,7 @@ namespace Aguacongas.Identity.Firebase
                     }
                 }
 
-                Task.WaitAll(taskList.ToArray());
+                await Task.WhenAll(taskList.ToArray());
             }
         }
 
@@ -424,20 +423,15 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override async Task AddLoginAsync(TUser user, UserLoginInfo login,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (login == null)
-            {
-                throw new ArgumentNullException(nameof(login));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(login, nameof(login));
 
-            await _client.PostAsync(GetFirebasePath(UserLoginsTableName), CreateUserLogin(user, login), cancellationToken);
+            await _client.PostAsync(GetFirebasePath(UserLoginsTableName), CreateUserLogin(user, login), cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -449,23 +443,22 @@ namespace Aguacongas.Identity.Firebase
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
-            var data = await GetUserLoginsAsync(user.Id, cancellationToken);
+            var data = await GetUserLoginsAsync(user.Id, cancellationToken)
+                .ConfigureAwait(false);
 
             foreach (var kv in data)
             {
                 var login = kv.Value;
                 if (login.LoginProvider == loginProvider && login.ProviderKey == providerKey)
                 {
-                    await _client.DeleteAsync(GetFirebasePath(UserLoginsTableName, kv.Key), cancellationToken);
+                    await _client.DeleteAsync(GetFirebasePath(UserLoginsTableName, kv.Key), cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }
@@ -478,27 +471,28 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
         /// </returns>
-        public async override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             Dictionary<string, TUserLogin> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken);
+                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{user.Id}\"")
+                    .ConfigureAwait(false);
+
                 data = response.Data;
             }
 
@@ -521,7 +515,7 @@ namespace Aguacongas.Identity.Firebase
         /// The <see cref="Task"/> for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
         /// </returns>
         public async override Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -541,33 +535,41 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
-        public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedEmail\"&equalTo=\"{normalizedEmail}\"");
-                foreach (var kv in response.Data)
+                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedEmail\"&equalTo=\"{normalizedEmail}\"")
+                    .ConfigureAwait(false);
+
+                var data = response.Data;
+                if (data.Any())
                 {
-                    return await FindByIdAsync(kv.Key, cancellationToken);
+                    return await FindByIdAsync(data.First().Key, cancellationToken)
+                        .ConfigureAwait(false);
                 }
+
                 return null;
 
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UsersTableName, new UserIndex(), cancellationToken);
+                await SetIndex(UsersTableName, new UserIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedEmail\"&equalTo=\"{normalizedEmail}\"");
-                foreach (var kv in response.Data)
+                var response = await _client.GetAsync<Dictionary<string, TUser>>(GetFirebasePath(UsersTableName), cancellationToken, false, $"orderBy=\"NormalizedEmail\"&equalTo=\"{normalizedEmail}\"")
+                    .ConfigureAwait(false);
+                var data = response.Data;
+                if (data.Any())
                 {
-                    return await FindByIdAsync(kv.Key, cancellationToken);
+                    return await FindByIdAsync(data.First().Key, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 return null;
-
             }
         }
 
@@ -579,27 +581,27 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
         /// </returns>
-        public async override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
+            AssertNotNull(claim, nameof(claim));
 
             Dictionary<string, TUserClaim> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"ClaimType\"&equalTo=\"{claim.Type}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, false, $"orderBy=\"ClaimType\"&equalTo=\"{claim.Type}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken);
+                await SetIndex(UserClaimsTableName, new UserClaimIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"ClaimType\"&equalTo=\"{claim.Type}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserClaim>>(GetFirebasePath(UserClaimsTableName), cancellationToken, queryString: $"orderBy=\"ClaimType\"&equalTo=\"{claim.Type}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
 
@@ -614,7 +616,8 @@ namespace Aguacongas.Identity.Firebase
             foreach (var userId in userIds)
             {
                 taskList.Add(Task.Run(async () => {
-                    var user = await FindByIdAsync(userId, cancellationToken);
+                    var user = await FindByIdAsync(userId, cancellationToken)
+                        .ConfigureAwait(false);
                     if (user != null)
                     {
                         users.Add(user);
@@ -622,7 +625,7 @@ namespace Aguacongas.Identity.Firebase
                 }));
             }
 
-            Task.WaitAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray());
 
             return users.ToList();
         }
@@ -696,7 +699,8 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>The user login if it exists.</returns>
         protected override async Task<TUserLogin> FindUserLoginAsync(string userId, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            var data = await GetUserLoginsAsync(userId, cancellationToken);
+            var data = await GetUserLoginsAsync(userId, cancellationToken)
+                .ConfigureAwait(false);
             if (data != null)
             {
                 return data.Values.FirstOrDefault(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey);
@@ -716,15 +720,18 @@ namespace Aguacongas.Identity.Firebase
             Dictionary<string, TUserLogin> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"ProviderKey\"&equalTo=\"{providerKey}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"ProviderKey\"&equalTo=\"{providerKey}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken);
+                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"ProviderKey\"&equalTo=\"{providerKey}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"ProviderKey\"&equalTo=\"{providerKey}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
 
@@ -743,7 +750,8 @@ namespace Aguacongas.Identity.Firebase
         /// <returns>User tokens.</returns>
         protected override async Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<List<TUserToken>>(GetFirebasePath(UserTokensTableName, user.Id), cancellationToken);
+            var response = await _client.GetAsync<List<TUserToken>>(GetFirebasePath(UserTokensTableName, user.Id), cancellationToken)
+                .ConfigureAwait(false);
             return response.Data ?? new List<TUserToken>();
         }
 
@@ -756,7 +764,8 @@ namespace Aguacongas.Identity.Firebase
         /// <returns></returns>
         protected override async Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken)
         {
-            await _client.PutAsync(GetFirebasePath(UserTokensTableName, user.Id), tokens, cancellationToken);
+            await _client.PutAsync(GetFirebasePath(UserTokensTableName, user.Id), tokens, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         protected virtual async Task<Dictionary<string, TUserLogin>> GetUserLoginsAsync(string userId, CancellationToken cancellationToken)
@@ -764,15 +773,18 @@ namespace Aguacongas.Identity.Firebase
             Dictionary<string, TUserLogin> data;
             try
             {
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, false, $"orderBy=\"UserId\"&equalTo=\"{userId}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
             catch (FirebaseException e)
                 when (e.FirebaseError != null && e.FirebaseError.Error.StartsWith("Index"))
             {
-                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken);
+                await SetIndex(UserLoginsTableName, new LoginIndex(), cancellationToken)
+                    .ConfigureAwait(false);
 
-                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{userId}\"");
+                var response = await _client.GetAsync<Dictionary<string, TUserLogin>>(GetFirebasePath(UserLoginsTableName), cancellationToken, queryString: $"orderBy=\"UserId\"&equalTo=\"{userId}\"")
+                    .ConfigureAwait(false);
                 data = response.Data;
             }
 
@@ -787,10 +799,12 @@ namespace Aguacongas.Identity.Firebase
 
         internal async Task SetIndex(string onTable, object index, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken);
+            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken)
+                .ConfigureAwait(false);
             var rules = response.Data ?? new FirebaseRules();
             SetIndex(rules.Rules, onTable, index);
-            await _client.PutAsync(RulePath, rules, cancellationToken);
+            await _client.PutAsync(RulePath, rules, cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

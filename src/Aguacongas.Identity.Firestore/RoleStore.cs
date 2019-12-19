@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -13,8 +14,7 @@ namespace Aguacongas.Identity.Firestore
     /// Creates a new instance of a persistence store for roles.
     /// </summary>
     /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
-    public class RoleStore<TRole> : RoleStore<TRole, IdentityUserRole<string>, IdentityRoleClaim<string>>,
-        IRoleClaimStore<TRole>
+    public class RoleStore<TRole> : RoleStore<TRole, IdentityUserRole<string>, IdentityRoleClaim<string>>
         where TRole : IdentityRole<string>, new()
     {
         /// <summary>
@@ -31,6 +31,11 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TRole">The type of the class representing a role.</typeparam>
     /// <typeparam name="TUserRole">The type of the class representing a user role.</typeparam>
     /// <typeparam name="TRoleClaim">The type of the class representing a role claim.</typeparam>
+    [SuppressMessage("Critical Code Smell", "S1006:Method overrides should not change parameter defaults", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S3881:\"IDisposable\" should be implemented correctly", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
+    [SuppressMessage("Major Code Smell", "S2326:Unused type parameters should be removed", Justification = "Follow EF implementation")]
+    [SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "Nothing to dispose")]
     public class RoleStore<TRole, TUserRole, TRoleClaim> :
         IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
@@ -84,17 +89,15 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role to create in the store.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async virtual Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public async virtual Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
 
             var dictionary = Map.ToDictionary(role);
-            var response = await _roles.Document(role.Id).SetAsync(dictionary, cancellationToken: cancellationToken);
+            await _roles.Document(role.Id).SetAsync(dictionary, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return IdentityResult.Success;
 
@@ -106,20 +109,18 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role to update in the store.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async virtual Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IdentityResult> UpdateAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
 
             var dictionary = Map.ToDictionary(role);
-            return await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 var roleRef = _roles.Document(role.Id);
-                var snapShot = await transaction.GetSnapshotAsync(roleRef, cancellationToken);
+                var snapShot = await transaction.GetSnapshotAsync(roleRef, cancellationToken)
+                    .ConfigureAwait(false);
                 if (snapShot.GetValue<string>("ConcurrencyStamp") != role.ConcurrencyStamp)
                 {
                     return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
@@ -135,19 +136,17 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role to delete from the store.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the <see cref="IdentityResult"/> of the asynchronous query.</returns>
-        public async virtual Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IdentityResult> DeleteAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
 
-            return await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 var userRef = _roles.Document(role.Id);
-                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
+                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken)
+                    .ConfigureAwait(false);
                 if (snapShot.GetValue<string>("ConcurrencyStamp") != role   .ConcurrencyStamp)
                 {
                     return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
@@ -164,14 +163,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role whose ID should be returned.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the ID of the role.</returns>
-        public virtual Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
             return Task.FromResult(role.Id);
 
         }
@@ -182,14 +178,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role whose name should be returned.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
-        public virtual Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
             return Task.FromResult(role.Name);
         }
 
@@ -200,14 +193,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="roleName">The name of the role.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
             role.Name = roleName;
             return Task.CompletedTask;
         }
@@ -215,18 +205,17 @@ namespace Aguacongas.Identity.Firestore
         /// <summary>
         /// Finds the role who has the specified ID as an asynchronous operation.
         /// </summary>
-        /// <param name="id">The role ID to look for.</param>
+        /// <param name="roleId">The role ID to look for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
-        public virtual async Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<TRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-            var snapShot = await _roles.Document(id).GetSnapshotAsync(cancellationToken);
+            AssertNotNullOrEmpty(roleId, nameof(roleId));
+
+            var snapShot = await _roles.Document(roleId).GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             if (snapShot != null)
             {
                 return Map.FromDictionary<TRole>(snapShot.ToDictionary());
@@ -238,19 +227,17 @@ namespace Aguacongas.Identity.Firestore
         /// <summary>
         /// Finds the role who has the specified normalized name as an asynchronous operation.
         /// </summary>
-        /// <param name="normalizedName">The normalized role name to look for.</param>
+        /// <param name="normalizedRoleName">The normalized role name to look for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that result of the look up.</returns>
-        public virtual async Task<TRole> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(normalizedName))
-            {
-                throw new ArgumentNullException(nameof(normalizedName));
-            }
+            AssertNotNullOrEmpty(normalizedRoleName, nameof(normalizedRoleName));
 
-            var snapShot = await _roles.WhereEqualTo("NormalizedName", normalizedName)
-                .GetSnapshotAsync(cancellationToken);
+            var snapShot = await _roles.WhereEqualTo("NormalizedName", normalizedRoleName)
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents
                 .FirstOrDefault();
             if (document != null)
@@ -267,14 +254,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role whose normalized name should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the name of the role.</returns>
-        public virtual Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<string> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
             return Task.FromResult(role.NormalizedName);
 
         }
@@ -286,14 +270,11 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="normalizedName">The normalized name to set</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
             role.NormalizedName = normalizedName;
             return Task.CompletedTask;
         }
@@ -309,9 +290,11 @@ namespace Aguacongas.Identity.Firestore
             }
         }
 
+
         /// <summary>
         /// Dispose the stores
         /// </summary>
+        [SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "Nothing to dispose")]
         public void Dispose() => _disposed = true;
 
         /// <summary>
@@ -320,16 +303,14 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="role">The role whose claims should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a role.</returns>
-        public async virtual Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default(CancellationToken))
+        public async virtual Task<IList<Claim>> GetClaimsAsync(TRole role, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
+            AssertNotNull(role, nameof(role));
 
             var snapShot = await _roleClaims.WhereEqualTo("RoleId", role.Id)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             return snapShot.Documents
                 .Select(d => new Claim(d.GetValue<string>("Type"), d.GetValue<string>("Value")))
                 .ToList();
@@ -343,20 +324,15 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claim">The claim to add to the role.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual async Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
+            AssertNotNull(role, nameof(role));
+            AssertNotNull(claim, nameof(claim));
+            
 
             Dictionary<string, object> dictionary = ClaimsToDictionary(role, claim);
-            await _roleClaims.AddAsync(dictionary, cancellationToken: cancellationToken);
+            return _roleClaims.AddAsync(dictionary, cancellationToken: cancellationToken);
 
         }
 
@@ -367,24 +343,21 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claim">The claim to remove from the role.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public async virtual Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
+            AssertNotNull(role, nameof(role));
+            AssertNotNull(claim, nameof(claim));
+
             var snapShot = await _roleClaims.WhereEqualTo("RoleId", role.Id)
                 .WhereEqualTo("Type", claim.Type)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
-                await _roleClaims.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken);
+                await _roleClaims.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -407,5 +380,20 @@ namespace Aguacongas.Identity.Firestore
                 };
         }
 
+        private static void AssertNotNull(object p, string pName)
+        {
+            if (p == null)
+            {
+                throw new ArgumentNullException(pName);
+            }
+        }
+
+        private static void AssertNotNullOrEmpty(string p, string pName)
+        {
+            if (string.IsNullOrWhiteSpace(p))
+            {
+                throw new ArgumentNullException(pName);
+            }
+        }
     }
 }

@@ -62,7 +62,7 @@ namespace Aguacongas.Firebase.TokenManager
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/></param>
         /// <returns>The token</returns>
-        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
         {
             if (_nextRenewTime > DateTime.UtcNow.AddSeconds(-1))
             {
@@ -71,9 +71,11 @@ namespace Aguacongas.Firebase.TokenManager
 
             var content = _httpClient.CreateJsonContent(_authRequest, _jsonSerializerSettings);
 
-            var response = await _httpClient.PostAsync($"{_options.SignUpUrl}?key={_options.ApiKey}", content, cancellationToken);
+            var response = await _httpClient.PostAsync($"{_options.SignUpUrl}?key={_options.ApiKey}", content, cancellationToken)
+                .ConfigureAwait(false);
 
-            var authResponse = await response.DeserializeResponseAsync<AuthResponse>(_jsonSerializerSettings);
+            var authResponse = await response.DeserializeResponseAsync<AuthResponse>(_jsonSerializerSettings)
+                .ConfigureAwait(false);
             var data = authResponse.Data;
             _authKey = data.IdToken;
             _nextRenewTime = DateTime.UtcNow.AddSeconds(data.ExpiresIn);

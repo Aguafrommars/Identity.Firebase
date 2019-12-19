@@ -31,9 +31,9 @@ namespace Aguacongas.Firebase.TokenManager
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/></param>
         /// <returns>The token</returns>
-        public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<string> GetTokenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+            return _credential.GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
         }
     }
 }

@@ -6,6 +6,14 @@
     <UserSecretsId>Firestore.IdentitySample.Mvc</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CodeAnalysisRuleSet>Firestore.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>Firestore.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Aguacongas.Identity.Firestore" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.0.0" />

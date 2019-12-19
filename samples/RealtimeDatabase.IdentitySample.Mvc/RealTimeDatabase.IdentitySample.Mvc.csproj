@@ -6,6 +6,14 @@
     <UserSecretsId>Aguacongas.Identity.Firebase.IntegrationTest</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CodeAnalysisRuleSet>RealTimeDatabase.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>RealTimeDatabase.IdentitySample.Mvc.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Aguacongas.Identity.Firebase" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.0.0" />

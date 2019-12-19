@@ -12,8 +12,16 @@
         <PackageTags>identity firebase</PackageTags>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+      <CodeAnalysisRuleSet>Aguacongas.Firebase.Authentication.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+      <CodeAnalysisRuleSet>Aguacongas.Firebase.Authentication.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="Google.Apis.Auth" Version="1.41.1" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.42.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />

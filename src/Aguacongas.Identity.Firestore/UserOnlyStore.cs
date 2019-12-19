@@ -1,8 +1,8 @@
 ﻿using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -38,6 +38,7 @@ namespace Aguacongas.Identity.Firestore
         public UserOnlyStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
     }
 
+
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
@@ -45,6 +46,7 @@ namespace Aguacongas.Identity.Firestore
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
+    [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
     public class UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> :
         FirestoreUserStoreBase<TUser, TUserClaim, TUserLogin, TUserToken>,
         IUserLoginStore<TUser>,
@@ -106,17 +108,15 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        public async override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             var dictionary = Map.ToDictionary(user);
-            var response = await _users.Document(user.Id).SetAsync(dictionary, cancellationToken: cancellationToken);
+            await _users.Document(user.Id).SetAsync(dictionary, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return IdentityResult.Success;
         }
@@ -127,20 +127,18 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             var dictionary = Map.ToDictionary(user);
-            return await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
                {
                    var userRef = _users.Document(user.Id);
-                   var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
+                   var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken)
+                    .ConfigureAwait(false);
                    if (snapShot.GetValue<string>("ConcurrencyStamp") != user.ConcurrencyStamp)
                    {
                        return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
@@ -156,19 +154,17 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the update operation.</returns>
-        public async override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
-            return await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 var userRef = _users.Document(user.Id);
-                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken);
+                var snapShot = await transaction.GetSnapshotAsync(userRef, cancellationToken)
+                    .ConfigureAwait(false);
                 if (snapShot.GetValue<string>("ConcurrencyStamp") != user.ConcurrencyStamp)
                 {
                     return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
@@ -186,15 +182,13 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId"/> if it exists.
         /// </returns>
-        public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                throw new ArgumentNullException(nameof(userId));
-            }
+            AssertNotNull(userId, nameof(userId));
 
-            var snapShot = await _users.Document(userId).GetSnapshotAsync(cancellationToken);
+            var snapShot = await _users.Document(userId).GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             if (snapShot != null)
             {
                 return Map.FromDictionary<TUser>(snapShot.ToDictionary());
@@ -211,16 +205,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName"/> if it exists.
         /// </returns>
-        public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(normalizedUserName))
-            {
-                throw new ArgumentNullException(nameof(normalizedUserName));
-            }
+            AssertNotNullOrEmpty(normalizedUserName, nameof(normalizedUserName));
 
             var snapShot = await _users.WhereEqualTo("NormalizedUserName", normalizedUserName)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents
                 .FirstOrDefault();
             if (document != null)
@@ -236,16 +228,14 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="user">The user whose claims should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>A <see cref="Task{TResult}"/> that contains the claims granted to a user.</returns>
-        public async override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             return snapShot.Documents
                 .Select(d => new Claim(d.GetValue<string>("Type"), d.GetValue<string>("Value")))
                 .ToList();
@@ -258,22 +248,17 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claims">The claim to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claims == null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claims, nameof(claims));
 
             foreach (var claim in claims)
             {
                 Dictionary<string, object> dictionary = ClaimsToDictionary(user, claim);
-                await _usersClaims.AddAsync(dictionary, cancellationToken);
+                await _usersClaims.AddAsync(dictionary, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -285,27 +270,19 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="newClaim">The new claim replacing the <paramref name="claim"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
-            if (newClaim == null)
-            {
-                throw new ArgumentNullException(nameof(newClaim));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claim, nameof(claim));
+            AssertNotNull(newClaim, nameof(newClaim));
 
-            await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
                     .WhereEqualTo("Type", claim.Type)
-                    .GetSnapshotAsync(cancellationToken);
+                    .GetSnapshotAsync(cancellationToken)
+                    .ConfigureAwait(false);
                 var document = snapShot.Documents.First();
                 transaction.Update(document.Reference, ClaimsToDictionary(user, newClaim));
             }, cancellationToken: cancellationToken);
@@ -318,25 +295,20 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="claims">The claim to remove.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public async override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (claims == null)
-            {
-                throw new ArgumentNullException(nameof(claims));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(claims, nameof(claims));
 
-            await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 foreach(var claim in claims)
                 {
                     var snapShot = await _usersClaims.WhereEqualTo("UserId", user.Id)
                         .WhereEqualTo("Type", claim.Type)
-                        .GetSnapshotAsync(cancellationToken);
+                        .GetSnapshotAsync(cancellationToken)
+                        .ConfigureAwait(false);
                     var document = snapShot.Documents.First();
                     transaction.Delete(document.Reference);
                 }
@@ -350,18 +322,12 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="login">The login to add to the user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task AddLoginAsync(TUser user, UserLoginInfo login,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public override Task AddLoginAsync(TUser user, UserLoginInfo login,
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (login == null)
-            {
-                throw new ArgumentNullException(nameof(login));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(login, nameof(login));
 
             var dictionary = new Dictionary<string, object>
             {
@@ -370,7 +336,7 @@ namespace Aguacongas.Identity.Firestore
                 { "ProviderKey", login.ProviderKey },
                 { "ProviderDisplayName", login.ProviderDisplayName }
             };
-            await _usersLogins.AddAsync(dictionary, cancellationToken); ;
+            return _usersLogins.AddAsync(dictionary, cancellationToken);
         }
 
         /// <summary>
@@ -381,29 +347,21 @@ namespace Aguacongas.Identity.Firestore
         /// <param name="providerKey">The key provided by the <paramref name="loginProvider"/> to identify a user.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public override Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey,
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(loginProvider))
-            {
-                throw new ArgumentNullException(nameof(loginProvider));
-            }
-            if (string.IsNullOrWhiteSpace(providerKey))
-            {
-                throw new ArgumentNullException(nameof(providerKey));
-            }
+            AssertNotNull(user, nameof(user));
+            AssertNotNull(loginProvider, nameof(loginProvider));
+            AssertNotNull(providerKey, nameof(providerKey));
 
-            await _db.RunTransactionAsync(async transaction =>
+            return _db.RunTransactionAsync(async transaction =>
             {
                 var snapShot = await _usersLogins.WhereEqualTo("UserId", user.Id)
                     .WhereEqualTo("LoginProvider", loginProvider)
                     .WhereEqualTo("ProviderKey", providerKey)
-                    .GetSnapshotAsync(cancellationToken);
+                    .GetSnapshotAsync(cancellationToken)
+                    .ConfigureAwait(false);
                 var document = snapShot.Documents.First();
                 transaction.Delete(document.Reference);
             }, cancellationToken: cancellationToken);
@@ -417,16 +375,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.
         /// </returns>
-        public async override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            AssertNotNull(user, nameof(user));
 
             var snapShot = await _usersLogins.WhereEqualTo("UserId", user.Id)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var documents = snapShot.Documents;
             var list = new List<UserLoginInfo>(documents.Count);
             foreach(var doc in documents)
@@ -448,26 +404,22 @@ namespace Aguacongas.Identity.Firestore
         /// The <see cref="Task"/> for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
         /// </returns>
         public async override Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(loginProvider))
-            {
-                throw new ArgumentNullException(nameof(loginProvider));
-            }
-            if (string.IsNullOrWhiteSpace(providerKey))
-            {
-                throw new ArgumentNullException(nameof(providerKey));
-            }
+            AssertNotNullOrEmpty(loginProvider, nameof(loginProvider));
+            AssertNotNullOrEmpty(providerKey, nameof(providerKey));
 
             var snapShot = await _usersLogins.WhereEqualTo("LoginProvider", loginProvider)
                 .WhereEqualTo("ProviderKey", providerKey)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
                 var userId = document.GetValue<string>("UserId");
-                return await FindByIdAsync(userId, cancellationToken);
+                return await FindByIdAsync(userId, cancellationToken)
+                    .ConfigureAwait(false);
             }
             return null;
         }
@@ -480,15 +432,14 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
         /// </returns>
-        public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(normalizedEmail))
-            {
-                throw new ArgumentNullException(nameof(normalizedEmail));
-            }
+            AssertNotNullOrEmpty(normalizedEmail, nameof(normalizedEmail));
+            
             var snapShot = await _users.WhereEqualTo("NormalizedEmail", normalizedEmail)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
@@ -505,22 +456,21 @@ namespace Aguacongas.Identity.Firestore
         /// <returns>
         /// The <see cref="Task"/> contains a list of users, if any, that contain the specified claim. 
         /// </returns>
-        public async override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            if (claim == null)
-            {
-                throw new ArgumentNullException(nameof(claim));
-            }
+            AssertNotNull(claim, nameof(claim));
 
             var snapShot = await _usersClaims.WhereEqualTo("Type", claim.Type)
                 .WhereEqualTo("Value", claim.Value)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var documents = snapShot.Documents;
             var list = new List<TUser>(documents.Count);
             foreach(var document in documents)
             {
-                var user = await FindByIdAsync(document.GetValue<string>("UserId"));
+                var user = await FindByIdAsync(document.GetValue<string>("UserId"))
+                    .ConfigureAwait(false);
                 if (user != null)
                 {
                     list.Add(user);
@@ -602,13 +552,14 @@ namespace Aguacongas.Identity.Firestore
             var snapShot = await _usersLogins.WhereEqualTo("UserId", userId)
                 .WhereEqualTo("LoginProvider", loginProvider)
                 .WhereEqualTo("ProviderKey", providerKey)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
                 return Map.FromDictionary<TUserLogin>(document.ToDictionary());
             }
-            return default(TUserLogin);
+            return default;
         }
 
         /// <summary>
@@ -622,13 +573,14 @@ namespace Aguacongas.Identity.Firestore
         {
             var snapShot = await _usersLogins.WhereEqualTo("LoginProvider", loginProvider)
                     .WhereEqualTo("ProviderKey", providerKey)
-                    .GetSnapshotAsync(cancellationToken);
+                    .GetSnapshotAsync(cancellationToken)
+                    .ConfigureAwait(false);
             var document = snapShot.Documents.FirstOrDefault();
             if (document != null)
             {
                 return Map.FromDictionary<TUserLogin>(document.ToDictionary());
             }
-            return default(TUserLogin);
+            return default;
         }
 
         /// <summary>
@@ -640,7 +592,8 @@ namespace Aguacongas.Identity.Firestore
         protected override async Task<List<TUserToken>> GetUserTokensAsync(TUser user, CancellationToken cancellationToken)
         {
             var snapShot = await _usersTokens.WhereEqualTo("UserId", user.Id)
-                .GetSnapshotAsync(cancellationToken);
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
             return snapShot.Documents
                 .Select(d => Map.FromDictionary<TUserToken>(d.ToDictionary()))
                 .ToList();
@@ -656,17 +609,20 @@ namespace Aguacongas.Identity.Firestore
         protected override async Task SaveUserTokensAsync(TUser user, IEnumerable<TUserToken> tokens, CancellationToken cancellationToken)
         {
             var snapShop = await _usersTokens.WhereEqualTo("UserId", user.Id)
-                .GetSnapshotAsync(cancellationToken);
-            foreach(var document in snapShop.Documents)
+                .GetSnapshotAsync(cancellationToken)
+                .ConfigureAwait(false);
+            foreach (var document in snapShop.Documents)
             {
-                await _usersTokens.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken);
+                await _usersTokens.Document(document.Id).DeleteAsync(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             foreach (var token in tokens)
             {
                 var dictionary = Map.ToDictionary(token);
                 dictionary["UserId"] = user.Id;
-                await _usersTokens.AddAsync(dictionary, cancellationToken);
+                await _usersTokens.AddAsync(dictionary, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 

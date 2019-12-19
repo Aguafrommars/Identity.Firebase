@@ -27,11 +27,10 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
                 _fixture.Configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
             }).AddScoped(provider =>
             {
-                return _fixture.CreateFirestoreDb(provider);
+                return FirestoreTestFixture.CreateFirestoreDb(provider);
             });
 
             var userType = typeof(TestUser);
-            var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
             services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetService<IdentityErrorDescriber>()));
             services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
         }
@@ -48,7 +47,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
         }
 
         protected override TestUser CreateTestUser(string namePrefix = "", string email = "", string phoneNumber = "",
-            bool lockoutEnabled = false, DateTimeOffset? lockoutEnd = default(DateTimeOffset?), bool useNamePrefixAsUserName = false)
+            bool lockoutEnabled = false, DateTimeOffset? lockoutEnd = default, bool useNamePrefixAsUserName = false)
         {
             return new TestUser
             {

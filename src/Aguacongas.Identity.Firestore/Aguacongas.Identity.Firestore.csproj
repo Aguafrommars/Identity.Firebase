@@ -12,10 +12,18 @@
         <PackageTags>identity firestore</PackageTags>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+      <CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+      <CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="3.0.0" />
-        <PackageReference Include="Google.Cloud.Firestore" Version="1.1.0-beta01" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="1.1.0" />
     </ItemGroup>
 
     <ItemGroup>
