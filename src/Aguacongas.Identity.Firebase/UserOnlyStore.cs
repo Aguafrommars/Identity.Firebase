@@ -313,7 +313,8 @@ namespace Aguacongas.Identity.Firebase
                 taskList.Add(_client.PostAsync(GetFirebasePath(UserClaimsTableName), userClaim, cancellationToken));
             }
 
-            await Task.WhenAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray())
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -411,7 +412,8 @@ namespace Aguacongas.Identity.Firebase
                     }
                 }
 
-                await Task.WhenAll(taskList.ToArray());
+                await Task.WhenAll(taskList.ToArray())
+                    .ConfigureAwait(false);
             }
         }
 
@@ -519,10 +521,12 @@ namespace Aguacongas.Identity.Firebase
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken);
+            var userLogin = await FindUserLoginAsync(loginProvider, providerKey, cancellationToken)
+                .ConfigureAwait(false);
             if (userLogin != null)
             {
-                return await FindUserAsync(userLogin.UserId, cancellationToken);
+                return await FindUserAsync(userLogin.UserId, cancellationToken)
+                    .ConfigureAwait(false);
             }
             return null;
         }
@@ -625,7 +629,8 @@ namespace Aguacongas.Identity.Firebase
                 }));
             }
 
-            await Task.WhenAll(taskList.ToArray());
+            await Task.WhenAll(taskList.ToArray())
+                .ConfigureAwait(false);
 
             return users.ToList();
         }

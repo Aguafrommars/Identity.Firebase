@@ -769,7 +769,8 @@ namespace Aguacongas.Identity.Firebase
             ThrowIfDisposed();
             AssertNotNull(user, nameof(user));
 
-            var tokens = await GetUserTokensAsync(user, cancellationToken);
+            var tokens = await GetUserTokensAsync(user, cancellationToken)
+                .ConfigureAwait(false);
             var token = tokens.SingleOrDefault(t => t.LoginProvider == loginProvider && t.Name == name);
 
             return token?.Value;
@@ -844,7 +845,8 @@ namespace Aguacongas.Identity.Firebase
             AssertNotNull(user, nameof(user));
             AssertNotNull(code, nameof(code));
 
-            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken) ?? "";
+            var mergedCodes = await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken)
+                .ConfigureAwait(false) ?? "";
             var splitCodes = mergedCodes.Split(';');
             if (splitCodes.Contains(code))
             {

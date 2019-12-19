@@ -274,7 +274,8 @@ namespace Aguacongas.Identity.Firebase
                     taskList.Add(GetUserRoleAsync(userRole, concurrentBag, cancellationToken));
                 }
 
-                await Task.WhenAll(taskList.ToArray());
+                await Task.WhenAll(taskList.ToArray())
+                    .ConfigureAwait(false);
 
                 return concurrentBag.ToList();
             }
@@ -471,7 +472,8 @@ namespace Aguacongas.Identity.Firebase
                         }));
                     }
 
-                    await Task.WhenAll(taskList.ToArray());
+                    await Task.WhenAll(taskList.ToArray())
+                        .ConfigureAwait(false);
 
                     return concurrencyBag.ToList();
                 }
@@ -508,7 +510,8 @@ namespace Aguacongas.Identity.Firebase
             var data = response.Data;
             if (data.Any())
             {
-                return await FindRoleByIdAsync(data.First().Key, cancellationToken);
+                return await FindRoleByIdAsync(data.First().Key, cancellationToken)
+                    .ConfigureAwait(false);
             }
             return null;
         }
@@ -616,7 +619,8 @@ namespace Aguacongas.Identity.Firebase
 
         private async Task GetUserRoleAsync(TUserRole r, ConcurrentBag<string> concurrentBag, CancellationToken cancellationToken)
         {
-            var roleResponse = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, r.RoleId), cancellationToken);
+            var roleResponse = await _client.GetAsync<TRole>(GetFirebasePath(RolesTableName, r.RoleId), cancellationToken)
+                .ConfigureAwait(false);
             var role = roleResponse.Data;
             if (role != null)
             {

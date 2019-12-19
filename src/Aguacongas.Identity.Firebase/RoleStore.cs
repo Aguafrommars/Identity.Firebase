@@ -37,6 +37,7 @@ namespace Aguacongas.Identity.Firebase
     [SuppressMessage("Major Code Smell", "S2436:Types and methods should not have too many generic parameters", Justification = "Follow EF implementation")]
     [SuppressMessage("Major Code Smell", "S2326:Unused type parameters should be removed", Justification = "Follow EF implementation")]
     [SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "Follow EF implementation")]
+    [SuppressMessage("Critical Code Smell", "S1006:Method overrides should not change parameter defaults", Justification = "Follow EF implementation")]
     public class RoleStore<TRole, TUserRole, TRoleClaim> :
         IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
@@ -143,6 +144,7 @@ namespace Aguacongas.Identity.Firebase
 
             return IdentityResult.Success;
         }
+
 
         /// <summary>
         /// Deletes a role from the store as an asynchronous operation.
@@ -443,7 +445,8 @@ namespace Aguacongas.Identity.Firebase
 
         private async Task SetIndex(string onTable, object index, CancellationToken cancellationToken)
         {
-            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken);
+            var response = await _client.GetAsync<FirebaseRules>(RulePath, cancellationToken)
+                .ConfigureAwait(false);
             var rules = response.Data ?? new FirebaseRules();
             SetIndex(rules.Rules, onTable, index);
             await _client.PutAsync(RulePath, rules, cancellationToken);
