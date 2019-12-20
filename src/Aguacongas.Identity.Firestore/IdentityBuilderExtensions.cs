@@ -1,3 +1,5 @@
+// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
 using Aguacongas.Firebase.TokenManager;
 using Aguacongas.Identity.Firestore;
 using Google.Apis.Auth.OAuth2;

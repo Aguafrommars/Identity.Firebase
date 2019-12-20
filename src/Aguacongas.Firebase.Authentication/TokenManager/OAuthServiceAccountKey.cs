@@ -1,4 +1,6 @@
-﻿namespace Aguacongas.Firebase.TokenManager
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+namespace Aguacongas.Firebase.TokenManager
 {
     /// <summary>
     /// OAuth service account key mapping

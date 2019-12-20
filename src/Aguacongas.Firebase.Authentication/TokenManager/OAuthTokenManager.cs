@@ -1,4 +1,6 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Google.Apis.Auth.OAuth2;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

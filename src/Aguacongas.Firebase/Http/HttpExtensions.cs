@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Newtonsoft.Json;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;

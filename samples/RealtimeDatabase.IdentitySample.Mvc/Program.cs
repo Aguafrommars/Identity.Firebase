@@ -1,3 +1,5 @@
+// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 

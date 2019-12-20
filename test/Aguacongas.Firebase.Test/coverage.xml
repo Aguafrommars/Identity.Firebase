@@ -1,4 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+Project: aguacongas/Identity.Firebase
+Copyright (c) 2020 @Olivier Lefebvre
+-->
 <Root CoveredStatements="130" TotalStatements="249" CoveragePercent="52" ReportType="DetailedXml" DotCoverVersion="2017.3.2">
   <FileIndices>
     <File Index="1" Name="C:\Projects\Perso\Identity.Firebase\src\Aguacongas.Firebase\FirebaseClient.cs" ChecksumAlgorithm="SHA1" Checksum="5721039B2F8D2E3EABA1D278E6BDC88B70DE47C7" />
