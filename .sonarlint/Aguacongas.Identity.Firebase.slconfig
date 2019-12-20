@@ -1,0 +1,15 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "aguacongas",
+    "Name": "Olivier Lefebvre"
+  },
+  "ProjectKey": "aguacongas_Identity.Firebase",
+  "ProjectName": "Identity.Firebase",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AW8e9NVJZPoDbtkGSYCm",
+      "ProfileTimestamp": "2019-12-19T17:20:06+01:00"
+    }
+  }
+}
