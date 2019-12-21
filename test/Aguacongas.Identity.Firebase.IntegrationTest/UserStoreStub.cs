@@ -1,4 +1,6 @@
-﻿using Aguacongas.Firebase;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Aguacongas.Firebase;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;

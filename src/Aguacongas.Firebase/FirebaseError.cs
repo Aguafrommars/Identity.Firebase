@@ -1,4 +1,6 @@
-﻿namespace Aguacongas.Firebase
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+namespace Aguacongas.Firebase
 {
     /// <summary>
     /// Firebase error

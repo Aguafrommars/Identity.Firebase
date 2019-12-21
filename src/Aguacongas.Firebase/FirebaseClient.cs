@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
@@ -106,7 +108,8 @@ namespace Aguacongas.Firebase
                     await _httpClient.SendAsync(message, cancellationToken)
                     .ConfigureAwait(false))
                 {
-                    await response.EnsureIsSuccess();
+                    await response.EnsureIsSuccess()
+                        .ConfigureAwait(false);
                 }
             }
         }

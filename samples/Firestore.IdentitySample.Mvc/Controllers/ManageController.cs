@@ -1,3 +1,5 @@
+// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
 using System.Linq;
 using System.Threading.Tasks;
 using IdentitySample.Models;

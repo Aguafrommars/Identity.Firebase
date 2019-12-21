@@ -1,4 +1,6 @@
-﻿using Aguacongas.Firebase;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Aguacongas.Firebase;
 using Aguacongas.Firebase.TokenManager;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Test;

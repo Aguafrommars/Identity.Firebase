@@ -1,0 +1,14 @@
+﻿extensions: designer.cs generated.cs
+extensions: .cs .cpp .h
+// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+extensions: .aspx .ascx
+<%-- 
+Project: aguacongas/Identity.Firebase
+Copyright (c) 2020 @Olivier Lefebvre
+--%>
+extensions:  .xml .config .xsd
+<!--
+Project: aguacongas/Identity.Firebase
+Copyright (c) 2020 @Olivier Lefebvre
+-->

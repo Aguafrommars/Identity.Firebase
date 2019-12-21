@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentitySample.Models.AccountViewModels
 {
