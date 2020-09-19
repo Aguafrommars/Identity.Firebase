@@ -1,8 +1,6 @@
 ﻿using Aguacongas.Firebase.TokenManager;
-using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
-using Grpc.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -56,12 +54,13 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
         {
             var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
             var json = JsonConvert.SerializeObject(authOptions.Value);
-            var credentials = GoogleCredential.FromJson(json)
-                .CreateScoped("https://www.googleapis.com/auth/datastore");
-            var channel = new Grpc.Core.Channel(
-                FirestoreClient.DefaultEndpoint.ToString(),
-                credentials.ToChannelCredentials());
-            var client = FirestoreClient.Create(channel);
+            using var writer = File.CreateText("auth2.json");
+            writer.Write(json);
+            writer.Flush();
+            writer.Close();
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
+
+            var client = FirestoreClient.Create();
             return FirestoreDb.Create(authOptions.Value.project_id, client: client);
         }
     }
