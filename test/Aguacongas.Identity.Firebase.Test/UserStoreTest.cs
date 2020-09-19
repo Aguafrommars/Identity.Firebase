@@ -1,15 +1,7 @@
 ﻿using Aguacongas.Firebase;
-using Aguacongas.Firebase.TokenManager;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Test;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 

@@ -130,25 +130,35 @@ namespace Aguacongas.Identity.Firestore.Test
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "../../../../identityfirestore.json"))
                 .Build();
             var services = new ServiceCollection();
-            services.Configure<OAuthServiceAccountKey>(options =>
+            services.Configure((Action<OAuthServiceAccountKey>)(options =>
             {
                 configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
-            })
+            }))
             .AddScoped(provider =>
             {
-                var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                var json = JsonConvert.SerializeObject(authOptions.Value);
-                using var writer = File.CreateText("auth2.json");
-                writer.Write(json);
-                writer.Flush();
-                writer.Close();
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
+                CreateAuthFile(provider, out IOptions<OAuthServiceAccountKey> authOptions);
 
                 var client = FirestoreClient.Create();
                 return FirestoreDb.Create(authOptions.Value.project_id, client: client);
             });
 
             return services.BuildServiceProvider().GetRequiredService<FirestoreDb>();
+        }
+
+        private static void CreateAuthFile(IServiceProvider provider, out IOptions<OAuthServiceAccountKey> authOptions)
+        {
+            authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
+            if (File.Exists("auth2.json"))
+            {
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
+                return;
+            }
+            var json = JsonConvert.SerializeObject(authOptions.Value);
+            using var writer = File.CreateText("auth2.json");
+            writer.Write(json);
+            writer.Flush();
+            writer.Close();
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
         }
     }
 }

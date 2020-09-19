@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using IdentitySample.Models;
 using IdentitySample.Models.AccountViewModels;
 using IdentitySample.Services;
@@ -9,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace IdentitySample.Controllers
 {
