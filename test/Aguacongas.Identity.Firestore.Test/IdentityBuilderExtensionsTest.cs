@@ -68,13 +68,17 @@ namespace Aguacongas.Identity.Firestore.Test
                 .Build();
 
             var authOptions = configuration.GetSection("FirestoreAuthTokenOptions").Get<OAuthServiceAccountKey>();
-            var json = JsonConvert.SerializeObject(authOptions);
-            using var writer = File.CreateText("auth2.json");
-            writer.Write(json);
-            writer.Flush();
-            writer.Close();
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
+            {
+                var path = Path.GetTempFileName();
 
+                var json = JsonConvert.SerializeObject(authOptions);
+                using var writer = File.CreateText(path);
+                writer.Write(json);
+                writer.Flush();
+                writer.Close();
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
+            }
 
             var services = new ServiceCollection();
             services

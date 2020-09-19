@@ -148,17 +148,18 @@ namespace Aguacongas.Identity.Firestore.Test
         private static void CreateAuthFile(IServiceProvider provider, out IOptions<OAuthServiceAccountKey> authOptions)
         {
             authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-            if (File.Exists("auth2.json"))
+
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
             {
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
                 return;
             }
             var json = JsonConvert.SerializeObject(authOptions.Value);
-            using var writer = File.CreateText("auth2.json");
+            var path = Path.GetTempFileName();
+            using var writer = File.CreateText(path);
             writer.Write(json);
             writer.Flush();
             writer.Close();
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "auth2.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
         }
     }
 }
