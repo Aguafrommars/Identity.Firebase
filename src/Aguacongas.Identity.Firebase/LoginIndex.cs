@@ -1,4 +1,6 @@
-﻿using Aguacongas.Firebase;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Aguacongas.Firebase;
 
 namespace Aguacongas.Identity.Firebase
 {

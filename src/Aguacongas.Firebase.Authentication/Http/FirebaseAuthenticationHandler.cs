@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Net.Http;
 using System.Threading;

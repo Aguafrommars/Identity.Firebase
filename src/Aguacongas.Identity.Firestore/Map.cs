@@ -1,4 +1,6 @@
-﻿using Google.Cloud.Firestore;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Google.Cloud.Firestore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

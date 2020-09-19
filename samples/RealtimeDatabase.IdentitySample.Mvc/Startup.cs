@@ -1,3 +1,5 @@
+// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
 using IdentitySample.Models;
 using IdentitySample.Services;
 using Microsoft.AspNetCore.Builder;
