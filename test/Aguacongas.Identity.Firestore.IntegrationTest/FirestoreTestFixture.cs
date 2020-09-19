@@ -54,17 +54,14 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
         {
             var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
 
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
-            {
-                var path = Path.GetTempFileName();
+            var path = Path.GetTempFileName();
 
-                var json = JsonConvert.SerializeObject(authOptions);
-                using var writer = File.CreateText(path);
-                writer.Write(json);
-                writer.Flush();
-                writer.Close();
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
-            }
+            var json = JsonConvert.SerializeObject(authOptions.Value);
+            using var writer = File.CreateText(path);
+            writer.Write(json);
+            writer.Flush();
+            writer.Close();
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
             var client = FirestoreClient.Create();
             return FirestoreDb.Create(authOptions.Value.project_id, client: client);
