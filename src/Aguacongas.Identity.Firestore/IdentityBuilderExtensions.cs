@@ -1,14 +1,13 @@
 using Aguacongas.Firebase.TokenManager;
 using Aguacongas.Identity.Firestore;
-using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
-using Grpc.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -30,18 +29,72 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(configure)
                 .AddScoped(provider =>
                 {
-                    var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                    var json = JsonConvert.SerializeObject(authOptions.Value);
-                    var credentials = GoogleCredential.FromJson(json)
-                        .CreateScoped("https://www.googleapis.com/auth/datastore");
-                    var channel = new Grpc.Core.Channel(
-                        FirestoreClient.DefaultEndpoint.ToString(),
-                        credentials.ToChannelCredentials());
-                    var client = FirestoreClient.Create(channel);
+                    var authOptions = StoreAuthFile(provider, Path.GetTempFileName());
+                    var client = FirestoreClient.Create();
+
                     return FirestoreDb.Create(authOptions.Value.project_id, client: client);
                 });
             AddStores(services, builder.UserType, builder.RoleType);
             return builder;
+        }
+
+        /// <summary>
+        /// Adds an Firebase implementation of identity stores.
+        /// </summary>
+        /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
+        /// <param name="configure">Action to configure AuthTokenOptions</param>
+        /// <param name="authFilePath">The path where to store the authentication file extracted from config.</param>
+        /// <returns>
+        /// The <see cref="IdentityBuilder" /> instance this method extends.
+        /// </returns>
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, string authFilePath)
+        {
+            var services = builder.Services;
+            services.Configure(configure)
+                .AddScoped(provider =>
+                {
+                    var authOptions = StoreAuthFile(provider, authFilePath);
+                    var client = FirestoreClient.Create();
+
+                    return FirestoreDb.Create(authOptions.Value.project_id, client: client);
+                });
+            AddStores(services, builder.UserType, builder.RoleType);
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds an Firebase implementation of identity stores.
+        /// </summary>
+        /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
+        /// <param name="projectId">The project identifier.</param>
+        /// <returns>
+        /// The <see cref="IdentityBuilder" /> instance this method extends.
+        /// </returns>
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, string projectId)
+        {
+            var services = builder.Services;
+            services
+                .AddScoped(provider =>
+                {
+                    var client = FirestoreClient.Create();
+                    return FirestoreDb.Create(projectId, client: client);
+                });
+            AddStores(services, builder.UserType, builder.RoleType);
+            return builder;
+        }
+
+        private static IOptions<OAuthServiceAccountKey> StoreAuthFile(IServiceProvider provider, string authFilePath)
+        {
+            var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
+            var json = JsonConvert.SerializeObject(authOptions.Value);
+            using (var writer = File.CreateText(authFilePath))
+            {
+                writer.Write(json);
+                writer.Flush();
+                writer.Close();
+            }
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", authFilePath);
+            return authOptions;
         }
 
         private static void AddStores(IServiceCollection services, Type userType, Type roleType)

@@ -1,8 +1,6 @@
 ﻿using Aguacongas.Firebase.TokenManager;
-using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
-using Grpc.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -132,24 +130,31 @@ namespace Aguacongas.Identity.Firestore.Test
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "../../../../identityfirestore.json"))
                 .Build();
             var services = new ServiceCollection();
-            services.Configure<OAuthServiceAccountKey>(options =>
+            services.Configure((Action<OAuthServiceAccountKey>)(options =>
             {
                 configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
-            })
+            }))
             .AddScoped(provider =>
             {
-                var authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                var json = JsonConvert.SerializeObject(authOptions.Value);
-                var credentials = GoogleCredential.FromJson(json)
-                    .CreateScoped("https://www.googleapis.com/auth/datastore");
-                var channel = new Grpc.Core.Channel(
-                    FirestoreClient.DefaultEndpoint.ToString(),
-                    credentials.ToChannelCredentials());
-                var client = FirestoreClient.Create(channel);
+                CreateAuthFile(provider, out IOptions<OAuthServiceAccountKey> authOptions);
+
+                var client = FirestoreClient.Create();
                 return FirestoreDb.Create(authOptions.Value.project_id, client: client);
             });
 
             return services.BuildServiceProvider().GetRequiredService<FirestoreDb>();
+        }
+
+        private static void CreateAuthFile(IServiceProvider provider, out IOptions<OAuthServiceAccountKey> authOptions)
+        {
+            authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
+            var json = JsonConvert.SerializeObject(authOptions.Value);
+            var path = Path.GetTempFileName();
+            using var writer = File.CreateText(path);
+            writer.Write(json);
+            writer.Flush();
+            writer.Close();
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
         }
     }
 }
