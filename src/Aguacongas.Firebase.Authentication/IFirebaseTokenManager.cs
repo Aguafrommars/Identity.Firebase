@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aguacongas.Firebase

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;

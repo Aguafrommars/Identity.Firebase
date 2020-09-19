@@ -1,4 +1,6 @@
-﻿using Aguacongas.Firebase.TokenManager;
+﻿// Project: aguacongas/Identity.Firebase
+// Copyright (c) 2020 @Olivier Lefebvre
+using Aguacongas.Firebase.TokenManager;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
