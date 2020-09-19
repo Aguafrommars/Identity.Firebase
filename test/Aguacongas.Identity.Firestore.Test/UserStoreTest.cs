@@ -148,11 +148,6 @@ namespace Aguacongas.Identity.Firestore.Test
         private static void CreateAuthFile(IServiceProvider provider, out IOptions<OAuthServiceAccountKey> authOptions)
         {
             authOptions = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
-            {
-                return;
-            }
             var json = JsonConvert.SerializeObject(authOptions.Value);
             var path = Path.GetTempFileName();
             using var writer = File.CreateText(path);
