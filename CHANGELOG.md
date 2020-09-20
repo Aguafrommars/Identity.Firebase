@@ -1,3 +1,16 @@
+# [3.2.0](https://github.com/Aguafrommars/Identity.Firebase/compare/3.1.0...3.2.0) (2020-09-20)
+
+
+### Bug Fixes
+
+* update packages ([6733313](https://github.com/Aguafrommars/Identity.Firebase/commit/673331312456883022ee5486ead0742913104809))
+
+
+### Features
+
+* firestore auth options from auth file ([1e4b8d5](https://github.com/Aguafrommars/Identity.Firebase/commit/1e4b8d52a1e0eeb737097f752a84fb2b9d120664))
+* fix tests ([1c08d06](https://github.com/Aguafrommars/Identity.Firebase/commit/1c08d069454e47e38c0b7b82937e932e62c9b6cb))
+
 # [3.0.0](https://github.com/aguacongas/Identity.Firebase/compare/2.2.1...3.0.0) (2019-09-26)
 
 
