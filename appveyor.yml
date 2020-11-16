@@ -24,7 +24,7 @@ environment:
     secure: h7zhWIG5sQBVM6loU77ClQ==
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 3.1.100
+  donetsdk: 5.0.100
 init:
     - cmd: git config --global core.autocrlf true
 install:
