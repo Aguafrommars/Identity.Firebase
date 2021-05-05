@@ -58,9 +58,10 @@ namespace Aguacongas.Identity.Firestore.Test
             Assert.Throws<ArgumentNullException>("db", () => new UserStore(null, null, null));
             var db = CreateDb();
 
-            Assert.Throws<ArgumentNullException>("userOnlyStore", () => new UserStore(db, null, null));
+            Assert.Throws<ArgumentNullException>("tableNamesConfig", () => new UserStore(db, null, null));
 
             var tableNamesConfig = new FirestoreTableNamesConfig();
+            Assert.Throws<ArgumentNullException>("userOnlyStore", () => new UserStore(db, null, tableNamesConfig));
             
             var userOnlyStore = new UserOnlyStore(db, tableNamesConfig);
             var store = new UserStore(db, userOnlyStore, tableNamesConfig);

@@ -1,16 +1,19 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Aguacongas.Identity.Firestore
 {
     public class FirestoreTableNamesConfig
     {
+        [SuppressMessage("ReSharper", "ConvertToConstant.Local")]
         private struct Defaults
         {
-            internal const string UsersTableName = "users";
-            internal const string UserLoginsTableName = "user-logins";
-            internal const string UserClaimsTableName = "user-claims";
-            internal const string UserTokensTableName = "user-tokens";
-            internal const string RolesTableName = "roles";
-            internal const string RoleClaimsTableName = "role-claims";
-            internal const string UserRolesTableName = "users-roles";
+            internal static readonly string UsersTableName = "users";
+            internal static readonly string UserLoginsTableName = "user-logins";
+            internal static readonly string UserClaimsTableName = "user-claims";
+            internal static readonly string UserTokensTableName = "user-tokens";
+            internal static readonly string RolesTableName = "roles";
+            internal static readonly string RoleClaimsTableName = "role-claims";
+            internal static readonly string UserRolesTableName = "users-roles";
         }
 
         public string UsersTableName { get; set; } = Defaults.UsersTableName;
@@ -20,5 +23,21 @@ namespace Aguacongas.Identity.Firestore
         public string RolesTableName {get; set; } = Defaults.RolesTableName;
         public string RoleClaimsTableName {get; set; } = Defaults.RoleClaimsTableName;
         public string UserRolesTableName {get; set; } = Defaults.UserRolesTableName;
+
+        /// <summary>
+        /// Adds suffix to every table names.
+        /// </summary>
+        /// <param name="suffix">suffix to add to every table name</param>
+        public FirestoreTableNamesConfig WithSuffix(string suffix)
+        {
+            UsersTableName += suffix;
+            UserLoginsTableName += suffix;
+            UserClaimsTableName += suffix;
+            UserTokensTableName += suffix;
+            RolesTableName += suffix;
+            RoleClaimsTableName += suffix;
+            UserRolesTableName += suffix;
+            return this;
+        }
     }
 }
