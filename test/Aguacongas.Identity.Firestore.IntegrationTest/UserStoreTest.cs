@@ -31,16 +31,31 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
             {
                 return FirestoreTestFixture.CreateFirestoreDb(provider);
             });
-
+            
+            services.TryAddSingleton(new FirestoreTableNamesConfig());
+            
             var userType = typeof(TestUser);
-            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetService<IdentityErrorDescriber>()));
-            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
+            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), 
+                provider => new UserOnlyStoreStub(_fixture.TestDb, 
+                    provider.GetRequiredService<FirestoreDb>(), 
+                    provider.GetRequiredService<FirestoreTableNamesConfig>(),
+                    provider.GetService<IdentityErrorDescriber>()));
+            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), 
+                provider => new UserStoreStub(_fixture.TestDb, 
+                    provider.GetRequiredService<FirestoreDb>(),
+                    provider.GetRequiredService<UserOnlyStore<TestUser>>(), 
+                    provider.GetRequiredService<FirestoreTableNamesConfig>(),
+                    provider.GetService<IdentityErrorDescriber>()));
         }
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)
         {
             var roleType = typeof(TestRole);
-            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType), provider => new RoleStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>()));
+            services.TryAddSingleton(new FirestoreTableNamesConfig());
+            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType),
+                provider => new RoleStoreStub(_fixture.TestDb,
+                    provider.GetRequiredService<FirestoreDb>(),
+                    provider.GetRequiredService<FirestoreTableNamesConfig>()));
         }
 
         protected override object CreateTestContext()

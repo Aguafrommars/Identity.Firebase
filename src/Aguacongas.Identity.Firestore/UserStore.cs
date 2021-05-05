@@ -23,8 +23,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="UserStore"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(FirestoreDb db, UserOnlyStore<IdentityUser<string>> userOnlyStore, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, describer) { }
+        public UserStore(FirestoreDb db, UserOnlyStore<IdentityUser<string>> userOnlyStore, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, tableNamesConfig, describer) { }
     }
 
     /// <summary>
@@ -38,8 +39,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="UserStore{TUser}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(FirestoreDb db, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, describer) { }
+        public UserStore(FirestoreDb db, UserOnlyStore<TUser> userOnlyStore, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, tableNamesConfig, describer) { }
     }
 
     /// <summary>
@@ -55,8 +57,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TContext, string}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserStore(FirestoreDb db, UserOnlyStore<TUser> userOnlyStore, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, describer) { }
+        public UserStore(FirestoreDb db, UserOnlyStore<TUser> userOnlyStore, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, userOnlyStore, tableNamesConfig, describer) { }
     }
 
 
@@ -81,10 +84,6 @@ namespace Aguacongas.Identity.Firestore
         where TUserToken : IdentityUserToken<string>, new()
         where TRoleClaim : IdentityRoleClaim<string>, new()
     {
-        private const string UserRolesTableName = "users-roles";
-        private const string RolesTableName = "roles";
-
-
         private readonly CollectionReference _userRoles;
         private readonly CollectionReference _roles;
         private readonly UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> _userOnlyStore;
@@ -98,13 +97,15 @@ namespace Aguacongas.Identity.Firestore
         /// Creates a new instance of the store.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserStore(FirestoreDb db, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserStore(FirestoreDb db, UserOnlyStore<TUser, TUserClaim, TUserLogin, TUserToken> userOnlyStore, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             db = db ?? throw new ArgumentNullException(nameof(db));
+            tableNamesConfig = tableNamesConfig ?? throw new ArgumentNullException(nameof(tableNamesConfig));
             _userOnlyStore = userOnlyStore ?? throw new ArgumentNullException(nameof(userOnlyStore));
-            _userRoles = db.Collection(UserRolesTableName);
-            _roles = db.Collection(RolesTableName);
+            _userRoles = db.Collection(tableNamesConfig.UserRolesTableName);
+            _roles = db.Collection(tableNamesConfig.RolesTableName);
         }
 
         /// <summary>

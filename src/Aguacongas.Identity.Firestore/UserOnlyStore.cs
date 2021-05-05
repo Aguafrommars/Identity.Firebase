@@ -21,8 +21,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TKey}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserOnlyStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
+        public UserOnlyStore(FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, tableNamesConfig, describer) { }
     }
 
     /// <summary>
@@ -36,8 +37,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="UserStore{TUser, TRole, TKey}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public UserOnlyStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
+        public UserOnlyStore(FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, tableNamesConfig, describer) { }
     }
 
 
@@ -67,10 +69,6 @@ namespace Aguacongas.Identity.Firestore
         where TUserLogin : IdentityUserLogin<string>, new()
         where TUserToken : IdentityUserToken<string>, new()
     {
-        private const string UsersTableName = "users";
-        private const string UserLoginsTableName = "user-logins";
-        private const string UserClaimsTableName = "user-claims";
-        private const string UserTokensTableName = "user-tokens";
 
         private readonly FirestoreDb _db;
         private readonly CollectionReference _users;
@@ -94,14 +92,16 @@ namespace Aguacongas.Identity.Firestore
         /// Creates a new instance of the store.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/> used to describe store errors.</param>
-        public UserOnlyStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
+        public UserOnlyStore(FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(describer ?? new IdentityErrorDescriber())
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _users = db.Collection(UsersTableName);
-            _usersLogins = db.Collection(UserLoginsTableName);
-            _usersClaims = db.Collection(UserClaimsTableName);
-            _usersTokens = db.Collection(UserTokensTableName);
+            tableNamesConfig = tableNamesConfig ?? throw new ArgumentNullException(nameof(tableNamesConfig));
+            _users = db.Collection(tableNamesConfig.UsersTableName);
+            _usersLogins = db.Collection(tableNamesConfig.UserLoginsTableName);
+            _usersClaims = db.Collection(tableNamesConfig.UserClaimsTableName);
+            _usersTokens = db.Collection(tableNamesConfig.UserTokensTableName);
         }
 
         /// <summary>
