@@ -9,7 +9,7 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
     {
         private readonly string _testDb;
 
-        public UserOnlyStoreStub(string testDb, FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer)
+        public UserOnlyStoreStub(string testDb, FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null) : base(db, tableNamesConfig, describer)
         {
             _testDb = testDb;
         }

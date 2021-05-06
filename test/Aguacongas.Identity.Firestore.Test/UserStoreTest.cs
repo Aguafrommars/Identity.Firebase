@@ -20,8 +20,9 @@ namespace Aguacongas.Identity.Firestore.Test
         {
             var db = CreateDb();
 
-            var userOnlyStore = new UserOnlyStore(db);
-            var store = new UserStore(db, userOnlyStore);
+            var tableNamesConfig = new FirestoreTableNamesConfig();
+            var userOnlyStore = new UserOnlyStore(db, tableNamesConfig);
+            var store = new UserStore(db, userOnlyStore, tableNamesConfig);
             store.Dispose();
             await Assert.ThrowsAsync<ObjectDisposedException>(async () => await store.AddClaimsAsync(null, null));
             await Assert.ThrowsAsync<ObjectDisposedException>(async () => await store.AddLoginAsync(null, null));
@@ -54,13 +55,16 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public async Task UserStorePublicNullCheckTest()
         {
-            Assert.Throws<ArgumentNullException>("db", () => new UserStore(null, null));
+            Assert.Throws<ArgumentNullException>("db", () => new UserStore(null, null, null));
             var db = CreateDb();
 
-            Assert.Throws<ArgumentNullException>("userOnlyStore", () => new UserStore(db, null));
+            Assert.Throws<ArgumentNullException>("tableNamesConfig", () => new UserStore(db, null, null));
 
-            var userOnlyStore = new UserOnlyStore(db);
-            var store = new UserStore(db, userOnlyStore);
+            var tableNamesConfig = new FirestoreTableNamesConfig();
+            Assert.Throws<ArgumentNullException>("userOnlyStore", () => new UserStore(db, null, tableNamesConfig));
+            
+            var userOnlyStore = new UserOnlyStore(db, tableNamesConfig);
+            var store = new UserStore(db, userOnlyStore, tableNamesConfig);
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.GetUserIdAsync(null));
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.GetUserNameAsync(null));
             await Assert.ThrowsAsync<ArgumentNullException>("user", async () => await store.SetUserNameAsync(null, null));

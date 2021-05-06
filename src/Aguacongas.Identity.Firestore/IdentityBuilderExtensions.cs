@@ -24,8 +24,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
         /// <param name="configure">Action to configure AuthTokenOptions</param>
+        /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
         /// <returns>The <see cref="IdentityBuilder"/> instance this method extends.</returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure)
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, Action<FirestoreTableNamesConfig> tableNames = null)
         {
             var services = builder.Services;
             services.Configure(configure)
@@ -36,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     return FirestoreDb.Create(authOptions.Value.project_id, client: client);
                 });
-            AddStores(services, builder.UserType, builder.RoleType);
+            AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
             return builder;
         }
 
@@ -46,10 +47,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
         /// <param name="configure">Action to configure AuthTokenOptions</param>
         /// <param name="authFilePath">The path where to store the authentication file extracted from config.</param>
+        /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
         /// <returns>
         /// The <see cref="IdentityBuilder" /> instance this method extends.
         /// </returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, string authFilePath)
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, string authFilePath, Action<FirestoreTableNamesConfig> tableNames = null)
         {
             var services = builder.Services;
             services.Configure(configure)
@@ -60,8 +62,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     return FirestoreDb.Create(authOptions.Value.project_id, client: client);
                 });
-            AddStores(services, builder.UserType, builder.RoleType);
+            
+            AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
             return builder;
+        }
+
+        private static FirestoreTableNamesConfig ResolveFirestoreTableNamesConfig(Action<FirestoreTableNamesConfig> tableNames)
+        {
+            var tableNamesConfig = new FirestoreTableNamesConfig();
+            tableNames?.Invoke(tableNamesConfig);
+            return tableNamesConfig;
         }
 
         /// <summary>
@@ -69,10 +79,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
         /// <param name="projectId">The project identifier.</param>
+        /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
         /// <returns>
         /// The <see cref="IdentityBuilder" /> instance this method extends.
         /// </returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, string projectId)
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, string projectId, Action<FirestoreTableNamesConfig> tableNames = null)
         {
             var services = builder.Services;
             services
@@ -81,7 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     var client = FirestoreClient.Create();
                     return FirestoreDb.Create(projectId, client: client);
                 });
-            AddStores(services, builder.UserType, builder.RoleType);
+            AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
             return builder;
         }
 
@@ -99,7 +110,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return authOptions;
         }
 
-        private static void AddStores(IServiceCollection services, Type userType, Type roleType)
+        private static void AddStores(IServiceCollection services, Type userType, Type roleType, FirestoreTableNamesConfig tableNamesConfig)
         {
             var identityUserType = FindGenericBaseType(userType, typeof(IdentityUser<string>));
             if (identityUserType == null)
@@ -107,6 +118,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException("AddEntityFrameworkStores can only be called with a user that derives from IdentityUser<string>.");
             }
 
+            services.TryAddSingleton(tableNamesConfig);
             var userOnlyStoreType = typeof(UserOnlyStore<>).MakeGenericType(userType);
 
             if (roleType != null)

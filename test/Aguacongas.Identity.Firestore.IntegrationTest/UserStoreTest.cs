@@ -1,5 +1,6 @@
 // Project: aguacongas/Identity.Firebase
 // Copyright (c) 2020 @Olivier Lefebvre
+
 using Aguacongas.Firebase.TokenManager;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Identity;
@@ -22,25 +23,40 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
             _fixture = fixture;
         }
 
+        protected override void SetupIdentityServices(IServiceCollection services, object context)
+        {
+            services.AddSingleton(new FirestoreTableNamesConfig().WithSuffix("-tests"));
+            base.SetupIdentityServices(services, context);
+        }
+
         protected override void AddUserStore(IServiceCollection services, object context = null)
         {
             services.Configure<OAuthServiceAccountKey>(options =>
             {
                 _fixture.Configuration.GetSection("FirestoreAuthTokenOptions").Bind(options);
-            }).AddScoped(provider =>
-            {
-                return FirestoreTestFixture.CreateFirestoreDb(provider);
-            });
+            }).AddScoped(provider => { return FirestoreTestFixture.CreateFirestoreDb(provider); });
 
             var userType = typeof(TestUser);
-            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetService<IdentityErrorDescriber>()));
-            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
+            services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType),
+                provider => new UserOnlyStoreStub(_fixture.TestDb,
+                    provider.GetRequiredService<FirestoreDb>(),
+                    provider.GetRequiredService<FirestoreTableNamesConfig>(),
+                    provider.GetService<IdentityErrorDescriber>()));
+            services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType),
+                provider => new UserStoreStub(_fixture.TestDb,
+                    provider.GetRequiredService<FirestoreDb>(),
+                    provider.GetRequiredService<UserOnlyStore<TestUser>>(),
+                    provider.GetRequiredService<FirestoreTableNamesConfig>(),
+                    provider.GetService<IdentityErrorDescriber>()));
         }
 
         protected override void AddRoleStore(IServiceCollection services, object context = null)
         {
             var roleType = typeof(TestRole);
-            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType), provider => new RoleStoreStub(_fixture.TestDb, provider.GetRequiredService<FirestoreDb>()));
+            services.TryAddSingleton(typeof(IRoleStore<>).MakeGenericType(roleType),
+                provider => new RoleStoreStub(_fixture.TestDb,
+                    provider.GetRequiredService<FirestoreDb>(),
+                    provider.GetRequiredService<FirestoreTableNamesConfig>()));
         }
 
         protected override object CreateTestContext()
@@ -63,7 +79,9 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
 
         protected override TestRole CreateTestRole(string roleNamePrefix = "", bool useRoleNamePrefixAsRoleName = false)
         {
-            var roleName = useRoleNamePrefixAsRoleName ? roleNamePrefix : string.Format("{0}{1}", roleNamePrefix, Guid.NewGuid());
+            var roleName = useRoleNamePrefixAsRoleName
+                ? roleNamePrefix
+                : string.Format("{0}{1}", roleNamePrefix, Guid.NewGuid());
             return new TestRole(roleName);
         }
 
@@ -72,12 +90,16 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
             user.PasswordHash = hashedPassword;
         }
 
-        protected override Expression<Func<TestUser, bool>> UserNameEqualsPredicate(string userName) => u => u.UserName == userName;
+        protected override Expression<Func<TestUser, bool>> UserNameEqualsPredicate(string userName) =>
+            u => u.UserName == userName;
 
-        protected override Expression<Func<TestRole, bool>> RoleNameEqualsPredicate(string roleName) => r => r.Name == roleName;
+        protected override Expression<Func<TestRole, bool>> RoleNameEqualsPredicate(string roleName) =>
+            r => r.Name == roleName;
 
-        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name != null && r.Name.StartsWith(roleName);
+        protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) =>
+            r => r.Name != null && r.Name.StartsWith(roleName);
 
-        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName != null &&  u.UserName.StartsWith(userName);
+        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) =>
+            u => u.UserName != null && u.UserName.StartsWith(userName);
     }
 }

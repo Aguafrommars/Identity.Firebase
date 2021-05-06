@@ -31,14 +31,19 @@ namespace Aguacongas.Identity.Firestore.IntegrationTest
             {
                 return CreateFirestoreDb(provider);
             });
+            
+            var tableNames = new FirestoreTableNamesConfig().WithSuffix("-tests");
+            services.AddSingleton(tableNames);
+            
             var p = services.BuildServiceProvider();
             var db = p.GetRequiredService<FirestoreDb>();
-            Clean(db.Collection("users"));
-            Clean(db.Collection("user-logins"));
-            Clean(db.Collection("user-claims"));
-            Clean(db.Collection("user-tokens"));
-            Clean(db.Collection("roles"));
-            Clean(db.Collection("role-claims"));
+            
+            Clean(db.Collection(tableNames.UsersTableName));
+            Clean(db.Collection(tableNames.UserLoginsTableName));
+            Clean(db.Collection(tableNames.UserClaimsTableName));
+            Clean(db.Collection(tableNames.UserTokensTableName));
+            Clean(db.Collection(tableNames.RolesTableName));
+            Clean(db.Collection(tableNames.RoleClaimsTableName));
         }
 
         private static void Clean(CollectionReference collection)

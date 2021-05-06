@@ -23,8 +23,9 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="RoleStore{TRole}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null) : base(db, describer) { }
+        public RoleStore(FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig,  IdentityErrorDescriber describer = null) : base(db, tableNamesConfig, describer) { }
     }
 
     /// <summary>
@@ -45,9 +46,6 @@ namespace Aguacongas.Identity.Firestore
         where TUserRole : IdentityUserRole<string>, new()
         where TRoleClaim : IdentityRoleClaim<string>, new()
     {
-        private const string RolesTableName = "roles";
-        private const string RoleClaimsTableName = "role-claims";
-
         private readonly FirestoreDb _db;
         private readonly CollectionReference _roles;
         private readonly CollectionReference _roleClaims;
@@ -71,12 +69,14 @@ namespace Aguacongas.Identity.Firestore
         /// Constructs a new instance of <see cref="RoleStore{TRole, TUserRole, TRoleClaim}"/>.
         /// </summary>
         /// <param name="db">The <see cref="FirestoreDb"/>.</param>
+        /// <param name="tableNamesConfig"><see cref="FirestoreTableNamesConfig"/></param>
         /// <param name="describer">The <see cref="IdentityErrorDescriber"/>.</param>
-        public RoleStore(FirestoreDb db, IdentityErrorDescriber describer = null)
+        public RoleStore(FirestoreDb db, FirestoreTableNamesConfig tableNamesConfig, IdentityErrorDescriber describer = null)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _roles = _db.Collection(RolesTableName);
-            _roleClaims = _db.Collection(RoleClaimsTableName);
+            tableNamesConfig = tableNamesConfig ?? throw new ArgumentNullException(nameof(tableNamesConfig));
+            _roles = _db.Collection(tableNamesConfig.RolesTableName);
+            _roleClaims = _db.Collection(tableNamesConfig.RoleClaimsTableName);
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
 
