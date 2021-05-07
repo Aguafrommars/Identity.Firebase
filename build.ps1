@@ -2,8 +2,7 @@ $result = 0
 
 if ($isLinux) {
     Get-ChildItem -rec `
-    | Where-Object { $_.Name -like "*.IntegrationTest.csproj" `
-           -Or $_.Name -like "*.Test.csproj" `
+    | Where-Object { $_.Name -like "*.Test.csproj" `
          } `
     | ForEach-Object { 
         Set-Location $_.DirectoryName
@@ -26,8 +25,7 @@ if ($isLinux) {
     dotnet build -c Release
 
     Get-ChildItem -rec `
-    | Where-Object { $_.Name -like "*.IntegrationTest.csproj" `
-           -Or $_.Name -like "*.Test.csproj" `
+    | Where-Object { $_.Name -like "*.Test.csproj" `
          } `
     | ForEach-Object { 
         &('dotnet') ('test', $_.FullName, '--logger', "trx;LogFileName=$_.trx", '--no-build', '-c', 'Release', '--collect:"XPlat Code Coverage"')    
