@@ -5,8 +5,8 @@ Google Firestore-based ASP.NET Core Identity user & role stores.
 1. Set `GOOGLE_APPLICATION_CREDENTIALS` environment variable to a path to the JSON file for GCP service account (see https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable)
 1. In `Startup.cs` of your ASP.NET Core project:
     ```csharp
-   public void ConfigureServices(IServiceCollection services)
-   {
+     public void ConfigureServices(IServiceCollection services)
+    {
       // ... your other services 
        services
        .AddIdentity<ApplicationUser, IdentityRole>()
@@ -14,11 +14,11 @@ Google Firestore-based ASP.NET Core Identity user & role stores.
        .AddDefaultTokenProviders();
    
       // ... rest of your configuration
-   }
+    }
     ```
 ### Using custom Firestore table names
 Useful when you want to deploy multiple applications using Firestore-based Identity stores within the same GCP project.
- ```csharp
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
    // ... your other services
