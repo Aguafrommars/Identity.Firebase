@@ -3,7 +3,7 @@ Google Firestore-based ASP.NET Core Identity user & role stores.
 
 ## Basic usage
 1. Set `GOOGLE_APPLICATION_CREDENTIALS` environment variable to a path to the JSON file for GCP service account (see [setting the environment variable](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable))
-1. In `Startup.cs` of your ASP.NET Core project:
+2. In `Startup.cs` of your ASP.NET Core project:
     ```csharp
      public void ConfigureServices(IServiceCollection services)
     {
