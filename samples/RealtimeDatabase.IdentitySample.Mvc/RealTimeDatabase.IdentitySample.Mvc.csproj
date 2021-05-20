@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aguacongas.Identity.Firebase" Version="3.2.0" />
+    <PackageReference Include="Aguacongas.Identity.Firebase" Version="3.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.6" />
