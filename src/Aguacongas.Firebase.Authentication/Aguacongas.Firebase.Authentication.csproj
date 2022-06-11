@@ -21,6 +21,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <AdditionalFiles Include="..\..\.sonarlint\aguacongas_identity.firebase\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
