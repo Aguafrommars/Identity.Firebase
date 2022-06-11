@@ -16,8 +16,7 @@ namespace Aguacongas.Identity.Firebase.Test
         public void AddFirebaseStores_with_AuthTokenOptionsTest()
         {
             var builder = new ConfigurationBuilder();
-            var configuration = builder.AddUserSecrets<IdentityBuilderExtensionsTest>()
-                .AddEnvironmentVariables()
+            var configuration = builder.AddEnvironmentVariables()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "../../../../testsettings.json"))
                 .Build();
 
