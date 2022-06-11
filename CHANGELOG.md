@@ -1,3 +1,43 @@
+## [3.3.1](https://github.com/Aguafrommars/Identity.Firebase/compare/3.3.0...3.3.1) (2022-06-11)
+
+
+### Bug Fixes
+
+* update packages ([c779d1b](https://github.com/Aguafrommars/Identity.Firebase/commit/c779d1b4b846ea8187118e212a6b60385fb4d690))
+* update packages ([0e876ca](https://github.com/Aguafrommars/Identity.Firebase/commit/0e876cafcc11254d29c186a634ff77a8575a0167))
+* update packages ([cd49374](https://github.com/Aguafrommars/Identity.Firebase/commit/cd49374fbccc0d941635aec0da1bb0ad211a03bb))
+* update packages ([c2bbf48](https://github.com/Aguafrommars/Identity.Firebase/commit/c2bbf4894d7af48075db3868d1f1d65753abe10e))
+* update packages ([88054dd](https://github.com/Aguafrommars/Identity.Firebase/commit/88054ddf8d7289dbc635f5004b52a613aae73eb9))
+* update packages ([a7cd671](https://github.com/Aguafrommars/Identity.Firebase/commit/a7cd67151bdb4ed4b1f3df23c6ae49267ae92cfd))
+* update packages ([51b7429](https://github.com/Aguafrommars/Identity.Firebase/commit/51b742958060ee1d2fca77a7c807f4fa1a84fe17))
+* update packages ([7cc7cd4](https://github.com/Aguafrommars/Identity.Firebase/commit/7cc7cd4ffc3590d17c767cb88969e3de31c75b07))
+* update packages ([a726f0e](https://github.com/Aguafrommars/Identity.Firebase/commit/a726f0efefd149d4ad30c7ca7a27353fb7ef59d5))
+* update packages ([14c6739](https://github.com/Aguafrommars/Identity.Firebase/commit/14c673955f4d55d235e93caf3358e9731315bd58))
+* update packages ([a405ecb](https://github.com/Aguafrommars/Identity.Firebase/commit/a405ecb8c4733719b112d4232f34c7ed7efc0d9c))
+* update packages ([2445ba9](https://github.com/Aguafrommars/Identity.Firebase/commit/2445ba948fbc2c5f9b0faa424acbaee7b132ebc0))
+* update packages ([ecd306f](https://github.com/Aguafrommars/Identity.Firebase/commit/ecd306f8c6beead5af6f431eb0224dda80c4eaa7))
+* update packages ([49e33f1](https://github.com/Aguafrommars/Identity.Firebase/commit/49e33f188936321f9c69fe9845517ffbc92b44e4))
+* update packages ([f07793f](https://github.com/Aguafrommars/Identity.Firebase/commit/f07793fc2ce1d55283f36769599b5dba4c97a247))
+* update packages ([a29140d](https://github.com/Aguafrommars/Identity.Firebase/commit/a29140d08cf1b7451f80c95c969d44efec763b58))
+* update packages ([f082a94](https://github.com/Aguafrommars/Identity.Firebase/commit/f082a94a3c5d5b4a91875dc25ddc0b52817d90a7))
+* update packages ([0e94a99](https://github.com/Aguafrommars/Identity.Firebase/commit/0e94a992f6b82c7f2896db805c2d47be3ddcb537))
+* update packages ([dd79737](https://github.com/Aguafrommars/Identity.Firebase/commit/dd79737a7e225427166436ae143d2f2daa576327))
+* update packages ([ca3f350](https://github.com/Aguafrommars/Identity.Firebase/commit/ca3f35045eea5b0c9c6b7d32ba2a677aa26fd124))
+* update packages ([8935732](https://github.com/Aguafrommars/Identity.Firebase/commit/8935732db6087a1a168a03cc7436db5798312b27))
+* update packages ([5b25c9e](https://github.com/Aguafrommars/Identity.Firebase/commit/5b25c9e515998f0ca3281ab7efc193dec3e48130))
+* update packages ([50ba638](https://github.com/Aguafrommars/Identity.Firebase/commit/50ba6384292e50d44cccd0ec2e703c3dce0a5a2e))
+* update packages ([f6048cb](https://github.com/Aguafrommars/Identity.Firebase/commit/f6048cb1df3d7ab34d5c7b867c212cafffbdf24e))
+* update packages ([32a2dfb](https://github.com/Aguafrommars/Identity.Firebase/commit/32a2dfb45fb52358542ae63786576a92a33988d3))
+* update packages ([4f0f179](https://github.com/Aguafrommars/Identity.Firebase/commit/4f0f17967f60c410b5d3e84d6b4372bd17cf20e0))
+* update packages ([81c4721](https://github.com/Aguafrommars/Identity.Firebase/commit/81c472178e202ca5ff49e0886cefba51ea8d0ff5))
+* update packages ([6c58b88](https://github.com/Aguafrommars/Identity.Firebase/commit/6c58b88b6663f6a88cac0c853d6838685af1040d))
+* update packages ([3a0c831](https://github.com/Aguafrommars/Identity.Firebase/commit/3a0c8310b1d42e8151aaab7ac5a77270924ddec4))
+* update packages ([8461d93](https://github.com/Aguafrommars/Identity.Firebase/commit/8461d93dfaa8d0c1d8231f18cf02fbbb70abe350))
+* update packages ([a22e375](https://github.com/Aguafrommars/Identity.Firebase/commit/a22e3758e8cd72ac9dfcee4a4befb2491af2248a))
+* update packages ([a3cb288](https://github.com/Aguafrommars/Identity.Firebase/commit/a3cb288ef130026b999221414d6346b655eeb837))
+* update packages ([94a8535](https://github.com/Aguafrommars/Identity.Firebase/commit/94a8535aa9d2ee627b59736c898d0074620ebd06))
+* update packages ([c5d69e8](https://github.com/Aguafrommars/Identity.Firebase/commit/c5d69e8e4a699fcb58a5b1cd056e9e24cde2f15b))
+
 # [3.3.0](https://github.com/Aguafrommars/Identity.Firebase/compare/3.2.0...3.3.0) (2021-05-19)
 
 
