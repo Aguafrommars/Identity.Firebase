@@ -13,7 +13,7 @@ image:
 - Visual Studio 2019
 environment:
   GH_TOKEN:
-    secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
+    secure: /o9VAhx5ewGmdLR9qcgFJMzBaCuzOmGlsXAHu7khUJLdQzsv4gJzLUfYDghcRPHd
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   EmailPasswordOptions:ApiKey:
