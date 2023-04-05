@@ -40,7 +40,7 @@ install:
     - cmd: pwsh ./dotnet-install.ps1 -Version 6.0.406
     - ps: dotnet tool install --global GitVersion.Tool
     - ps: dotnet gitversion /l console /output buildserver
-    - cmd: pwsh ./dotnet-install.ps1 -Version $env:donetsdk
+    - cmd: pwsh ./dotnet-install.ps1 -Version %donetsdk%
     - ps: dotnet tool install --global dotnet-sonarscanner
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
