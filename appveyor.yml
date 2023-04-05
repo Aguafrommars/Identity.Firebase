@@ -37,7 +37,7 @@ install:
     - sh: sudo ./dotnet-install.sh -Channel Current -Version $donetsdk -InstallDir ./dotnetsdk -NoPath
     - sh: export PATH=/home/appveyor/projects/identity-firebase/dotnetsdk:$PATH
     - sh: sudo apt -y install nuget
-    - cms: pwsh ./dotnet-install.ps1 -Version 6.0.406
+    - cmd: pwsh ./dotnet-install.ps1 -Version 6.0.406
     - ps: dotnet tool install --global GitVersion.Tool
     - ps: dotnet gitversion /l console /output buildserver
     - cmd: pwsh ./dotnet-install.ps1 -Version $env:donetsdk
