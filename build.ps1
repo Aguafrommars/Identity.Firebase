@@ -20,7 +20,7 @@ if ($isLinux) {
         $prArgs = "-d:sonar.branch.name=$env:APPVEYOR_REPO_BRANCH"
     }
 
-    dotnet sonarscanner begin /k:aguacongas_Identity.Firebase -o:aguacongas -d:sonar.host.url=https://sonarcloud.io -d:sonar.login=$env:sonarqube -d:sonar.coverageReportPaths=coverage\SonarQube.xml $prArgs -v:$env:nextversion
+    dotnet sonarscanner begin /k:aguacongas_Identity.Firebase -o:aguafrommars -d:sonar.host.url=https://sonarcloud.io -d:sonar.login=$env:sonarqube -d:sonar.coverageReportPaths=coverage\SonarQube.xml $prArgs -v:$env:nextversion
 
     dotnet build -c Release
 
