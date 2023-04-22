@@ -22,20 +22,56 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an Firebase implementation of identity stores.
         /// </summary>
+        /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
+        /// <param name="configure">Action to configure AuthTokenOptions</param>
+        /// <param name="authFilePath">The path where to store the authentication file extracted from config.</param>
+        /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
+        /// <param name="emulatorHostAndPort">Firestore Emulator Host and Port. Connect to the emulator if a value passed, or production otherwise.</param>
+        /// <returns>
+        /// The <see cref="IdentityBuilder" /> instance this method extends.
+        /// </returns>
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, string authFilePath, Action<FirestoreTableNamesConfig> tableNames = null, string emulatorHostAndPort = null)
+        {
+            UseEmulator(emulatorHostAndPort);
+
+            var services = builder.Services;
+            services.Configure(configure)
+                .AddScoped(provider =>
+                {
+                    var authOptions = StoreAuthFile(provider, authFilePath);
+                    return new FirestoreDbBuilder
+                    {
+                        ProjectId = authOptions.Value.project_id,
+                        EmulatorDetection = Google.Api.Gax.EmulatorDetection.EmulatorOrProduction
+                    }.Build();
+                });
+
+            AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds an Firebase implementation of identity stores.
+        /// </summary>
         /// <param name="builder">The <see cref="IdentityBuilder"/> instance this method extends.</param>
         /// <param name="configure">Action to configure AuthTokenOptions</param>
         /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
+        /// <param name="emulatorHostAndPort">Firestore Emulator Host and Port. Connect to the emulator if a value passed, or production otherwise.</param>
         /// <returns>The <see cref="IdentityBuilder"/> instance this method extends.</returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, Action<FirestoreTableNamesConfig> tableNames = null)
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, Action<FirestoreTableNamesConfig> tableNames = null, string emulatorHostAndPort = null)
         {
+            UseEmulator(emulatorHostAndPort);
+
             var services = builder.Services;
             services.Configure(configure)
                 .AddScoped(provider =>
                 {
                     var authOptions = StoreAuthFile(provider, Path.GetTempFileName());
-                    var client = FirestoreClient.Create();
-
-                    return FirestoreDb.Create(authOptions.Value.project_id, client: client);
+                    return new FirestoreDbBuilder
+                    {
+                        ProjectId = authOptions.Value.project_id,
+                        EmulatorDetection = Google.Api.Gax.EmulatorDetection.EmulatorOrProduction
+                    }.Build();
                 });
             AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
             return builder;
@@ -45,24 +81,26 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds an Firebase implementation of identity stores.
         /// </summary>
         /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
-        /// <param name="configure">Action to configure AuthTokenOptions</param>
-        /// <param name="authFilePath">The path where to store the authentication file extracted from config.</param>
+        /// <param name="projectId">The project identifier.</param>
         /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
+        /// <param name="emulatorHostAndPort">Firestore Emulator Host and Port. Connect to the emulator if a value passed, or production otherwise.</param>
         /// <returns>
         /// The <see cref="IdentityBuilder" /> instance this method extends.
         /// </returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, Action<OAuthServiceAccountKey> configure, string authFilePath, Action<FirestoreTableNamesConfig> tableNames = null)
+        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, string projectId, Action<FirestoreTableNamesConfig> tableNames = null, string emulatorHostAndPort = null)
         {
+            UseEmulator(emulatorHostAndPort);
+
             var services = builder.Services;
-            services.Configure(configure)
+            services
                 .AddScoped(provider =>
                 {
-                    var authOptions = StoreAuthFile(provider, authFilePath);
-                    var client = FirestoreClient.Create();
-
-                    return FirestoreDb.Create(authOptions.Value.project_id, client: client);
+                    return new FirestoreDbBuilder
+                    {
+                        ProjectId = projectId,
+                        EmulatorDetection = Google.Api.Gax.EmulatorDetection.EmulatorOrProduction
+                    }.Build();
                 });
-            
             AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
             return builder;
         }
@@ -72,28 +110,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var tableNamesConfig = new FirestoreTableNamesConfig();
             tableNames?.Invoke(tableNamesConfig);
             return tableNamesConfig;
-        }
-
-        /// <summary>
-        /// Adds an Firebase implementation of identity stores.
-        /// </summary>
-        /// <param name="builder">The <see cref="IdentityBuilder" /> instance this method extends.</param>
-        /// <param name="projectId">The project identifier.</param>
-        /// <param name="tableNames">Action to configure table names (Firestore Collections). If null, fallbacks to defaults <see cref="FirestoreTableNamesConfig.Defaults"/></param>
-        /// <returns>
-        /// The <see cref="IdentityBuilder" /> instance this method extends.
-        /// </returns>
-        public static IdentityBuilder AddFirestoreStores(this IdentityBuilder builder, string projectId, Action<FirestoreTableNamesConfig> tableNames = null)
-        {
-            var services = builder.Services;
-            services
-                .AddScoped(provider =>
-                {
-                    var client = FirestoreClient.Create();
-                    return FirestoreDb.Create(projectId, client: client);
-                });
-            AddStores(services, builder.UserType, builder.RoleType, ResolveFirestoreTableNamesConfig(tableNames));
-            return builder;
         }
 
         private static IOptions<OAuthServiceAccountKey> StoreAuthFile(IServiceProvider provider, string authFilePath)
@@ -148,7 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
-                var genericType = type.IsGenericType ? type: null;
+                var genericType = type.IsGenericType ? type : null;
                 if (genericType != null && genericType == genericBaseType)
                 {
                     return typeInfo;
@@ -156,6 +172,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 type = type.BaseType;
             }
             return null;
+        }
+
+        private static void UseEmulator(string emulatorHostAndPort)
+        {
+#if DEBUG
+            if (!string.IsNullOrEmpty(emulatorHostAndPort))
+                Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", emulatorHostAndPort);
+#endif
         }
     }
 }
