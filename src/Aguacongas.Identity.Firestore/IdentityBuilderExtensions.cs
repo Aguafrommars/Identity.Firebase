@@ -176,10 +176,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void UseEmulator(string emulatorHostAndPort)
         {
-#if DEBUG
             if (!string.IsNullOrEmpty(emulatorHostAndPort))
                 Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", emulatorHostAndPort);
-#endif
         }
     }
 }
