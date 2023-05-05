@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(configure)
                 .AddScoped(provider =>
                 {
-                    var authOptions = StoreAuthFile(provider, Path.GetTempFileName());
+                    var authOptions = StoreAuthFile(provider, Path.GetRandomFileName());
                     return new FirestoreDbBuilder
                     {
                         ProjectId = authOptions.Value.project_id,

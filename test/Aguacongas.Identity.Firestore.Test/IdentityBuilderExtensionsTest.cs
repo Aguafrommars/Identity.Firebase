@@ -14,6 +14,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_AuthTokenOptionsTest()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
@@ -38,6 +39,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_AuthTokenOptions_and_file_Test()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
@@ -63,6 +65,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_project_id_Test()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
@@ -97,6 +100,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_AuthTokenOptions_and_EmulatorHostAndPort_Test()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
@@ -121,6 +125,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_AuthTokenOptions_file_and_EmulatorHostAndPort_Test()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
@@ -146,6 +151,7 @@ namespace Aguacongas.Identity.Firestore.Test
         [Fact]
         public void AddFirebaseStores_with_project_id_and_EmulatorHostAndPort_Test()
         {
+            Environment.SetEnvironmentVariable("FIRESTORE_EMULATOR_HOST", null);
             var builder = new ConfigurationBuilder();
             var configuration = builder
                 .AddEnvironmentVariables()
