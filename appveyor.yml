@@ -13,7 +13,7 @@ image:
 - Visual Studio 2019
 environment:
   GH_TOKEN:
-    secure: 01BiLL1kdV7X6Y7RjFyKPYwMEQr6vEpyLsGwqnRqHpMY7AyGlPdktsUH4L5A9vR6
+    secure: /o9VAhx5ewGmdLR9qcgFJMzBaCuzOmGlsXAHu7khUJLdQzsv4gJzLUfYDghcRPHd
   access_token:
     secure: yQcU3EbE3/jaIhwn6e+n76xzcQ+tGXXdIZAmA3Z8ssj5IEYPehthJkLYhhNEmw21
   EmailPasswordOptions:ApiKey:
@@ -24,7 +24,7 @@ environment:
     secure: h7zhWIG5sQBVM6loU77ClQ==
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 5.0.202
+  donetsdk: 7.0.202
 init:
     - cmd: git config --global core.autocrlf true
 install:
@@ -37,9 +37,10 @@ install:
     - sh: sudo ./dotnet-install.sh -Channel Current -Version $donetsdk -InstallDir ./dotnetsdk -NoPath
     - sh: export PATH=/home/appveyor/projects/identity-firebase/dotnetsdk:$PATH
     - sh: sudo apt -y install nuget
-    - ps: if ($isWindows) { ./dotnet-install.ps1 -Version $env:donetsdk }
+    - cmd: pwsh ./dotnet-install.ps1 -Version 6.0.406 -InstallDir "C:\Program Files\dotnet"
     - ps: dotnet tool install --global GitVersion.Tool
     - ps: dotnet gitversion /l console /output buildserver
+    - cmd: pwsh ./dotnet-install.ps1 -Version %donetsdk% -InstallDir "C:\Program Files\dotnet"
     - ps: dotnet tool install --global dotnet-sonarscanner
     - cmd: nuget install ReportGenerator -ExcludeVersion
     - nuget install secure-file -ExcludeVersion
@@ -60,7 +61,7 @@ artifacts:
 deploy:
     - provider: NuGet
       api_key:
-        secure: HBPD3UCWOLjcV92x7rGXzAoc4v6pXTY9EOrniVg3ENacY0VVx2m8nEtG4cBi+qm7
+        secure: L5Ol2yiygLW8nUF6j5/rwx4feonMPly+S69GjoX1ilEUklPMixlX5RW2l8FJScNK
       on:
         branch:
         - /preview\/*/ 
