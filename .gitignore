@@ -299,3 +299,4 @@ __pycache__/
 coverage.cobertura.xml
 .sonarqube/
 secure-file/
+global.json

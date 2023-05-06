@@ -37,7 +37,7 @@ namespace IdentitySample
                 .AddFirestoreStores(options =>
                 {
                     Configuration.GetSection("AuthTokenOptions").Bind(options);
-                })
+                }, emulatorHostAndPort: "127.0.0.1:8085")
                 .AddDefaultTokenProviders();
 
             var twitterConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
