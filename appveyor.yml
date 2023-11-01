@@ -1,6 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
-stack: node 10
+stack: node 18
 skip_commits:
   message: /chore(release)/
 branches:
@@ -24,7 +24,7 @@ environment:
     secure: h7zhWIG5sQBVM6loU77ClQ==
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 7.0.202
+  donetsdk: 7.0.403
 init:
     - cmd: git config --global core.autocrlf true
 install:
