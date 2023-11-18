@@ -21,10 +21,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Apis.Auth" Version="1.63.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.64.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
