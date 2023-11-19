@@ -18,36 +18,36 @@ namespace Aguacongase.Identity.Firebase.Test
     public class FirebaseClientTest
     {
         [Fact]
-        public void PostAsync_should_throw_argument_null_exception_if_url_is_null()
+        public async Task PostAsync_should_throw_argument_null_exception_if_url_is_null()
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             });
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync(null, ""));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync(null, ""));
         }
 
         [Fact]
-        public void PostAsync_should_throw_argument_null_exception_if_url_is_empty()
+        public async Task PostAsync_should_throw_argument_null_exception_if_url_is_empty()
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             });
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync("", ""));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync("", ""));
         }
 
         [Fact]
-        public void PostAsync_should_throw_argument_null_exception_if_data_is_null()
+        public async Task PostAsync_should_throw_argument_null_exception_if_data_is_null()
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             });
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync<string>("/", null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.PostAsync<string>("/", null));
         }
 
         [Fact]
@@ -70,14 +70,14 @@ namespace Aguacongase.Identity.Firebase.Test
         }
 
         [Fact]
-        public void PutAsync_should_throw_argument_null_exception_if_data_is_null()
+        public async Task PutAsync_should_throw_argument_null_exception_if_data_is_null()
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             });
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => sut.PutAsync<string>("/", null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.PutAsync<string>("/", null));
         }
 
         [Fact]
@@ -101,14 +101,14 @@ namespace Aguacongase.Identity.Firebase.Test
 
 
         [Fact]
-        public void PatchAsync_should_throw_argument_null_exception_if_data_is_null()
+        public async Task PatchAsync_should_throw_argument_null_exception_if_data_is_null()
         {
             var sut = CreateSut((request, cancellationToken) =>
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
             });
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => sut.PatchAsync<string>("/", null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.PatchAsync<string>("/", null));
         }
 
         [Fact]
