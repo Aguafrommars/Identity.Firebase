@@ -5,7 +5,7 @@
         <Company>Olivier Lefebvre</Company>
         <Description>Firebase authentication for .NetStandard2.0 and .NetFramework 4.6.2</Description>
         <Copyright>Olivier Lefebvre @2018</Copyright>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
+        <PackageLicense>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicense>
         <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
         <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -22,9 +22,10 @@
 
     <ItemGroup>
         <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+        <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
