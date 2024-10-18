@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Company>Olivier Lefebvre</Company>
     <Description>Firebase client for .NetStandard2.0 and .NetFramework 4.6.2</Description>
     <Copyright>Olivier Lefebvre @2018</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
     <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />	  
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
