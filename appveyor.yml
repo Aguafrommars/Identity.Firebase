@@ -22,12 +22,12 @@ environment:
     secure: h7zhWIG5sQBVM6loU77ClQ==
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 9.0.101
+  donetsdk: 9.0.102
 init:
     - cmd: git config --global core.autocrlf true
 install:
     - ps: if ($isWindows) { Install-Product node '' }
-    - cmd: pwsh ./dotnet-install.ps1 -Version 6.0.406 -InstallDir "C:\Program Files\dotnet"
+    - cmd: pwsh ./dotnet-install.ps1 -Version 8.0.405 -InstallDir "C:\Program Files\dotnet"
     - ps: dotnet tool install --global GitVersion.Tool
     - ps: dotnet gitversion /l console /output buildserver
     - cmd: pwsh ./dotnet-install.ps1 -Version %donetsdk% -InstallDir "C:\Program Files\dotnet"
