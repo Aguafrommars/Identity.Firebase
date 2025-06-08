@@ -41,6 +41,7 @@ if ($isLinux) {
         $path = $_.FullName
         $merge = "$merge;$path"
     }
+    $merge = $merge.TrimStart(';')
     Write-Host $merge
     ReportGenerator\tools\net9.0\ReportGenerator.exe "-reports:$merge" "-targetdir:coverage" "-reporttypes:SonarQube"
     
