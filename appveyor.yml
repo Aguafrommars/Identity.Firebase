@@ -22,7 +22,7 @@ environment:
     secure: h7zhWIG5sQBVM6loU77ClQ==
   decrypt_secret:
     secure: BDKOW5teXcJUwLqekbf6VQ==
-  donetsdk: 9.0.300
+  donetsdk: 9.0.301
 init:
     - cmd: git config --global core.autocrlf true
 install:
