@@ -1,3 +1,5 @@
+.\clean.ps1
+dotnet restore
 $fileversion = "$env:SemVer.0" 
 Get-ChildItem -Path src -rec `
 | Where-Object { $_.Name -like "*.csproj"
