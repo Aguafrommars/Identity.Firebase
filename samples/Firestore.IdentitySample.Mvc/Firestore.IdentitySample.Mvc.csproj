@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Identity sample MVC application on ASP.NET Core</Description>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <UserSecretsId>Firestore.IdentitySample.Mvc</UserSecretsId>
     <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
