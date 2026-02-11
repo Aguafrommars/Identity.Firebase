@@ -18,16 +18,16 @@
   <ItemGroup>
     <PackageReference Include="Aguacongas.Identity.Firebase" Version="3.3.2" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.3" />
   </ItemGroup>
 </Project>
