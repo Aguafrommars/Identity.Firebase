@@ -11,7 +11,7 @@ Get-ChildItem -rec `
 }
 
 Get-ChildItem -rec `
-| Where-Object { $_.Name -eq "bin" } `
+| Where-Object { $_.Name -eq "bin" -and $_.Parent.Name -ne ".sonarqube" }
 | ForEach-Object {
 	Remove-Item  $_.FullName -Recurse
 }
