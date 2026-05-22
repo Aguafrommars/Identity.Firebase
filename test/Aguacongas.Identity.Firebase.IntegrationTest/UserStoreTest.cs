@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
@@ -37,14 +38,16 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
             services.AddFirebaseClient(_fixture.Configuration["FirebaseOptions:DatabaseUrl"], provider =>
             {
                 var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
-                var json = JsonConvert.SerializeObject(options?.Value ?? throw new ArgumentNullException(nameof(options)));
-                return GoogleCredential.FromJson(json)
+                var json = JsonConvert.SerializeObject(options?.Value);
+                using var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json));
+                var specificCredential = CredentialFactory.FromStream<ServiceAccountCredential>(ms);
+                return specificCredential.ToGoogleCredential()
                     .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
                     .UnderlyingCredential;
             });
 
             var userType = typeof(TestUser);
-            var userStoreType = typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
+            typeof(UserStore<,>).MakeGenericType(userType, typeof(TestRole));
             services.TryAddSingleton(typeof(UserOnlyStore<>).MakeGenericType(userType), provider => new UserOnlyStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetService<IdentityErrorDescriber>()));
             services.TryAddSingleton(typeof(IUserStore<>).MakeGenericType(userType), provider => new UserStoreStub(_fixture.TestDb, provider.GetRequiredService<IFirebaseClient>(), provider.GetRequiredService<UserOnlyStore<TestUser>>(), provider.GetService<IdentityErrorDescriber>()));
         }
@@ -90,7 +93,7 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
         protected override Expression<Func<TestRole, bool>> RoleNameStartsWithPredicate(string roleName) => r => r.Name != null && r.Name.StartsWith(roleName);
 
-        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName != null &&  u.UserName.StartsWith(userName);
+        protected override Expression<Func<TestUser, bool>> UserNameStartsWithPredicate(string userName) => u => u.UserName != null && u.UserName.StartsWith(userName);
 
         [Fact]
         [Trait("firebase", "firebase")]
@@ -112,10 +115,11 @@ namespace Aguacongas.Identity.Firebase.IntegrationTest
 
             var rules = await client.GetAsync<FirebaseRules>(".settings/rules.json");
 
-            rules.Data.Rules[_fixture.TestDb] = new Dictionary<string, object>(){ { "users", new UserIndex() } };
+            rules.Data.Rules[_fixture.TestDb] = new Dictionary<string, object>() { { "users", new UserIndex() } };
             await client.PutAsync(".settings/rules.json", rules.Data);
 
             var users = await client.GetAsync<Dictionary<string, TestUser>>(_fixture.TestDb + "/users", queryString: "orderBy=\"NormalizedEmail\"&equalTo=\"2\"");
+            Assert.NotNull(users);
         }
     }
 }
