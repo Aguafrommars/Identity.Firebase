@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -67,9 +68,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     var options = provider.GetRequiredService<IOptions<OAuthServiceAccountKey>>();
                     var json = JsonConvert.SerializeObject(options?.Value ?? throw new NotSupportedException($"{nameof(options)} is null"));
-                    return GoogleCredential.FromJson(json)
-                        .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
-                        .UnderlyingCredential;
+                    using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
+                    {
+                        var specificCredential = CredentialFactory.FromStream<ServiceAccountCredential>(ms);
+                        return specificCredential.ToGoogleCredential()
+                            .CreateScoped("https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/firebase.database")
+                            .UnderlyingCredential;
+                    }
+
                 }, httpClientName);
         }
 
@@ -110,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
-                var genericType = type.IsGenericType ? type: null;
+                var genericType = type.IsGenericType ? type : null;
                 if (genericType != null && genericType == genericBaseType)
                 {
                     return typeInfo;
