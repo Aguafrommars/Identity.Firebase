@@ -21,7 +21,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Apis.Auth" Version="1.74.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.10" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.8" />
         <PackageReference Include="System.Text.Encodings.Web" Version="10.0.8" />
