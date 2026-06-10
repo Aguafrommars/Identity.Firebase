@@ -1,5 +1,5 @@
 ﻿// Project: aguacongas/Identity.Firebase
-// Copyright (c) 2020 @Olivier Lefebvre
+// Copyright (c) 2026 @Olivier Lefebvre
 using System.Threading;
 using System.Threading.Tasks;
 
