@@ -10,7 +10,6 @@
 		<RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>identity firebase</PackageTags>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
@@ -21,6 +20,11 @@
 		<CodeAnalysisRuleSet>Aguacongas.Identity.Firebase.ruleset</CodeAnalysisRuleSet>
 		<NoWarn>1701;1702</NoWarn>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.10" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Aguacongas.Firebase\Aguacongas.Firebase.csproj" />
