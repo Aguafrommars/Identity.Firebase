@@ -11,7 +11,7 @@ namespace Aguacongas.Firebase.Http
     /// <summary>
     /// Firebase Authentication Delegating Handler
     /// </summary>
-    public class FirebaseAuthenticationHandler: DelegatingHandler
+    public class FirebaseAuthenticationHandler : DelegatingHandler
     {
         private readonly IFirebaseTokenManager _tokenManager;
 
@@ -29,7 +29,7 @@ namespace Aguacongas.Firebase.Http
         /// </summary>
         /// <param name="tokenManager">The token manager to use</param>
         /// <param name="innerHandler">An inner delegating handler</param>
-        public FirebaseAuthenticationHandler(IFirebaseTokenManager tokenManager, DelegatingHandler innerHandler): base(innerHandler)
+        public FirebaseAuthenticationHandler(IFirebaseTokenManager tokenManager, DelegatingHandler innerHandler) : base(innerHandler)
         {
             _tokenManager = tokenManager ?? throw new ArgumentNullException(nameof(tokenManager));
         }

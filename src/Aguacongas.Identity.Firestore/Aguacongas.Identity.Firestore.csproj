@@ -1,32 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-    <Company>Olivier Lefebvre</Company>
-    <Description>Identity stores implementation for Firestore</Description>
-    <Copyright>Olivier Lefebvre @2018</Copyright>
-    <PackageLicense>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicense>
-    <PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>identity firestore</PackageTags>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+		<Company>Olivier Lefebvre</Company>
+		<Description>Identity stores implementation for Firestore</Description>
+		<Copyright>Olivier Lefebvre @2018</Copyright>
+		<PackageLicense>https://raw.githubusercontent.com/aguacongas/Identity.Firebase/develop/LICENSE</PackageLicense>
+		<PackageProjectUrl>https://github.com/aguacongas/Identity.Firebase</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>identity firestore</PackageTags>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+		<CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+		<CodeAnalysisRuleSet>Aguacongas.Identity.Firestore.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.10" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="4.3.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.10" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+		<PackageReference Include="Google.Cloud.Firestore" Version="4.2.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Aguacongas.Firebase.Authentication\Aguacongas.Firebase.Authentication.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Aguacongas.Firebase.Authentication\Aguacongas.Firebase.Authentication.csproj" />
+	</ItemGroup>
 
 </Project>
