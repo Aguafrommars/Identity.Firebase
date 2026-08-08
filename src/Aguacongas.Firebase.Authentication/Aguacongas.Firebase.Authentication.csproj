@@ -10,7 +10,8 @@
         <RepositoryUrl>https://github.com/aguacongas/Identity.Firebase</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>identity firebase</PackageTags>
-    </PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
       <CodeAnalysisRuleSet>Aguacongas.Firebase.Authentication.ruleset</CodeAnalysisRuleSet>
@@ -20,7 +21,8 @@
       <CodeAnalysisRuleSet>Aguacongas.Firebase.Authentication.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
-    <ItemGroup>
+	
+    <ItemGroup>		
         <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.11" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
